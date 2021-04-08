@@ -11,7 +11,7 @@ As the primary arena for viral misinformation shifts toward transnational threat
 -Figures_in_Main_Paper.R
 -Figures_Tables_In_Appendix.R
 
-There are four directories:
+There are five directories:
 
 (1) Code: In the code directory there lies two R files that produce important figures and tables in the main document and the supplementary methods and materials:
 
