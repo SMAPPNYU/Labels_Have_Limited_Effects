@@ -1,4 +1,22 @@
-#Load in libraries:
+
+########################################################################################################################################################
+### Title: News Credibility Labels Improve News Diets, Reduce Misperceptions, and Increase Media Trust
+### Authors: Kevin Aslett, Andrew Guess, Jonathan Nagler, Richard Bonneaua, and Joshua A. Tucker
+### Purpose of code: Produce figures and tables of analyses that are displayed in the supplementary materials and methods
+
+##### Data In:
+# (1) ./Data/Clean_NewsGuard_Digital_Trace_Data.csv
+# (2) ./Data/Clean_NewsGuard_Survey_Study.csv
+# (3) './Data/NYUU0017_w1_OUTPUT.csv'
+# (4) './Data/NYUU0017_w2_OUTPUT.csv'
+# (5) ./Data/NewsGuard_Ratings.csv
+# (6) ./Data/pulsebyday.csv
+
+##### Data Out: NONE
+
+########################################################################################################################################################
+
+#Load libraries:
 library(dplyr)
 library(xtable)
 library(AER)
@@ -13,8 +31,6 @@ library(haven)
 library(dplyr)
 library(tidyverse)
 library(ivdesc)
-
-#Establish set working directory: 
 
 #Read in survey data with digital trace data:
 Pulse_data <- read_csv('./Data/Clean_NewsGuard_Digital_Trace_Data.csv',
@@ -127,7 +143,7 @@ data_frame_1 <- read_csv('./Data/Clean_NewsGuard_Survey_Study.csv',
 
 data_frame_1 <- data_frame_1[order(data_frame_1$visa1),]
 
-#Table 1: Descriptive statistics for sample by treatment and control groups:
+#Table 1: Produce Descriptive statistics for sample by treatment and control groups:
 
 Summary_stats <- data_frame_1 %>% mutate(Groups = ifelse(Treated == 1 & !is.na(Pulse_Dummy),'Treated and we have digital trace data','Treated and we do not have digital trace data'))
 Summary_stats <- Summary_stats %>% mutate(Groups = ifelse(Treated == 0 & !is.na(Pulse_Dummy),'Control and we have digital trace data',Groups))
@@ -155,6 +171,7 @@ mean_data_groups <- unique(mean_data_groups)
 
 mean_data_groups <- merge(count_groups,mean_data_groups,by='Groups') 
 
+#Create Xtable Object:
 xt <- xtable(mean_data_groups,
              digits=2,
              align=c(
@@ -164,19 +181,22 @@ xt <- xtable(mean_data_groups,
                "p{1.5cm}|","p{1.5cm}|",
                "p{1.5cm}|","p{1.5cm}|"))
 
+#Name Columns:
 names(xt) <- c('Group','Observ.','Age','Dig. Lit.','Income','Gender (Prop. Female)','Race (Prop. White)','Education','Ideology' )
 
+#Write Table:
 write(print(xt,include.rownames=FALSE,
       sanitize.colnames.function = identity),file='./Tables/Table_2.txt')
 
 
 
+
 #Table 2: Descriptive statistics for sample by treatment and control groups by attrition:
 
-
-
+#Read in Data:
 Wave_1_Data <- read.csv('./Data/NYUU0017_w1_OUTPUT.csv')
 Wave_2_Data <- read.csv('./Data/NYUU0017_w2_OUTPUT.csv')
+
 #Change the columnnames that were the same in wave 1 and wave 2
 colnames(Wave_2_Data)[89:114] <- c('operating_system_w2',
                                    'web_browser_w2',
@@ -213,14 +233,11 @@ colnames(Wave_2_Data)[5] <- c('visa1_w2')
 Waves <- merge(Wave_1_Data,Wave_2_Data,by.x='caseid',by.y='caseid_w1',all='T')
 
 Attrition <- Waves %>% select(caseid,caseid_w2)
-
 Attrition <- Attrition %>% mutate(Both_Waves = ifelse(is.na(caseid_w2),0,1)) %>% select(caseid,Both_Waves)
-
 Attrition_Data <- merge(Wave_1_Data,Attrition,by='caseid')
 
 
-#Treatment
-
+# Create Treatment Variable
 Attrition_Data$plugin_treat <- as.character(Attrition_Data$plugin_treat)
 Attrition_Data$Treated <- ifelse(Attrition_Data$plugin_treat == 'Offered plug-in',1,0)
 
@@ -338,15 +355,10 @@ Attrition_Data$SMP8201 <- factor(Attrition_Data$SMP8201, levels = c('Very libera
 Attrition_Data$ideo_score <- as.numeric(Attrition_Data$SMP8201) - 4
 
 
-#Calculating Attrition Rates
-
-
+#Calculate statistics for treatment group by attrition
 Attrition_Data <- Attrition_Data %>% mutate(Groups = ifelse(Treated == 1 & Both_Waves == 0,'Treated and did not take the Wave 2 survey','Treated and took both surveys'))
 Attrition_Data <- Attrition_Data %>% mutate(Groups = ifelse(Treated == 0 & Both_Waves == 0,'Control and did not take the Wave 2 survey',Groups))
 Attrition_Data <- Attrition_Data %>% mutate(Groups = ifelse(Treated == 0 & Both_Waves == 1,'Control and took both surveys',Groups))
-
-
-
 
 data_groups <- Attrition_Data %>% group_by(Groups) %>% mutate(Mean_Age = mean(Age,na.rm=T))
 data_groups <- data_groups %>% group_by(Groups) %>% mutate(Mean_DL = mean(Total_DL,na.rm=T))
@@ -370,6 +382,9 @@ mean_data_groups <- unique(mean_data_groups)
 
 mean_data_groups <- merge(count_groups,mean_data_groups,by='Groups') 
 
+
+
+#Create Xtable Object:
 xt <- xtable(mean_data_groups,
              digits=2,
              align=c(
@@ -379,8 +394,10 @@ xt <- xtable(mean_data_groups,
                "p{1.5cm}|","p{1.5cm}|",
                "p{1.5cm}|","p{1.5cm}|"))
 
+#Name Columns:
 names(xt) <- c('Group','Observ.','Age','Dig. Lit.','Income','Gender (Prop. Female)','Race (Prop. White)','Education','Ideology' )
 
+#Write Table:
 write(print(xt,include.rownames=FALSE,
             sanitize.colnames.function = identity),file='./Tables/Table_1.txt')
 
@@ -418,33 +435,27 @@ Pulse_data$Average_domain_NewsG_Score <- (Pulse_data$Average_domain_NewsG_Score-
 #Estimate means along various dimensions for respondents who would install the NewsGuard web browser extension if and only if they are assigned to receive it (“compliers”) and those who would not under any circumstances (“never-takers”) computed following the procedure in Marbach and Hangartner (2020).
 #All respondents:
 
+#Only select variabels needed:
 dat <- data_frame_1 %>% 
   select(Total_DL,race_white,income_score,dem_dummy,rep_dummy,educ_score,gender_dummy_fem,Age,Treated,Complied) %>% 
   gather(var,val,-Treated,-Complied)
-
 dat <- na.omit(dat)
 
+#Set pre-registred seed
 set.seed(983)
+
+
+#Bootstrap
 res <- dat %>% group_by(var) %>% do(m=ivdesc(X=.$val,D=.$Complied,Z=.$Treated, bootn=2000, boot=TRUE))
-
-
 res_1 <- res
-
-res_1$m
-
-# Combine 
 res <- unnest(res)
 
-resA <- res %>% filter(var=="Age") %>% 
-  select(group,pi,pi_se) %>% 
-  mutate(var="proportion") %>% 
-  rename(mu=pi,mu_se=pi_se)
-
+#Pull statistics from bootstrapping:
 resB <- res %>% 
   select(var,group,mu,mu_se)
 
 
-
+#Create confidence intervals:
 res <- resB %>% 
   mutate(lo=mu+mu_se*qnorm(0.025), 
          hi=mu+mu_se*qnorm(0.975))
@@ -452,25 +463,32 @@ res <- resB %>%
 # Figure 1 
 ##########
 
+
+
+#Variables
 flabso <- c("Total_DL","race_white","income_score","dem_dummy",
             "rep_dummy","educ_score","gender_dummy_fem","Age")
 
-glabso <- rev(c("sample", "co", "nt", "at"))
 
+
+#Samples
+glabso <- rev(c("sample", "co", "nt", "at"))
 res <- ungroup(res) %>% 
   mutate(var=factor(var, levels=flabso),
          group=factor(group, levels=glabso))
 
-flabs <- as_labeller(
-  c())
 
 
+#Set labels for types of samples
 xlabs <- c("co"="Complier", "nt"="Never-taker", 
            "at"="Always-taker", sample="Sample")
 
+
+#We do not include the always-taker group, because it is rare:
 res <- res %>% filter(group!='at')
 
 
+#Set placement of confidence interval lines:
 res$x <- c(0.95,0.85,0.75,1.5,1.4,1.3,2.0,1.9,1.8,2.5,2.4,2.3,3.0,2.9,2.8,3.5,3.4,3.3,4.0,3.9,3.8,4.5,4.4,4.3)
 
 
@@ -507,58 +525,58 @@ ggsave("./Figures/fig_1.png", width=11)
 
 
 
-#Those with whom we have digital trace data:
+#Estimate means along various dimensions for respondents who would install the NewsGuard web browser extension if and only if they are assigned to receive it (“compliers”) and those who would not under any circumstances (“never-takers”) computed following the procedure in Marbach and Hangartner (2020).
+#Only Those with whom we have digital trace data:
 
+
+
+
+#Only select variabels needed:
 dat <- Pulse_data %>% 
   select(Total_DL,race_white,income_score,dem_dummy,rep_dummy,educ_score,gender_dummy_fem,Age,Prop_Unreliable_NewsG_Score,Average_domain_NewsG_Score,Treated,Complied) %>% 
   gather(var,val,-Treated,-Complied)
-
 dat <- na.omit(dat)
 
+
+#Set pre-registred seed
 set.seed(983)
+#Bootstrap
 res <- dat %>% group_by(var) %>% do(m=ivdesc(X=.$val,D=.$Complied,Z=.$Treated, bootn=2000, boot=TRUE))
-
-
 res_1 <- res
-
-res_1$m
-
-# Combine 
 res <- unnest(res)
 
-resA <- res %>% filter(var=="Age") %>% 
-  select(group,pi,pi_se) %>% 
-  mutate(var="proportion") %>% 
-  rename(mu=pi,mu_se=pi_se)
-
-resB <- res %>% 
+#Pull statistics from bootstrapping:
+res <- res %>% 
   select(var,group,mu,mu_se)
 
-res <- resB %>% 
+
+#Create confidence intervals:
+res <- res %>% 
   mutate(lo=mu+mu_se*qnorm(0.025), 
          hi=mu+mu_se*qnorm(0.975))
 
+#Variables
 flabso <- c("Total_DL","race_white","income_score","dem_dummy",
             "rep_dummy","educ_score","gender_dummy_fem","Age",
             "Prop_Unreliable_NewsG_Score","Average_domain_NewsG_Score")
 
+#Samples
 glabso <- rev(c("sample", "co", "nt", "at"))
-
 res <- ungroup(res) %>% 
   mutate(var=factor(var, levels=flabso),
          group=factor(group, levels=glabso))
 
-flabs <- as_labeller(
-  c())
 
-
+#Set labels for types of samples
 xlabs <- c("co"="Complier", "nt"="Never-taker", 
            "at"="Always-taker", sample="Sample")
 
+#We do not include the always-taker group, because it is rare:
 res <- res %>% filter(group!='at')
 
-
+#Set placement of confidence interval lines:
 res$x <- c(0.95,0.85,0.75,1.5,1.4,1.3,2.0,1.9,1.8,2.5,2.4,2.3,3.0,2.9,2.8,3.5,3.4,3.3,4.0,3.9,3.8,4.5,4.4,4.3,5.0,4.9,4.8,5.5,5.4,5.3)
+
 
 #Figure 2: Profile of compliers and never-takers with whom we collect web-browsing data
 
@@ -597,14 +615,14 @@ ggsave("./Figures/fig_2.png", width=11)
 
 
 
-#Figure 3: Histogram of NewsGuard Scores
+#Figure 3: Histogram of NewsGuard Scores - Data Cannot be shared
 
-NG_Rating <- read.csv('./Data/NewsGuard_Ratings.csv')
+#NG_Rating <- read.csv('./Data/NewsGuard_Ratings.csv')
 
-png(file="./Figures/fig_3.png",
-    width=600, height=350)
-hist(NG_Rating$Score,col='grey')
-dev.off()
+#png(file="./Figures/fig_3.png",
+#    width=600, height=350)
+#hist(NG_Rating$Score,col='grey')
+#dev.off()
 
 
 
@@ -733,7 +751,7 @@ data_frame_1 <- read_csv('./Data/Clean_NewsGuard_Survey_Study.csv',
                            Safari_dummy=col_double()
                          ))
 
-
+#Set order of dataset:
 data_frame_1 <- data_frame_1[order(data_frame_1$visa1),]
 
 
@@ -765,6 +783,7 @@ list_possible_covariates <- c("gender_dummy_fem",
                               "log_news")
 
 
+#Create Sets of variables to use in models:
 var1 <- list('variables'=c('Prop_Unreliable_NewsG_Score_dv',
                                          'Prop_Unreliable_NewsG_Score'))
 
@@ -833,6 +852,7 @@ Tables_title <-  c('./Tables/Table_3.txt',
                    './Tables/Table_11.txt',
                    './Tables/Table_12.txt')
 
+#Create crosswalk for variables and display names:
 top_attribute_names <- c("gender_dummy_fem",
   "educ_score",
   'Treated',
@@ -930,12 +950,7 @@ for(i in 1:length(list_variables_to_run)){
   #names_of_columns
   
   #Reporting unadjusted (differences in means) and covariate-adjusted 
-  #(OLS) estimates of treatment effects. We will use HC2 robust standard errors in all analyses and report 
-  #$p$-values from two-tailed $t$-tests.
-  
-  
-  #Reporting unadjusted (differences in means) and covariate-adjusted 
-  #(OLS) estimates of treatment effects. We will use HC2 robust standard errors in all analyses and report 
+  #estimates of treatment effects. We will use HC2 robust standard errors in all analyses and report 
   #$p$-values from two-tailed $t$-tests.
   
   names_of_columns <- c('Treated',names_of_columns)
@@ -954,7 +969,6 @@ for(i in 1:length(list_variables_to_run)){
   f <- paste0(list_variables_to_run[[i]][1], " ~ .")
   
   ITT_Model <- lm_robust(as.formula(f), data = data_for_analysis)
-  summary(ITT_Model)
   
   
   names_of_columns_2 <- c(names_of_columns,'compliance_check_1')
@@ -998,6 +1012,7 @@ for(i in 1:length(list_variables_to_run)){
   Variable_Names <- names(CACE_Model_2$coefficients)[-1]
   Variable_Names <- str_replace_all(Variable_Names, top_attributes_html)
   
+  #Write Table
 texreg(list(ITT_Model,CACE_Model_1,CACE_Model_2),
          include.ci = FALSE,
          digits=4,
@@ -1038,6 +1053,7 @@ list_possible_covariates <- c("gender_dummy_fem",
                               "cons_mobile",
                               "Safari_dummy")
 
+#Create Sets of variables to use in models:
 var11 <- list('variables'=c('BLM_Misinfo_Index_w2'))
 var12 <- list('variables'=c('BLM_info_Index_w2'))
 var13 <- list('variables'=c('Covid_Misinfo_Index_w2'))
@@ -1111,6 +1127,7 @@ Tables_title <-  c('./Tables/Table_13.txt',
                    './Tables/Table_25.txt',
                    './Tables/Table_26.txt')
 
+#Create crosswalk for variables and display names:
 top_attribute_names <- c("gender_dummy_fem",
                          "educ_score",
                          'Treated',
@@ -1239,7 +1256,6 @@ for(i in 1:length(list_variables_to_run)){
   f <- paste0(list_variables_to_run[[i]][1], " ~ .")
   
   ITT_Model <- lm_robust(as.formula(f), data = data_for_analysis)
-  summary(ITT_Model)
   
   
   names_of_columns_2 <- c(names_of_columns,'compliance_check_1')
@@ -1284,9 +1300,8 @@ for(i in 1:length(list_variables_to_run)){
   Variable_Names <- names(CACE_Model_2$coefficients)[-1]
   Variable_Names <- str_replace_all(Variable_Names, top_attributes_html)
   
-  ####MATCHING WITH VARIABLES####
-  #Match names_of_columns_3 with actual names
-  
+
+  #Write Table
 texreg(list(ITT_Model,CACE_Model_1,CACE_Model_2),
                      include.ci = FALSE,
                      digits=4,
@@ -1327,7 +1342,7 @@ list_possible_covariates <- c("gender_dummy_fem",
                               "Safari_dummy",
                               "log_news")
 
-
+#Create Sets of variables to use in models:
 var1 <- list('variables'=c('Prop_Unreliable_NewsG_Score_dv',
                            'Prop_Unreliable_NewsG_Score'))
 
@@ -1396,6 +1411,7 @@ Tables_title <-  c('./Tables/Table_27.txt',
                    './Tables/Table_35.txt',
                    './Tables/Table_36.txt')
 
+#Create crosswalk for variables and display names:
 top_attribute_names <- c("gender_dummy_fem",
                          "educ_score",
                          'Treated',
@@ -1468,11 +1484,8 @@ for(i in 1:length(list_variables_to_run)){
   f <- paste0(list_variables_to_run[[i]][1], " ~ .")
   
   ITT_Model <- lm_robust(as.formula(f), data = data_for_analysis)
-  summary(ITT_Model)
-  
   
   names_of_columns_2 <- c('Treated',list_possible_covariates_for_use,'compliance_check_1')
-  
   
   names.use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_2)]
   
@@ -1513,9 +1526,7 @@ for(i in 1:length(list_variables_to_run)){
   Variable_Names <- names(CACE_Model_2$coefficients)[-1]
   Variable_Names <- str_replace_all(Variable_Names, top_attributes_html)
   
-  ####MATCHING WITH VARIABLES####
-  #Match names_of_columns_3 with actual names
-  
+  #Write Table
 texreg(list(ITT_Model,CACE_Model_1,CACE_Model_2),
                      include.ci = FALSE,
                      digits=4,
@@ -1551,7 +1562,7 @@ list_possible_covariates <- c("gender_dummy_fem",
                               "cons_mobile",
                               "Safari_dummy")
 
-
+#Create Sets of variables to use in models:
 var11 <- list('variables'=c('BLM_Misinfo_Index_w2'))
 var12 <- list('variables'=c('BLM_info_Index_w2'))
 var13 <- list('variables'=c('Covid_Misinfo_Index_w2'))
@@ -1625,6 +1636,7 @@ Tables_title <-  c('./Tables/Table_37.txt',
                    './Tables/Table_49.txt',
                    './Tables/Table_50.txt')
 
+#Create crosswalk for variables and display names:
 top_attribute_names <- c("gender_dummy_fem",
                          "educ_score",
                          'Treated',
@@ -1749,9 +1761,8 @@ for(i in 1:length(list_variables_to_run)){
   Variable_Names <- names(CACE_Model_2$coefficients)[-1]
   Variable_Names <- str_replace_all(Variable_Names, top_attributes_html)
   
-  ####MATCHING WITH VARIABLES####
-  #Match names_of_columns_3 with actual names
-  
+
+  #Write Table
 texreg(list(ITT_Model,CACE_Model_1,CACE_Model_2),
                      include.ci = FALSE,
                      digits=4,
@@ -1792,6 +1803,7 @@ list_possible_covariates <- c("gender_dummy_fem",
                               'log_news')
 
 
+#Create Sets of variables to use in models:
 var1 <- list('variables'=c('Prop_Unreliable_NewsG_Score_post',
                            'Prop_Unreliable_NewsG_Score'))
 
@@ -1811,6 +1823,7 @@ Titles <- c('Testing Effect of Intervention Using Different Moderators on Averag
 Tables_title <-  c('./Tables/Table_51.txt',
                    './Tables/Table_52.txt')
 
+#Create crosswalk for variables and display names:
 top_attribute_names <- c("gender_dummy_fem",
                          "educ_score",
                          'Treated',
@@ -2060,8 +2073,8 @@ f <- paste0(list_variables_to_run[[i]][1], " ~ Treated*Moderator + .")
 lm_adj_MT_Prop_Unrel <- lm_robust(as.formula(f), data = data_for_analysis)
 summary(lm_adj_MT_Prop_Unrel)
 
-####MATCHING WITH VARIABLES####
-#Match names_of_columns_3 with actual names
+
+#Write Table:
 
 texreg(list(lm_adj_MT_DL,lm_adj_MT_S_Misinfo,lm_adj_MT_Age,lm_adj_MT_SM_use,lm_adj_MT_consump,lm_adj_MT_Part,lm_adj_MT_Prop_Unrel),
        include.ci = FALSE,
@@ -2078,10 +2091,6 @@ texreg(list(lm_adj_MT_DL,lm_adj_MT_S_Misinfo,lm_adj_MT_Age,lm_adj_MT_SM_use,lm_a
 
 
 ###########################################   Effect of Moderators on Attitudinal Measures - Adjusted Covariate Models   ###############################################
-
-
-
-
 
 list_possible_covariates <- c("gender_dummy_fem",
                               "educ_score",
@@ -2102,6 +2111,7 @@ list_possible_covariates <- c("gender_dummy_fem",
                               "cons_mobile",
                               "Safari_dummy")
 
+#Create Sets of variables to use in models:
 var1 <- list('variables'=c('BLM_Misinfo_Index_w2'))
 var2 <- list('variables'=c('Covid_Misinfo_Index_w2'))
 var3 <- list('variables'=c('Trust_Media_w2'))
@@ -2127,6 +2137,7 @@ Tables_title <-  c('./Tables/Table_53.txt',
                    './Tables/Table_55.txt',
                    './Tables/Table_56.txt')
 
+#Create crosswalk for variables and display names:
 top_attribute_names <- c("gender_dummy_fem",
                          "educ_score",
                          'Treated',
@@ -2365,6 +2376,8 @@ for(i in 1:length(list_variables_to_run)){
   ####MATCHING WITH VARIABLES####
   #Match names_of_columns_3 with actual names
   
+  
+  #Write Table
 texreg(list(lm_adj_MT_DL,lm_adj_MT_S_Misinfo,lm_adj_MT_Age,lm_adj_MT_SM_use,lm_adj_MT_consump,lm_adj_MT_Part,lm_adj_MT_Prop_Unrel),
                      include.ci = FALSE,
                      digits=4,
@@ -2405,6 +2418,7 @@ list_possible_covariates <- c("gender_dummy_fem",
                               'log_news')
 
 
+#Create Sets of variables to use in models:
 var1 <- list('variables'=c('Prop_Unreliable_NewsG_Score_post',
                            'Prop_Unreliable_NewsG_Score'))
 
@@ -2424,6 +2438,8 @@ Titles <- c('Testing Effect of Intervention Using Different Moderators on Averag
 Tables_title <-  c('./Tables/Table_57.txt',
                    './Tables/Table_58.txt')
 
+
+#Create crosswalk for variables and display names:
 top_attribute_names <- c("gender_dummy_fem",
                          "educ_score",
                          'Treated',
@@ -2640,9 +2656,7 @@ for(i in 1:length(list_variables_to_run)){
   lm_adj_MT_Prop_Unrel <- lm_robust(as.formula(f), data = data_for_analysis)
   summary(lm_adj_MT_Prop_Unrel)
   
-  ####MATCHING WITH VARIABLES####
-  #Match names_of_columns_3 with actual names
-  
+  #Write Table
 texreg(list(lm_adj_MT_DL,lm_adj_MT_S_Misinfo,lm_adj_MT_Age,lm_adj_MT_SM_use,lm_adj_MT_consump,lm_adj_MT_Part,lm_adj_MT_Prop_Unrel),
                      include.ci = FALSE,
                      digits=4,
@@ -2679,6 +2693,7 @@ list_possible_covariates <- c("gender_dummy_fem",
                               "cons_mobile",
                               "Safari_dummy")
 
+#Create Sets of variables to use in models:
 var1 <- list('variables'=c('BLM_Misinfo_Index_w2'))
 var2 <- list('variables'=c('Covid_Misinfo_Index_w2'))
 var3 <- list('variables'=c('Trust_Media_w2'))
@@ -2704,6 +2719,8 @@ Tables_title <-  c('./Tables/Table_59.txt',
                    './Tables/Table_61.txt',
                    './Tables/Table_62.txt')
 
+
+#Create crosswalk for variables and display names:
 top_attribute_names <- c("gender_dummy_fem",
                          "educ_score",
                          'Treated',
@@ -2906,9 +2923,8 @@ for(i in 1:length(list_variables_to_run)){
   
   lm_adj_MT_Prop_Unrel <- lm_robust(as.formula(f), data = data_for_analysis)
   
-  ####MATCHING WITH VARIABLES####
-  #Match names_of_columns_3 with actual names
-  
+
+  #Write Table
 texreg(list(lm_adj_MT_DL,lm_adj_MT_S_Misinfo,lm_adj_MT_Age,lm_adj_MT_SM_use,lm_adj_MT_consump,lm_adj_MT_Part,lm_adj_MT_Prop_Unrel),
                      include.ci = FALSE,
                      digits=4,
@@ -2926,7 +2942,7 @@ texreg(list(lm_adj_MT_DL,lm_adj_MT_S_Misinfo,lm_adj_MT_Age,lm_adj_MT_SM_use,lm_a
 
 
 
-#Figure 7: This figure presents the proportion of the average daily proportion of unreliable news viewed of the treatment and control groups across this study
+#Figure 4: This figure presents the proportion of the average daily proportion of unreliable news viewed of the treatment and control groups across this study
 
 #Read in Wave 1 Data
 Wave_1_Data <- read.csv('./Data/NYUU0017_w1_OUTPUT.csv')

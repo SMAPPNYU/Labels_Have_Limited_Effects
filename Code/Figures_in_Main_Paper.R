@@ -1,4 +1,18 @@
-#Load Library:
+
+########################################################################################################################################################
+### Title: News Credibility Labels Improve News Diets, Reduce Misperceptions, and Increase Media Trust
+### Authors: Kevin Aslett, Andrew Guess, Jonathan Nagler, Richard Bonneaua, and Joshua A. Tucker
+### Purpose of code: Produce figures and tables of analyses that are displayed in the main test of the paper
+
+##### Data In:
+# (1) ./Data/Clean_NewsGuard_Digital_Trace_Data.csv
+# (2) ./Data/Clean_NewsGuard_Survey_Study.csv
+
+##### Data Out: NONE
+
+########################################################################################################################################################
+
+#Load Libraries:
 library(tidyverse)
 library(dplyr)
 library(AER)
@@ -9,7 +23,6 @@ library(magrittr)
 library(texreg)
 library(ivpack)
 
-#Establish set working directory: 
 
 #Read in survey data with digital trace data:
 Pulse_data <- read_csv('./Data/Clean_NewsGuard_Digital_Trace_Data.csv',
@@ -909,8 +922,6 @@ data_for_analysis <- data_frame_1[, names.use]
 #Report estimates from covariate-adjusted CACE. We use HC2 robust standard errors in all analyses and report p-values from two-tailed t-tests.
 ivreg_media_trust_compl_2 <- iv_robust(Trust_Media_w2 ~  . - Complied | . - Treated, data = data_for_analysis)
 
-summary(ivreg_media_trust_compl_2)
-
 
 ################################# Hypothesis 2b: Trust in Reliable Source (CBS) ################################
 
@@ -1686,9 +1697,6 @@ data_for_analysis <- data_for_analysis %>%
 
 ivreg_FN_prob_main_compl_2 <- iv_robust(SMP4310_w2 ~  . - Complied | . - Treated, data = data_for_analysis)
 
-summary(ivreg_FN_prob_main_compl_2)
-
-
 
 ################################# Fake News is a Problem  ################################
 
@@ -1752,8 +1760,6 @@ data_for_analysis <- data_for_analysis %>%
   select(Treated, everything())
 
 ivreg_FN_prob_compl_2 <- iv_robust(SMP4326_w2 ~  . - Complied | . - Treated, data = data_for_analysis)
-
-summary(ivreg_FN_prob_compl_2)
 
 
 ################################# Hypothesis: Trust in Institutions  ################################

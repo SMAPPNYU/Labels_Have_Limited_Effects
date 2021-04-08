@@ -1,6 +1,6 @@
 
 #Title: News credibility labels improve news diets, reduce misperceptions, and increase media trust
-#Authors: Andrew Guess, Kevin Aslett, Jonathan Nagler, Richard Bonneaua, and Joshua A. Tucker
+#Authors: Kevin Aslett, Andrew Guess, Jonathan Nagler, Richard Bonneaua, and Joshua A. Tucker
 
 #Abstract: 
 As the primary arena for viral misinformation shifts toward transnational threats such as the Covid-19 pandemic, the search continues for scalable, lasting countermeasures compatible with principles of transparency and free expression. To inform future interventions, we conducted a randomized controlled trial of simple source credibility labels embedded in users' social feeds and search results pages. Combining surveys and digital trace data from a subset of respondents, we find that after three weeks of embedded source contextual information, real-world exposure to low-quality news sources decreased by nearly 36\%, and the perceived accuracy of popular misinformation spread about the Black Lives Matter movement and Covid-19 also measurably declined. Unlike some other strategies to counteract misperceptions, our intervention seemed to achieve these effects without reducing the perceived accuracy of true information. Finally, the intervention led to increased trust in the mainstream media, raising the possibility of a self-sustaining cycle of improved news diets and more positive attitudes toward credible news outlets.
