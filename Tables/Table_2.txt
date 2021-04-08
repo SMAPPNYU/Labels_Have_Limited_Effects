@@ -1,0 +1,16 @@
+% latex table generated in R 3.6.1 by xtable 1.8-4 package
+% Wed Apr  7 19:56:27 2021
+\begin{table}[ht]
+\centering
+\begin{tabular}{|p{4cm}|p{1cm}|p{1cm}|p{1.5cm}|p{1cm}|p{1.5cm}|p{1.5cm}|p{1.5cm}|p{1.5cm}|}
+  \hline
+Group & Observ. & Age & Dig. Lit. & Income & Gender (Prop. Female) & Race (Prop. White) & Education & Ideology \\ 
+  \hline
+Control and we do not have digital trace data & 1035 & 55.78 & 46.92 & 6.76 & 0.55 & 0.78 & 4.00 & 3.77 \\ 
+  Control and we have digital trace data & 304 & 59.94 & 47.77 & 6.23 & 0.51 & 0.85 & 4.07 & 3.94 \\ 
+  Treated and we do not have digital trace data & 1461 & 52.96 & 48.27 & 6.51 & 0.55 & 0.79 & 4.01 & 3.67 \\ 
+  Treated and we have digital trace data & 537 & 58.87 & 46.97 & 6.24 & 0.59 & 0.86 & 4.09 & 3.85 \\ 
+   \hline
+\end{tabular}
+\end{table}
+

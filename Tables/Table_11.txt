@@ -1,0 +1,36 @@
+
+\begin{table}
+\caption{Testing the Effect of the Intervention on Count of Reliable News Consumed with Covariate-Adjusted Models (HC2 Robust standard errors) (After July 1st)}
+\begin{center}
+\begin{tabular}{l c c c}
+\hline
+ & Intent-To-Treat (ITT) & CACE (Model 1) & CACE (Model 2) \\
+\hline
+Treatment                         & $-0.0216$      & $-0.0216$      & $0.0236$       \\
+                                  & $(0.0308)$     & $(0.0325)$     & $(0.0376)$     \\
+Web Browser (Safari)              & $0.0608$       & $0.0641$       & $0.0596$       \\
+                                  & $(0.0751)$     & $(0.0752)$     & $(0.0756)$     \\
+Party ID                          & $-0.0103$      & $-0.0110$      & $-0.0090$      \\
+                                  & $(0.0067)$     & $(0.0068)$     & $(0.0069)$     \\
+Education                         & $0.0176$       & $0.0182$       & $0.0203$       \\
+                                  & $(0.0115)$     & $(0.0117)$     & $(0.0115)$     \\
+Age                               & $0.0057^{***}$ & $0.0058^{***}$ & $0.0054^{***}$ \\
+                                  & $(0.0013)$     & $(0.0013)$     & $(0.0013)$     \\
+News consumption (public radio)   & $-0.0147$      & $-0.0131$      & $-0.0150$      \\
+                                  & $(0.0109)$     & $(0.0110)$     & $(0.0110)$     \\
+News consumption (news on mobile) & $-0.0148$      & $-0.0167$      & $-0.0149$      \\
+                                  & $(0.0093)$     & $(0.0094)$     & $(0.0094)$     \\
+Pre-Treatment Value               & $0.5189^{***}$ & $0.5180^{***}$ & $0.5293^{***}$ \\
+                                  & $(0.0487)$     & $(0.0497)$     & $(0.0502)$     \\
+Log of news viewed                & $0.1557^{***}$ & $0.1559^{***}$ & $0.1533^{***}$ \\
+                                  & $(0.0219)$     & $(0.0223)$     & $(0.0227)$     \\
+\hline
+R$^2$                             & $0.7300$       & $0.7273$       & $0.7301$       \\
+Adj. R$^2$                        & $0.7270$       & $0.7242$       & $0.7270$       \\
+Num. obs.                         & $811$          & $797$          & $785$          \\
+\hline
+\multicolumn{4}{l}{\scriptsize{$^{***}p<0.001$; $^{**}p<0.01$; $^{*}p<0.05$}}
+\end{tabular}
+\label{table}
+\end{center}
+\end{table}

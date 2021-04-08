@@ -1,0 +1,38 @@
+
+\begin{table}
+\caption{Testing the Effect of the Intervention on Reliability Score of News Diet with Covariate-Adjusted Models (HC2 Robust standard errors) (After July 1st)}
+\begin{center}
+\begin{tabular}{l c c c}
+\hline
+ & Intent-To-Treat (ITT) & CACE (Model 1) & CACE (Model 2) \\
+\hline
+Treatment                          & $0.7170$       & $0.6890$       & $1.1057^{*}$   \\
+                                   & $(0.4011)$     & $(0.4208)$     & $(0.4973)$     \\
+Education                          & $0.1963$       & $0.1937$       & $0.1477$       \\
+                                   & $(0.1540)$     & $(0.1555)$     & $(0.1464)$     \\
+Age                                & $-0.0096$      & $0.0001$       & $-0.0024$      \\
+                                   & $(0.0182)$     & $(0.0165)$     & $(0.0167)$     \\
+Ideology                           & $-0.2362^{*}$  & $-0.2489^{*}$  & $-0.2467^{*}$  \\
+                                   & $(0.1105)$     & $(0.1099)$     & $(0.1090)$     \\
+News consumption (public radio)    & $0.1877$       & $0.2275$       & $0.2297$       \\
+                                   & $(0.1432)$     & $(0.1428)$     & $(0.1439)$     \\
+News consumption (news on desktop) & $-0.3626$      & $-0.3199$      & $-0.3224$      \\
+                                   & $(0.1946)$     & $(0.1916)$     & $(0.1943)$     \\
+Trust of news in newspapers\_sm    & $-0.0137$      & $-0.0127$      & $-0.0116$      \\
+                                   & $(0.0096)$     & $(0.0095)$     & $(0.0096)$     \\
+Trust of news in newspapers        & $0.4352$       & $0.3988$       & $0.3920$       \\
+                                   & $(0.2356)$     & $(0.2364)$     & $(0.2381)$     \\
+Pre-Treatment Value                & $0.7172^{***}$ & $0.7317^{***}$ & $0.7526^{***}$ \\
+                                   & $(0.0542)$     & $(0.0531)$     & $(0.0500)$     \\
+Log of news viewed                 & $-0.1045$      & $-0.0457$      & $-0.0327$      \\
+                                   & $(0.1411)$     & $(0.1338)$     & $(0.1361)$     \\
+\hline
+R$^2$                              & $0.6194$       & $0.6326$       & $0.6417$       \\
+Adj. R$^2$                         & $0.6131$       & $0.6265$       & $0.6356$       \\
+Num. obs.                          & $622$          & $611$          & $601$          \\
+\hline
+\multicolumn{4}{l}{\scriptsize{$^{***}p<0.001$; $^{**}p<0.01$; $^{*}p<0.05$}}
+\end{tabular}
+\label{table}
+\end{center}
+\end{table}

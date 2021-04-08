@@ -1,0 +1,32 @@
+
+\begin{table}
+\caption{Testing the Effect of the Intervention on Proportion of News Diet That is Unreliable with Covariate-Adjusted Models (HC2 Robust standard errors) (After July 1st)}
+\begin{center}
+\begin{tabular}{l c c c}
+\hline
+ & Intent-To-Treat (ITT) & CACE (Model 1) & CACE (Model 2) \\
+\hline
+Treatment                          & $-0.0045$      & $-0.0047$      & $-0.0117^{**}$ \\
+                                   & $(0.0035)$     & $(0.0037)$     & $(0.0044)$     \\
+Race/Ethnicity                     & $0.0055$       & $0.0053$       & $0.0063$       \\
+                                   & $(0.0043)$     & $(0.0043)$     & $(0.0045)$     \\
+Education                          & $-0.0039^{*}$  & $-0.0041^{*}$  & $-0.0036^{*}$  \\
+                                   & $(0.0016)$     & $(0.0016)$     & $(0.0015)$     \\
+Age-Squared                        & $0.0000^{*}$   & $0.0000^{*}$   & $0.0000^{*}$   \\
+                                   & $(0.0000)$     & $(0.0000)$     & $(0.0000)$     \\
+News consumption (news on desktop) & $0.0030^{*}$   & $0.0031^{*}$   & $0.0031^{*}$   \\
+                                   & $(0.0015)$     & $(0.0015)$     & $(0.0015)$     \\
+Trust of news in newspapers        & $-0.0025$      & $-0.0024$      & $-0.0028$      \\
+                                   & $(0.0021)$     & $(0.0021)$     & $(0.0021)$     \\
+Pre-Treatment Value                & $0.7895^{***}$ & $0.7898^{***}$ & $0.8131^{***}$ \\
+                                   & $(0.0623)$     & $(0.0624)$     & $(0.0600)$     \\
+\hline
+R$^2$                              & $0.7531$       & $0.7531$       & $0.7633$       \\
+Adj. R$^2$                         & $0.7508$       & $0.7508$       & $0.7611$       \\
+Num. obs.                          & $760$          & $747$          & $736$          \\
+\hline
+\multicolumn{4}{l}{\scriptsize{$^{***}p<0.001$; $^{**}p<0.01$; $^{*}p<0.05$}}
+\end{tabular}
+\label{table}
+\end{center}
+\end{table}

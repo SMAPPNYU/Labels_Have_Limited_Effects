@@ -1,0 +1,32 @@
+
+\begin{table}
+\caption{Testing the Effect of the Intervention on Proportion of News Diet That is Unreliable with Covariate-Adjusted Models (HC2 Robust standard errors) (Before July 1st)}
+\begin{center}
+\begin{tabular}{l c c c}
+\hline
+ & Intent-To-Treat (ITT) & CACE (Model 1) & CACE (Model 2) \\
+\hline
+Treatment                          & $-0.0023$      & $-0.0013$      & $-0.0064$      \\
+                                   & $(0.0029)$     & $(0.0031)$     & $(0.0038)$     \\
+Age-Squared                        & $0.0000$       & $0.0000$       & $0.0000$       \\
+                                   & $(0.0000)$     & $(0.0000)$     & $(0.0000)$     \\
+Trust in Media                     & $-0.0027$      & $-0.0029$      & $-0.0032$      \\
+                                   & $(0.0025)$     & $(0.0025)$     & $(0.0025)$     \\
+Ideology                           & $0.0009$       & $0.0010$       & $0.0008$       \\
+                                   & $(0.0009)$     & $(0.0009)$     & $(0.0009)$     \\
+News consumption (public radio)    & $-0.0015$      & $-0.0016$      & $-0.0017$      \\
+                                   & $(0.0008)$     & $(0.0009)$     & $(0.0009)$     \\
+News consumption (news on desktop) & $0.0025^{*}$   & $0.0026^{*}$   & $0.0027^{*}$   \\
+                                   & $(0.0013)$     & $(0.0013)$     & $(0.0013)$     \\
+Pre-Treatment Value                & $0.8480^{***}$ & $0.8489^{***}$ & $0.8417^{***}$ \\
+                                   & $(0.0522)$     & $(0.0523)$     & $(0.0547)$     \\
+\hline
+R$^2$                              & $0.8293$       & $0.8296$       & $0.8215$       \\
+Adj. R$^2$                         & $0.8277$       & $0.8280$       & $0.8198$       \\
+Num. obs.                          & $781$          & $768$          & $757$          \\
+\hline
+\multicolumn{4}{l}{\scriptsize{$^{***}p<0.001$; $^{**}p<0.01$; $^{*}p<0.05$}}
+\end{tabular}
+\label{table}
+\end{center}
+\end{table}
