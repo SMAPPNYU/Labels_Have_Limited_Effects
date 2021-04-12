@@ -127,6 +127,51 @@ data_frame_1 <- read_csv('./Data/Clean_NewsGuard_Survey_Study.csv',
 #Ensure that the order of the dataframe is set:
 data_frame_1 <- data_frame_1[order(data_frame_1$visa1),]
 
+
+#Create a function using glmnet lasso that chooses the variables to use:
+Lasso <- function(data_for_analysis) {
+  y <- as.matrix(data_for_analysis[,1])
+  x <- as.matrix(data_for_analysis[,-1])
+  
+  #Set seed as specified in the pre-registration:
+  set.seed(938)
+  #k-fold cross-validation for glmnet returns a value for lambda
+  fit1 = glmnet(x,y, family="gaussian")
+  cvob1 = cv.glmnet(x,y)
+  coefficients <- coef(fit1,s=cvob1$lambda.min)
+  
+  #Dependent variable data:
+  data_for_regression = data_for_analysis[,1]
+  #Possible independent variables:
+  names_of_columns = colnames(data_for_analysis)[1]
+  
+  #Create list of coefficients that should be included:
+  for(i in 2:nrow(coefficients)){
+    if(coefficients[i,1] != 0){
+      z=i-1
+      data_for_regression = cbind(data_for_regression,data_for_analysis[,i])
+      names_of_columns <- c(names_of_columns,colnames(data_for_analysis)[i])
+    }
+  }
+  #Create list of covariates that should be included:
+  names_of_columns_3 <- c(names_of_columns,'Complied','Treated')
+  
+  return(names_of_columns_3)
+}
+
+#Function for cleaning data:
+
+Clean <- function(data_for_analysis) {
+#Replace Infinite values in data with NA
+data_for_analysis <- do.call(data.frame,                      
+                             lapply(data_for_analysis,
+                                    function(x) replace(x, is.infinite(x), NA)))
+#Remove NA values:
+data_for_analysis <- na.omit(data_for_analysis)
+
+return(data_for_analysis)
+}
+
 ######### Run Covariate-Adjusted Complier Average Causal Effects (CACE) using strongest compliance check:
 
 ### Test Hypotheses 1, 2, and 3:
@@ -162,41 +207,11 @@ data_for_analysis <- Pulse_data %>% ungroup() %>% select(Prop_Unreliable_NewsG_S
                                                          Safari_dummy,
                                                          log_news)
 
-#Replace Infinite values in data with NA
-data_for_analysis <- do.call(data.frame,                      
-                             lapply(data_for_analysis,
-                                    function(x) replace(x, is.infinite(x), NA)))
+#Clean Data:
+data_for_analysis <- Clean(data_for_analysis)
 
-#Remove NA values:
-data_for_analysis <- na.omit(data_for_analysis)
-
-#Create a matrix with the dependent variable (y) and the independent variable (x)
-y <- as.matrix(data_for_analysis[,1])
-x <- as.matrix(data_for_analysis[,-1])
-
-#Set seed as specified in the pre-registration:
-set.seed(938)
-#k-fold cross-validation for glmnet returns a value for lambda
-fit1 = glmnet(x,y, family="gaussian")
-cvob1 = cv.glmnet(x,y)
-coefficients <- coef(fit1,s=cvob1$lambda.min)
-
-#Dependent variable data:
-data_for_regression = data_for_analysis[,1]
-#Possible independent variables:
-names_of_columns = colnames(data_for_analysis)[1]
-
-#Create list of coefficients that should be included:
-for(i in 2:nrow(coefficients)){
-  if(coefficients[i,1] != 0){
-    z=i-1
-    data_for_regression = cbind(data_for_regression,data_for_analysis[,i])
-    names_of_columns <- c(names_of_columns,colnames(data_for_analysis)[i])
-  }
-}
-
-#Create list of covariates that should be included:
-names_of_columns_3 <- c(names_of_columns,'Complied','Treated')
+#Use glmnet lasso to choose covariates to be a part of model:
+names_of_columns_3 <- Lasso(data_for_analysis)
 
 names.use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_3)]
 
@@ -231,41 +246,11 @@ data_for_analysis <- Pulse_data %>%  ungroup() %>% select(Average_domain_NewsG_S
                                                           log_news)
 
 
-#Replace Infinite values in data with NA
-data_for_analysis <- do.call(data.frame,                      
-                             lapply(data_for_analysis,
-                                    function(x) replace(x, is.infinite(x), NA)))
+#Clean Data:
+data_for_analysis <- Clean(data_for_analysis)
 
-#Remove NA values:
-data_for_analysis <- na.omit(data_for_analysis)
-
-#Create a matrix with the dependent variable (y) and the independent variable (x)
-y <- as.matrix(data_for_analysis[,1])
-x <- as.matrix(data_for_analysis[,-1])
-
-#Set seed as specified in the pre-registration:
-set.seed(938)
-#k-fold cross-validation for glmnet returns a value for lambda
-fit1 = glmnet(x,y, family="gaussian")
-cvob1 = cv.glmnet(x,y)
-coefficients <- coef(fit1,s=cvob1$lambda.min)
-
-#Dependent variable data:
-data_for_regression = data_for_analysis[,1]
-#Possible independent variables:
-names_of_columns = colnames(data_for_analysis)[1]
-
-#Create list of coefficients that should be included:
-for(i in 2:nrow(coefficients)){
-  if(coefficients[i,1] != 0){
-    z=i-1
-    data_for_regression = cbind(data_for_regression,data_for_analysis[,i])
-    names_of_columns <- c(names_of_columns,colnames(data_for_analysis)[i])
-  }
-}
-
-#Create list of covariates that should be included:
-names_of_columns_3 <- c(names_of_columns,'Complied','Treated')
+#Use glmnet lasso to choose covariates to be a part of model:
+names_of_columns_3 <- Lasso(data_for_analysis)
 
 names.use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_3)]
 
@@ -303,46 +288,11 @@ data_for_analysis <- Pulse_data %>% ungroup() %>%  select(Prop_Reliable_NewsG_Sc
                                                           Safari_dummy,
                                                           log_news)
 
-
-#Replace Infinite values in data with NA
-data_for_analysis <- do.call(data.frame,                      
-                             lapply(data_for_analysis,
-                                    function(x) replace(x, is.infinite(x), NA)))
-
-
-#Remove NA values:
-data_for_analysis <- na.omit(data_for_analysis)
-
-#Create a matrix with the dependent variable (y) and the independent variable (x)
-y <- as.matrix(data_for_analysis[,1])
-x <- as.matrix(data_for_analysis[,-1])
-
-#Set seed as specified in the pre-registration:
-set.seed(938)
-#k-fold cross-validation for glmnet returns a value for lambda
-fit1 = glmnet(x,y, family="gaussian")
-cvob1 = cv.glmnet(x,y)
-coefficients <- coef(fit1,s=cvob1$lambda.min)
-
-#Dependent variable data:
-data_for_regression = data_for_analysis[,1]
-#Possible independent variables:
-names_of_columns = colnames(data_for_analysis)[1]
-
-#Create list of coefficients that should be included:
-for(i in 2:nrow(coefficients)){
-  if(coefficients[i,1] != 0){
-    z=i-1
-    data_for_regression = cbind(data_for_regression,data_for_analysis[,i])
-    names_of_columns <- c(names_of_columns,colnames(data_for_analysis)[i])
-  }
-}
+#Clean Data:
+data_for_analysis <- Clean(data_for_analysis)
 
 #Create list of covariates that should be included:
-
-
-
-names_of_columns_3 <- c(names_of_columns,'Complied','Treated')
+names_of_columns_3 <- Lasso(data_for_analysis)
 
 names.use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_3)]
 
@@ -376,42 +326,11 @@ data_for_analysis <- Pulse_data %>% ungroup() %>%  select(Count_Unreliable_NewsG
                                                           Safari_dummy,
                                                           log_news)
 
-#Replace Infinite values in data with NA
-data_for_analysis <- do.call(data.frame,                      
-                             lapply(data_for_analysis,
-                                    function(x) replace(x, is.infinite(x), NA)))
+#Clean Data:
+data_for_analysis <- Clean(data_for_analysis)
 
-
-#Remove NA values:
-data_for_analysis <- na.omit(data_for_analysis)
-
-#Create a matrix with the dependent variable (y) and the independent variable (x)
-y <- as.matrix(data_for_analysis[,1])
-x <- as.matrix(data_for_analysis[,-1])
-
-#Set seed as specified in the pre-registration:
-set.seed(938)
-#k-fold cross-validation for glmnet returns a value for lambda
-fit1 = glmnet(x,y, family="gaussian")
-cvob1 = cv.glmnet(x,y)
-coefficients <- coef(fit1,s=cvob1$lambda.min)
-
-#Dependent variable data:
-data_for_regression = data_for_analysis[,1]
-#Possible independent variables:
-names_of_columns = colnames(data_for_analysis)[1]
-
-#Create list of coefficients that should be included:
-for(i in 2:nrow(coefficients)){
-  if(coefficients[i,1] != 0){
-    z=i-1
-    data_for_regression = cbind(data_for_regression,data_for_analysis[,i])
-    names_of_columns <- c(names_of_columns,colnames(data_for_analysis)[i])
-  }
-}
-
-#Create list of covariates that should be included:
-names_of_columns_3 <- c(names_of_columns,'Complied','Treated')
+#Use glmnet lasso to choose covariates to be a part of model:
+names_of_columns_3 <- Lasso(data_for_analysis)
 
 names.use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_3)]
 
@@ -449,42 +368,11 @@ data_for_analysis <- Pulse_data %>% ungroup() %>%  select(Count_Reliable_NewsG_S
                                                           Safari_dummy,
                                                           log_news)
 
-#Replace Infinite values in data with NA
-data_for_analysis <- do.call(data.frame,                      
-                             lapply(data_for_analysis,
-                                    function(x) replace(x, is.infinite(x), NA)))
+#Clean Data:
+data_for_analysis <- Clean(data_for_analysis)
 
-
-#Remove NA values:
-data_for_analysis <- na.omit(data_for_analysis)
-
-#Create a matrix with the dependent variable (y) and the independent variable (x)
-y <- as.matrix(data_for_analysis[,1])
-x <- as.matrix(data_for_analysis[,-1])
-
-#Set seed as specified in the pre-registration:
-set.seed(938)
-#k-fold cross-validation for glmnet returns a value for lambda
-fit1 = glmnet(x,y, family="gaussian")
-cvob1 = cv.glmnet(x,y)
-coefficients <- coef(fit1,s=cvob1$lambda.min)
-
-#Dependent variable data:
-data_for_regression = data_for_analysis[,1]
-#Possible independent variables:
-names_of_columns = colnames(data_for_analysis)[1]
-
-#Create list of coefficients that should be included:
-for(i in 2:nrow(coefficients)){
-  if(coefficients[i,1] != 0){
-    z=i-1
-    data_for_regression = cbind(data_for_regression,data_for_analysis[,i])
-    names_of_columns <- c(names_of_columns,colnames(data_for_analysis)[i])
-  }
-}
-
-#Create list of covariates that should be included:
-names_of_columns_3 <- c(names_of_columns,'Complied','Treated')
+#Use glmnet lasso to choose covariates to be a part of model:
+names_of_columns_3 <- Lasso(data_for_analysis)
 
 names.use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_3)]
 
@@ -524,42 +412,11 @@ data_for_analysis <- Pulse_data %>% ungroup() %>%  select(Prop_Unreliable_NewsG_
                                                           Safari_dummy,
                                                           log_news)
 
-#Replace Infinite values in data with NA
-data_for_analysis <- do.call(data.frame,                      
-                             lapply(data_for_analysis,
-                                    function(x) replace(x, is.infinite(x), NA)))
+#Clean Data:
+data_for_analysis <- Clean(data_for_analysis)
 
-
-#Remove NA values:
-data_for_analysis <- na.omit(data_for_analysis)
-
-#Create a matrix with the dependent variable (y) and the independent variable (x)
-y <- as.matrix(data_for_analysis[,1])
-x <- as.matrix(data_for_analysis[,-1])
-
-#Set seed as specified in the pre-registration:
-set.seed(938)
-#k-fold cross-validation for glmnet returns a value for lambda
-fit1 = glmnet(x,y, family="gaussian")
-cvob1 = cv.glmnet(x,y)
-coefficients <- coef(fit1,s=cvob1$lambda.min)
-
-#Dependent variable data:
-data_for_regression = data_for_analysis[,1]
-#Possible independent variables:
-names_of_columns = colnames(data_for_analysis)[1]
-
-#Create list of coefficients that should be included:
-for(i in 2:nrow(coefficients)){
-  if(coefficients[i,1] != 0){
-    z=i-1
-    data_for_regression = cbind(data_for_regression,data_for_analysis[,i])
-    names_of_columns <- c(names_of_columns,colnames(data_for_analysis)[i])
-  }
-}
-
-#Create list of covariates that should be included:
-names_of_columns_3 <- c(names_of_columns,'Complied','Treated')
+#Use glmnet lasso to choose covariates to be a part of model:
+names_of_columns_3 <- Lasso(data_for_analysis)
 
 names.use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_3)]
 
@@ -591,42 +448,11 @@ data_for_analysis <- Pulse_data %>%  ungroup() %>%  select(Average_domain_NewsG_
                                                            Safari_dummy,
                                                            log_news)
 
-#Replace Infinite values in data with NA
-data_for_analysis <- do.call(data.frame,                      
-                             lapply(data_for_analysis,
-                                    function(x) replace(x, is.infinite(x), NA)))
+#Clean Data:
+data_for_analysis <- Clean(data_for_analysis)
 
-
-#Remove NA values:
-data_for_analysis <- na.omit(data_for_analysis)
-
-#Create a matrix with the dependent variable (y) and the independent variable (x)
-y <- as.matrix(data_for_analysis[,1])
-x <- as.matrix(data_for_analysis[,-1])
-
-#Set seed as specified in the pre-registration:
-set.seed(938)
-#k-fold cross-validation for glmnet returns a value for lambda
-fit1 = glmnet(x,y, family="gaussian")
-cvob1 = cv.glmnet(x,y)
-coefficients <- coef(fit1,s=cvob1$lambda.min)
-
-#Dependent variable data:
-data_for_regression = data_for_analysis[,1]
-#Possible independent variables:
-names_of_columns = colnames(data_for_analysis)[1]
-
-#Create list of coefficients that should be included:
-for(i in 2:nrow(coefficients)){
-  if(coefficients[i,1] != 0){
-    z=i-1
-    data_for_regression = cbind(data_for_regression,data_for_analysis[,i])
-    names_of_columns <- c(names_of_columns,colnames(data_for_analysis)[i])
-  }
-}
-
-#Create list of covariates that should be included:
-names_of_columns_3 <- c(names_of_columns,'Complied','Treated')
+#Use glmnet lasso to choose covariates to be a part of model:
+names_of_columns_3 <- Lasso(data_for_analysis)
 
 names.use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_3)]
 
@@ -667,42 +493,11 @@ data_for_analysis <- Pulse_data %>% ungroup() %>%  select(Prop_Reliable_NewsG_Sc
                                                           Safari_dummy,
                                                           log_news)
 
-#Replace Infinite values in data with NA
-data_for_analysis <- do.call(data.frame,                      
-                             lapply(data_for_analysis,
-                                    function(x) replace(x, is.infinite(x), NA)))
+#Clean Data:
+data_for_analysis <- Clean(data_for_analysis)
 
-
-#Remove NA values:
-data_for_analysis <- na.omit(data_for_analysis)
-
-#Create a matrix with the dependent variable (y) and the independent variable (x)
-y <- as.matrix(data_for_analysis[,1])
-x <- as.matrix(data_for_analysis[,-1])
-
-#Set seed as specified in the pre-registration:
-set.seed(938)
-#k-fold cross-validation for glmnet returns a value for lambda
-fit1 = glmnet(x,y, family="gaussian")
-cvob1 = cv.glmnet(x,y)
-coefficients <- coef(fit1,s=cvob1$lambda.min)
-
-#Dependent variable data:
-data_for_regression = data_for_analysis[,1]
-#Possible independent variables:
-names_of_columns = colnames(data_for_analysis)[1]
-
-#Create list of coefficients that should be included:
-for(i in 2:nrow(coefficients)){
-  if(coefficients[i,1] != 0){
-    z=i-1
-    data_for_regression = cbind(data_for_regression,data_for_analysis[,i])
-    names_of_columns <- c(names_of_columns,colnames(data_for_analysis)[i])
-  }
-}
-
-#Create list of covariates that should be included:
-names_of_columns_3 <- c(names_of_columns,'Complied','Treated')
+#Use glmnet lasso to choose covariates to be a part of model:
+names_of_columns_3 <- Lasso(data_for_analysis)
 
 names.use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_3)]
 
@@ -735,42 +530,11 @@ data_for_analysis <- Pulse_data %>% ungroup() %>%  select(Count_Unreliable_NewsG
                                                           Safari_dummy,
                                                           log_news)
 
-#Replace Infinite values in data with NA
-data_for_analysis <- do.call(data.frame,                      
-                             lapply(data_for_analysis,
-                                    function(x) replace(x, is.infinite(x), NA)))
+#Clean Data:
+data_for_analysis <- Clean(data_for_analysis)
 
-
-#Remove NA values:
-data_for_analysis <- na.omit(data_for_analysis)
-
-#Create a matrix with the dependent variable (y) and the independent variable (x)
-y <- as.matrix(data_for_analysis[,1])
-x <- as.matrix(data_for_analysis[,-1])
-
-#Set seed as specified in the pre-registration:
-set.seed(938)
-#k-fold cross-validation for glmnet returns a value for lambda
-fit1 = glmnet(x,y, family="gaussian")
-cvob1 = cv.glmnet(x,y)
-coefficients <- coef(fit1,s=cvob1$lambda.min)
-
-#Dependent variable data:
-data_for_regression = data_for_analysis[,1]
-#Possible independent variables:
-names_of_columns = colnames(data_for_analysis)[1]
-
-#Create list of coefficients that should be included:
-for(i in 2:nrow(coefficients)){
-  if(coefficients[i,1] != 0){
-    z=i-1
-    data_for_regression = cbind(data_for_regression,data_for_analysis[,i])
-    names_of_columns <- c(names_of_columns,colnames(data_for_analysis)[i])
-  }
-}
-
-#Create list of covariates that should be included:
-names_of_columns_3 <- c(names_of_columns,'Complied','Treated')
+#Use glmnet lasso to choose covariates to be a part of model:
+names_of_columns_3 <- Lasso(data_for_analysis)
 
 names.use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_3)]
 
@@ -779,8 +543,6 @@ data_for_analysis <- Pulse_data[, names.use]
 data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
                              lapply(data_for_analysis,
                                     function(x) replace(x, is.infinite(x), NA)))
-
-
 
 ivreg_Unrel_c_dv_compl_2 <- iv_robust(Count_Unreliable_NewsG_Score_dv ~  . - Complied | . - Treated, data = data_for_analysis)
 
@@ -808,41 +570,12 @@ data_for_analysis <- Pulse_data %>% ungroup() %>%  select(Count_Reliable_NewsG_S
                                                           Safari_dummy,
                                                           log_news)
 
-#Replace Infinite values in data with NA
-data_for_analysis <- do.call(data.frame,                      
-                             lapply(data_for_analysis,
-                                    function(x) replace(x, is.infinite(x), NA)))
+#Clean Data:
+data_for_analysis <- Clean(data_for_analysis)
 
-#Remove NA values:
-data_for_analysis <- na.omit(data_for_analysis)
+#Use glmnet lasso to choose covariates to be a part of model:
+names_of_columns_3 <- Lasso(data_for_analysis)
 
-#Create a matrix with the dependent variable (y) and the independent variable (x)
-y <- as.matrix(data_for_analysis[,1])
-x <- as.matrix(data_for_analysis[,-1])
-
-#Set seed as specified in the pre-registration:
-set.seed(938)
-#k-fold cross-validation for glmnet returns a value for lambda
-fit1 = glmnet(x,y, family="gaussian")
-cvob1 = cv.glmnet(x,y)
-coefficients <- coef(fit1,s=cvob1$lambda.min)
-
-#Dependent variable data:
-data_for_regression = data_for_analysis[,1]
-#Possible independent variables:
-names_of_columns = colnames(data_for_analysis)[1]
-
-#Create list of coefficients that should be included:
-for(i in 2:nrow(coefficients)){
-  if(coefficients[i,1] != 0){
-    z=i-1
-    data_for_regression = cbind(data_for_regression,data_for_analysis[,i])
-    names_of_columns <- c(names_of_columns,colnames(data_for_analysis)[i])
-  }
-}
-
-#Create list of covariates that should be included:
-names_of_columns_3 <- c(names_of_columns,'Complied','Treated')
 
 names.use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_3)]
 
@@ -887,33 +620,9 @@ data_for_analysis_2  <- data_for_analysis
 #Remove NA values:
 data_for_analysis <- na.omit(data_for_analysis)
 
-#Create a matrix with the dependent variable (y) and the independent variable (x)
-y <- as.matrix(data_for_analysis[,1])
-x <- as.matrix(data_for_analysis[,-1])
+#Use glmnet lasso to choose covariates to be a part of model:
+names_of_columns_3 <- Lasso(data_for_analysis)
 
-#Set seed as specified in the pre-registration:
-set.seed(938)
-#k-fold cross-validation for glmnet returns a value for lambda
-fit1 = glmnet(x,y, family="gaussian")
-cvob1 = cv.glmnet(x,y)
-coefficients <- coef(fit1,s=cvob1$lambda.min)
-
-#Dependent variable data:
-data_for_regression = data_for_analysis[,1]
-#Possible independent variables:
-names_of_columns = colnames(data_for_analysis)[1]
-
-#Create list of coefficients that should be included:
-for(i in 2:nrow(coefficients)){
-  if(coefficients[i,1] != 0){
-    z=i-1
-    data_for_regression = cbind(data_for_regression,data_for_analysis[,i])
-    names_of_columns <- c(names_of_columns,colnames(data_for_analysis)[i])
-  }
-}
-
-#Create list of covariates that should be included:
-names_of_columns_3 <- c(names_of_columns,'Complied','Treated')
 names.use <- names(data_frame_1)[(names(data_frame_1) %in% names_of_columns_3)]
 
 #Create dataset using the covariates that are specified that should be included:
@@ -949,33 +658,8 @@ data_for_analysis <- data_frame_1 %>% ungroup() %>% select(CBS_Trust_2,
 #Remove NA values:
 data_for_analysis <- na.omit(data_for_analysis)
 
-#Create a matrix with the dependent variable (y) and the independent variable (x)
-y <- as.matrix(data_for_analysis[,1])
-x <- as.matrix(data_for_analysis[,-1])
-
-#Set seed as specified in the pre-registration:
-set.seed(938)
-#k-fold cross-validation for glmnet returns a value for lambda
-fit1 = glmnet(x,y, family="gaussian")
-cvob1 = cv.glmnet(x,y)
-coefficients <- coef(fit1,s=cvob1$lambda.min)
-
-#Dependent variable data:
-data_for_regression = data_for_analysis[,1]
-#Possible independent variables:
-names_of_columns = colnames(data_for_analysis)[1]
-
-#Create list of coefficients that should be included:
-for(i in 2:nrow(coefficients)){
-  if(coefficients[i,1] != 0){
-    z=i-1
-    data_for_regression = cbind(data_for_regression,data_for_analysis[,i])
-    names_of_columns <- c(names_of_columns,colnames(data_for_analysis)[i])
-  }
-}
-
-#Create list of covariates that should be included:
-names_of_columns_3 <- c(names_of_columns,'Complied','Treated')
+#Use glmnet lasso to choose covariates to be a part of model:
+names_of_columns_3 <- Lasso(data_for_analysis)
 
 names.use <- names(data_frame_1)[(names(data_frame_1) %in% names_of_columns_3)]
 
@@ -1013,33 +697,8 @@ data_for_analysis <- data_frame_1 %>% ungroup() %>% select(ABC_Trust_2,
 #Remove NA values:
 data_for_analysis <- na.omit(data_for_analysis)
 
-#Create a matrix with the dependent variable (y) and the independent variable (x)
-y <- as.matrix(data_for_analysis[,1])
-x <- as.matrix(data_for_analysis[,-1])
-
-#Set seed as specified in the pre-registration:
-set.seed(938)
-#k-fold cross-validation for glmnet returns a value for lambda
-fit1 = glmnet(x,y, family="gaussian")
-cvob1 = cv.glmnet(x,y)
-coefficients <- coef(fit1,s=cvob1$lambda.min)
-
-#Dependent variable data:
-data_for_regression = data_for_analysis[,1]
-#Possible independent variables:
-names_of_columns = colnames(data_for_analysis)[1]
-
-#Create list of coefficients that should be included:
-for(i in 2:nrow(coefficients)){
-  if(coefficients[i,1] != 0){
-    z=i-1
-    data_for_regression = cbind(data_for_regression,data_for_analysis[,i])
-    names_of_columns <- c(names_of_columns,colnames(data_for_analysis)[i])
-  }
-}
-
-#Create list of covariates that should be included:
-names_of_columns_3 <- c(names_of_columns,'Complied','Treated')
+#Use glmnet lasso to choose covariates to be a part of model:
+names_of_columns_3 <- Lasso(data_for_analysis)
 
 names.use <- names(data_frame_1)[(names(data_frame_1) %in% names_of_columns_3)]
 
@@ -1076,33 +735,8 @@ data_for_analysis <- data_frame_1 %>% ungroup() %>% select(NBC_Trust_2,
 #Remove NA values:
 data_for_analysis <- na.omit(data_for_analysis)
 
-#Create a matrix with the dependent variable (y) and the independent variable (x)
-y <- as.matrix(data_for_analysis[,1])
-x <- as.matrix(data_for_analysis[,-1])
-
-#Set seed as specified in the pre-registration:
-set.seed(938)
-#k-fold cross-validation for glmnet returns a value for lambda
-fit1 = glmnet(x,y, family="gaussian")
-cvob1 = cv.glmnet(x,y)
-coefficients <- coef(fit1,s=cvob1$lambda.min)
-
-#Dependent variable data:
-data_for_regression = data_for_analysis[,1]
-#Possible independent variables:
-names_of_columns = colnames(data_for_analysis)[1]
-
-#Create list of coefficients that should be included:
-for(i in 2:nrow(coefficients)){
-  if(coefficients[i,1] != 0){
-    z=i-1
-    data_for_regression = cbind(data_for_regression,data_for_analysis[,i])
-    names_of_columns <- c(names_of_columns,colnames(data_for_analysis)[i])
-  }
-}
-
-#Create list of covariates that should be included:
-names_of_columns_3 <- c(names_of_columns,'Complied','Treated')
+#Use glmnet lasso to choose covariates to be a part of model:
+names_of_columns_3 <- Lasso(data_for_analysis)
 
 names.use <- names(data_frame_1)[(names(data_frame_1) %in% names_of_columns_3)]
 
@@ -1140,33 +774,8 @@ data_for_analysis <- data_frame_1 %>% ungroup() %>% select(CNN_Trust_2,
 #Remove NA values:
 data_for_analysis <- na.omit(data_for_analysis)
 
-#Create a matrix with the dependent variable (y) and the independent variable (x)
-y <- as.matrix(data_for_analysis[,1])
-x <- as.matrix(data_for_analysis[,-1])
-
-#Set seed as specified in the pre-registration:
-set.seed(938)
-#k-fold cross-validation for glmnet returns a value for lambda
-fit1 = glmnet(x,y, family="gaussian")
-cvob1 = cv.glmnet(x,y)
-coefficients <- coef(fit1,s=cvob1$lambda.min)
-
-#Dependent variable data:
-data_for_regression = data_for_analysis[,1]
-#Possible independent variables:
-names_of_columns = colnames(data_for_analysis)[1]
-
-#Create list of coefficients that should be included:
-for(i in 2:nrow(coefficients)){
-  if(coefficients[i,1] != 0){
-    z=i-1
-    data_for_regression = cbind(data_for_regression,data_for_analysis[,i])
-    names_of_columns <- c(names_of_columns,colnames(data_for_analysis)[i])
-  }
-}
-
-#Create list of covariates that should be included:
-names_of_columns_3 <- c(names_of_columns,'Complied','Treated')
+#Use glmnet lasso to choose covariates to be a part of model:
+names_of_columns_3 <- Lasso(data_for_analysis)
 
 names.use <- names(data_frame_1)[(names(data_frame_1) %in% names_of_columns_3)]
 
@@ -1205,33 +814,8 @@ data_for_analysis <- data_frame_1 %>% ungroup() %>% select(Fox_Trust_2,
 #Remove NA values:
 data_for_analysis <- na.omit(data_for_analysis)
 
-#Create a matrix with the dependent variable (y) and the independent variable (x)
-y <- as.matrix(data_for_analysis[,1])
-x <- as.matrix(data_for_analysis[,-1])
-
-#Set seed as specified in the pre-registration:
-set.seed(938)
-#k-fold cross-validation for glmnet returns a value for lambda
-fit1 = glmnet(x,y, family="gaussian")
-cvob1 = cv.glmnet(x,y)
-coefficients <- coef(fit1,s=cvob1$lambda.min)
-
-#Dependent variable data:
-data_for_regression = data_for_analysis[,1]
-#Possible independent variables:
-names_of_columns = colnames(data_for_analysis)[1]
-
-#Create list of coefficients that should be included:
-for(i in 2:nrow(coefficients)){
-  if(coefficients[i,1] != 0){
-    z=i-1
-    data_for_regression = cbind(data_for_regression,data_for_analysis[,i])
-    names_of_columns <- c(names_of_columns,colnames(data_for_analysis)[i])
-  }
-}
-
-#Create list of covariates that should be included:
-names_of_columns_3 <- c(names_of_columns,'Complied','Treated')
+#Use glmnet lasso to choose covariates to be a part of model:
+names_of_columns_3 <- Lasso(data_for_analysis)
 
 names.use <- names(data_frame_1)[(names(data_frame_1) %in% names_of_columns_3)]
 
@@ -1243,8 +827,6 @@ data_for_analysis <- data_for_analysis %>%
 ivreg_Fox_compl_2 <- iv_robust(Fox_Trust_2 ~  . - Complied | . - Treated, data = data_for_analysis)
 
 ################################# Hypothesis 3a: Affective Polarization ################################
-
-
 data_for_analysis <- data_frame_1 %>% ungroup() %>% select(aff_pol_w2,
                                                           aff_pol_w1,
                                                           gender_dummy_fem,
@@ -1269,33 +851,9 @@ data_for_analysis <- data_frame_1 %>% ungroup() %>% select(aff_pol_w2,
 #Remove NA values:
 data_for_analysis <- na.omit(data_for_analysis)
 
-#Create a matrix with the dependent variable (y) and the independent variable (x)
-y <- as.matrix(data_for_analysis[,1])
-x <- as.matrix(data_for_analysis[,-1])
+#Use glmnet lasso to choose covariates to be a part of model:
+names_of_columns_3 <- Lasso(data_for_analysis)
 
-#Set seed as specified in the pre-registration:
-set.seed(938)
-#k-fold cross-validation for glmnet returns a value for lambda
-fit1 = glmnet(x,y, family="gaussian")
-cvob1 = cv.glmnet(x,y)
-coefficients <- coef(fit1,s=cvob1$lambda.min)
-
-#Dependent variable data:
-data_for_regression = data_for_analysis[,1]
-#Possible independent variables:
-names_of_columns = colnames(data_for_analysis)[1]
-
-#Create list of coefficients that should be included:
-for(i in 2:nrow(coefficients)){
-  if(coefficients[i,1] != 0){
-    z=i-1
-    data_for_regression = cbind(data_for_regression,data_for_analysis[,i])
-    names_of_columns <- c(names_of_columns,colnames(data_for_analysis)[i])
-  }
-}
-
-#Create list of covariates that should be included:
-names_of_columns_3 <- c(names_of_columns,'Complied','Treated')
 names.use <- names(data_frame_1)[(names(data_frame_1) %in% names_of_columns_3)]
 
 #Create dataset using the covariates that are specified that should be included:
@@ -1329,33 +887,9 @@ data_for_analysis <- data_frame_1 %>% ungroup() %>% select(Pol_cyn_2,
 #Remove NA values:
 data_for_analysis <- na.omit(data_for_analysis)
 
-#Create a matrix with the dependent variable (y) and the independent variable (x)
-y <- as.matrix(data_for_analysis[,1])
-x <- as.matrix(data_for_analysis[,-1])
+#Use glmnet lasso to choose covariates to be a part of model:
+names_of_columns_3 <- Lasso(data_for_analysis)
 
-#Set seed as specified in the pre-registration:
-set.seed(938)
-#k-fold cross-validation for glmnet returns a value for lambda
-fit1 = glmnet(x,y, family="gaussian")
-cvob1 = cv.glmnet(x,y)
-coefficients <- coef(fit1,s=cvob1$lambda.min)
-
-#Dependent variable data:
-data_for_regression = data_for_analysis[,1]
-#Possible independent variables:
-names_of_columns = colnames(data_for_analysis)[1]
-
-#Create list of coefficients that should be included:
-for(i in 2:nrow(coefficients)){
-  if(coefficients[i,1] != 0){
-    z=i-1
-    data_for_regression = cbind(data_for_regression,data_for_analysis[,i])
-    names_of_columns <- c(names_of_columns,colnames(data_for_analysis)[i])
-  }
-}
-
-#Create list of covariates that should be included:
-names_of_columns_3 <- c(names_of_columns,'Complied','Treated')
 names.use <- names(data_frame_1)[(names(data_frame_1) %in% names_of_columns_3)]
 
 #Create dataset using the covariates that are specified that should be included:
@@ -1398,33 +932,8 @@ data_for_analysis <- data_frame_1 %>% ungroup() %>% select(BLM_Misinfo_Index_w2,
 #Remove NA values:
 data_for_analysis <- na.omit(data_for_analysis)
 
-#Create a matrix with the dependent variable (y) and the independent variable (x)
-y <- as.matrix(data_for_analysis[,1])
-x <- as.matrix(data_for_analysis[,-1])
-
-#Set seed as specified in the pre-registration:
-set.seed(938)
-#k-fold cross-validation for glmnet returns a value for lambda
-fit1 = glmnet(x,y, family="gaussian")
-cvob1 = cv.glmnet(x,y)
-coefficients <- coef(fit1,s=cvob1$lambda.min)
-
-#Dependent variable data:
-data_for_regression = data_for_analysis[,1]
-#Possible independent variables:
-names_of_columns = colnames(data_for_analysis)[1]
-
-#Create list of coefficients that should be included:
-for(i in 2:nrow(coefficients)){
-  if(coefficients[i,1] != 0){
-    z=i-1
-    data_for_regression = cbind(data_for_regression,data_for_analysis[,i])
-    names_of_columns <- c(names_of_columns,colnames(data_for_analysis)[i])
-  }
-}
-
-#Create list of covariates that should be included:
-names_of_columns_3 <- c(names_of_columns,'Complied','Treated')
+#Use glmnet lasso to choose covariates to be a part of model:
+names_of_columns_3 <- Lasso(data_for_analysis)
 
 names.use <- names(data_frame_1)[(names(data_frame_1) %in% names_of_columns_3)]
 
@@ -1434,10 +943,6 @@ data_for_analysis <- data_frame_1[, names.use]
 ivreg_BLM_Misinfo_compl_2 <- iv_robust(BLM_Misinfo_Index_w2 ~  . - Complied | . - Treated, data = data_for_analysis)
 
 ################################# Covid Misinformation Index ################################
-
-#log_news
-
-
 data_for_analysis <- data_frame_1 %>% ungroup() %>% select(Covid_Misinfo_Index_w2,
                                                           gender_dummy_fem,
                                                           educ_score,
@@ -1464,33 +969,8 @@ data_for_analysis <- data_frame_1 %>% ungroup() %>% select(Covid_Misinfo_Index_w
 #Remove NA values:
 data_for_analysis <- na.omit(data_for_analysis)
 
-#Create a matrix with the dependent variable (y) and the independent variable (x)
-y <- as.matrix(data_for_analysis[,1])
-x <- as.matrix(data_for_analysis[,-1])
-
-#Set seed as specified in the pre-registration:
-set.seed(938)
-#k-fold cross-validation for glmnet returns a value for lambda
-fit1 = glmnet(x,y, family="gaussian")
-cvob1 = cv.glmnet(x,y)
-coefficients <- coef(fit1,s=cvob1$lambda.min)
-
-#Dependent variable data:
-data_for_regression = data_for_analysis[,1]
-#Possible independent variables:
-names_of_columns = colnames(data_for_analysis)[1]
-
-#Create list of coefficients that should be included:
-for(i in 2:nrow(coefficients)){
-  if(coefficients[i,1] != 0){
-    z=i-1
-    data_for_regression = cbind(data_for_regression,data_for_analysis[,i])
-    names_of_columns <- c(names_of_columns,colnames(data_for_analysis)[i])
-  }
-}
-
-#Create list of covariates that should be included:
-names_of_columns_3 <- c(names_of_columns,'Complied','Treated')
+#Use glmnet lasso to choose covariates to be a part of model:
+names_of_columns_3 <- Lasso(data_for_analysis)
 
 names.use <- names(data_frame_1)[(names(data_frame_1) %in% names_of_columns_3)]
 
@@ -1499,14 +979,7 @@ data_for_analysis <- data_frame_1[, names.use]
 
 ivreg_Covid_Misinfo_compl_2 <- iv_robust(Covid_Misinfo_Index_w2 ~  . - Complied | . - Treated, data = data_for_analysis)
 
-
-
-
-
-
 ################################# BLM Information Index ################################
-
-
 data_for_analysis <- data_frame_1 %>% ungroup() %>% select(BLM_info_Index_w2,
                                                           gender_dummy_fem,
                                                           educ_score,
@@ -1530,33 +1003,8 @@ data_for_analysis <- data_frame_1 %>% ungroup() %>% select(BLM_info_Index_w2,
 #Remove NA values:
 data_for_analysis <- na.omit(data_for_analysis)
 
-#Create a matrix with the dependent variable (y) and the independent variable (x)
-y <- as.matrix(data_for_analysis[,1])
-x <- as.matrix(data_for_analysis[,-1])
-
-#Set seed as specified in the pre-registration:
-set.seed(938)
-#k-fold cross-validation for glmnet returns a value for lambda
-fit1 = glmnet(x,y, family="gaussian")
-cvob1 = cv.glmnet(x,y)
-coefficients <- coef(fit1,s=cvob1$lambda.min)
-
-#Dependent variable data:
-data_for_regression = data_for_analysis[,1]
-#Possible independent variables:
-names_of_columns = colnames(data_for_analysis)[1]
-
-#Create list of coefficients that should be included:
-for(i in 2:nrow(coefficients)){
-  if(coefficients[i,1] != 0){
-    z=i-1
-    data_for_regression = cbind(data_for_regression,data_for_analysis[,i])
-    names_of_columns <- c(names_of_columns,colnames(data_for_analysis)[i])
-  }
-}
-
-#Create list of covariates that should be included:
-names_of_columns_3 <- c(names_of_columns,'Complied','Treated')
+#Use glmnet lasso to choose covariates to be a part of model:
+names_of_columns_3 <- Lasso(data_for_analysis)
 
 names.use <- names(data_frame_1)[(names(data_frame_1) %in% names_of_columns_3)]
 
@@ -1564,11 +1012,6 @@ data_for_analysis <- data_frame_1[, names.use]
 
 
 ivreg_BLM_info_compl_2 <- iv_robust(BLM_info_Index_w2 ~  . - Complied | . - Treated, data = data_for_analysis)
-
-
-
-
-
 
 ################################# Covid-19 Information Index ################################
 data_for_analysis <- data_frame_1 %>% ungroup() %>% select(Covid_info_Index_w2,
@@ -1595,38 +1038,12 @@ data_for_analysis <- data_frame_1 %>% ungroup() %>% select(Covid_info_Index_w2,
 #Remove NA values:
 data_for_analysis <- na.omit(data_for_analysis)
 
-#Create a matrix with the dependent variable (y) and the independent variable (x)
-y <- as.matrix(data_for_analysis[,1])
-x <- as.matrix(data_for_analysis[,-1])
-
-#Set seed as specified in the pre-registration:
-set.seed(938)
-#k-fold cross-validation for glmnet returns a value for lambda
-fit1 = glmnet(x,y, family="gaussian")
-cvob1 = cv.glmnet(x,y)
-coefficients <- coef(fit1,s=cvob1$lambda.min)
-
-#Dependent variable data:
-data_for_regression = data_for_analysis[,1]
-#Possible independent variables:
-names_of_columns = colnames(data_for_analysis)[1]
-
-#Create list of coefficients that should be included:
-for(i in 2:nrow(coefficients)){
-  if(coefficients[i,1] != 0){
-    z=i-1
-    data_for_regression = cbind(data_for_regression,data_for_analysis[,i])
-    names_of_columns <- c(names_of_columns,colnames(data_for_analysis)[i])
-  }
-}
-
-#Create list of covariates that should be included:
-names_of_columns_3 <- c(names_of_columns,'Complied','Treated')
+#Use glmnet lasso to choose covariates to be a part of model:
+names_of_columns_3 <- Lasso(data_for_analysis)
 
 names.use <- names(data_frame_1)[(names(data_frame_1) %in% names_of_columns_3)]
 
 data_for_analysis <- data_frame_1[, names.use]
-
 
 ivreg_Covid_info_compl_2 <- iv_robust(Covid_info_Index_w2 ~  . - Complied | . - Treated, data = data_for_analysis)
 
@@ -1634,8 +1051,6 @@ ivreg_Covid_info_compl_2 <- iv_robust(Covid_info_Index_w2 ~  . - Complied | . - 
 ###### Research Question 2: We explore whether downstream effects occur on other outcomes such as trust in institutions, belief that ``fake news'' is a problem in general, and belief that ``fake news'' is a problem in the mainstream media ######
 
 ################################# Is Fake News a Problem in the Mainstream Media?  ################################
-
-
 data_for_analysis <- data_frame_1 %>% ungroup() %>% select(SMP4310_w2,
                                                           SMP4310,
                                                           gender_dummy_fem,
@@ -1660,33 +1075,8 @@ data_for_analysis <- data_frame_1 %>% ungroup() %>% select(SMP4310_w2,
 #Remove NA values:
 data_for_analysis <- na.omit(data_for_analysis)
 
-#Create a matrix with the dependent variable (y) and the independent variable (x)
-y <- as.matrix(data_for_analysis[,1])
-x <- as.matrix(data_for_analysis[,-1])
-
-#Set seed as specified in the pre-registration:
-set.seed(938)
-#k-fold cross-validation for glmnet returns a value for lambda
-fit1 = glmnet(x,y, family="gaussian")
-cvob1 = cv.glmnet(x,y)
-coefficients <- coef(fit1,s=cvob1$lambda.min)
-
-#Dependent variable data:
-data_for_regression = data_for_analysis[,1]
-#Possible independent variables:
-names_of_columns = colnames(data_for_analysis)[1]
-
-#Create list of coefficients that should be included:
-for(i in 2:nrow(coefficients)){
-  if(coefficients[i,1] != 0){
-    z=i-1
-    data_for_regression = cbind(data_for_regression,data_for_analysis[,i])
-    names_of_columns <- c(names_of_columns,colnames(data_for_analysis)[i])
-  }
-}
-
-#Create list of covariates that should be included:
-names_of_columns_3 <- c(names_of_columns,'Complied','Treated')
+#Use glmnet lasso to choose covariates to be a part of model:
+names_of_columns_3 <- Lasso(data_for_analysis)
 
 names.use <- names(data_frame_1)[(names(data_frame_1) %in% names_of_columns_3)]
 
@@ -1724,33 +1114,8 @@ data_for_analysis <- data_frame_1 %>% ungroup() %>% select(SMP4326_w2,
 #Remove NA values:
 data_for_analysis <- na.omit(data_for_analysis)
 
-#Create a matrix with the dependent variable (y) and the independent variable (x)
-y <- as.matrix(data_for_analysis[,1])
-x <- as.matrix(data_for_analysis[,-1])
-
-#Set seed as specified in the pre-registration:
-set.seed(938)
-#k-fold cross-validation for glmnet returns a value for lambda
-fit1 = glmnet(x,y, family="gaussian")
-cvob1 = cv.glmnet(x,y)
-coefficients <- coef(fit1,s=cvob1$lambda.min)
-
-#Dependent variable data:
-data_for_regression = data_for_analysis[,1]
-#Possible independent variables:
-names_of_columns = colnames(data_for_analysis)[1]
-
-#Create list of coefficients that should be included:
-for(i in 2:nrow(coefficients)){
-  if(coefficients[i,1] != 0){
-    z=i-1
-    data_for_regression = cbind(data_for_regression,data_for_analysis[,i])
-    names_of_columns <- c(names_of_columns,colnames(data_for_analysis)[i])
-  }
-}
-
-#Create list of covariates that should be included:
-names_of_columns_3 <- c(names_of_columns,'Complied','Treated')
+#Use glmnet lasso to choose covariates to be a part of model:
+names_of_columns_3 <- Lasso(data_for_analysis)
 
 names.use <- names(data_frame_1)[(names(data_frame_1) %in% names_of_columns_3)]
 
@@ -1788,33 +1153,9 @@ data_for_analysis <- data_frame_1 %>% ungroup() %>% select(Trust_inst_w2,
 #Remove NA values:
 data_for_analysis <- na.omit(data_for_analysis)
 
-#Create a matrix with the dependent variable (y) and the independent variable (x)
-y <- as.matrix(data_for_analysis[,1])
-x <- as.matrix(data_for_analysis[,-1])
+#Use glmnet lasso to choose covariates to be a part of model:
+names_of_columns_3 <- Lasso(data_for_analysis)
 
-#Set seed as specified in the pre-registration:
-set.seed(938)
-#k-fold cross-validation for glmnet returns a value for lambda
-fit1 = glmnet(x,y, family="gaussian")
-cvob1 = cv.glmnet(x,y)
-coefficients <- coef(fit1,s=cvob1$lambda.min)
-
-#Dependent variable data:
-data_for_regression = data_for_analysis[,1]
-#Possible independent variables:
-names_of_columns = colnames(data_for_analysis)[1]
-
-#Create list of coefficients that should be included:
-for(i in 2:nrow(coefficients)){
-  if(coefficients[i,1] != 0){
-    z=i-1
-    data_for_regression = cbind(data_for_regression,data_for_analysis[,i])
-    names_of_columns <- c(names_of_columns,colnames(data_for_analysis)[i])
-  }
-}
-
-#Create list of covariates that should be included:
-names_of_columns_3 <- c(names_of_columns,'Complied','Treated')
 
 names.use <- names(data_frame_1)[(names(data_frame_1) %in% names_of_columns_3)]
 
@@ -1828,8 +1169,6 @@ ivreg_Trust_inst_compl_2 <- iv_robust(Trust_inst_w2 ~  . - Complied | . - Treate
 
 
 #Figure 2 in Paper:
-
-
 
 Period <- c('Before July 1st',
             'July 1st - July 13th',
@@ -1944,7 +1283,7 @@ ggplot(data = d_matrix, aes(x = x, y = Coefficients)) +
                                                                        'Average Reliability Score\nof Online News Consumed'),limits=c(0.5,3.4)) +
   coord_flip()
 
-ggsave('./Figures/Behavioral_Coefficients.png',height=14,width=10)
+ggsave('./Figures/Behavioral_Coefficients.png',height=12,width=10)
 
 
 
@@ -2008,7 +1347,7 @@ ggplot() +
   ylab('Proportion of online news diet that is from unreliable news sources (July 1st-July 13th)\n') +
   guides(shape=guide_legend(title="Group"),color=guide_legend(title="Group"))
 
-ggsave('./Figures/Scatter_Full.png',width =12,height=12)
+ggsave('./Figures/Scatter_Full.png',width =9,height=9)
 
 
 #Figure 3b in Paper:
@@ -2077,7 +1416,7 @@ ggplot() +
   ylab('Average Reliability Score of Online News Diet (July 1st-July 13th)\n') +
   guides(shape=guide_legend(title="Group"),color=guide_legend(title="Group"))
 
-ggsave('./Figures/Scatter_Full_2.png',width =12,height=12)
+ggsave('./Figures/Scatter_Full_2.png',width =9,height=9)
 
 
 
@@ -2207,31 +1546,4 @@ ggplot(data = d_matrix, aes(x = x, y = Coefficients)) +
   coord_flip()
 
 
-ggsave('./Figures/Survey_Coefficients.png',height=14,width=10)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+ggsave('./Figures/Survey_Coefficients.png',height=12,width=10)
