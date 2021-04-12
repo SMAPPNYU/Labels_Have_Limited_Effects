@@ -756,6 +756,50 @@ data_frame_1 <- data_frame_1[order(data_frame_1$visa1),]
 
 
 
+#Clean Data:
+
+Clean <- function(data_for_analysis) {
+  #Replace Infinite values in data with NA
+  data_for_analysis <- do.call(data.frame,                      
+                               lapply(data_for_analysis,
+                                      function(x) replace(x, is.infinite(x), NA)))
+  #Remove NA values:
+  data_for_analysis <- na.omit(data_for_analysis)
+  
+  return(data_for_analysis)
+}
+
+
+#Create a function using glmnet lasso that chooses the variables to use:
+Lasso <- function(data_for_analysis) {
+  y <- as.matrix(data_for_analysis[,1])
+  x <- as.matrix(data_for_analysis[,-1])
+  
+  #Set seed as specified in the pre-registration:
+  set.seed(938)
+  #k-fold cross-validation for glmnet returns a value for lambda
+  fit1 = glmnet(x,y, family="gaussian")
+  cvob1 = cv.glmnet(x,y)
+  coefficients <- coef(fit1,s=cvob1$lambda.min)
+  
+  #Dependent variable data:
+  data_for_regression = data_for_analysis[,1]
+  #Possible independent variables:
+  names_of_columns = colnames(data_for_analysis)[1]
+  
+  #Create list of coefficients that should be included:
+  for(i in 2:nrow(coefficients)){
+    if(coefficients[i,1] != 0){
+      z=i-1
+      data_for_regression = cbind(data_for_regression,data_for_analysis[,i])
+      names_of_columns <- c(names_of_columns,colnames(data_for_analysis)[i])
+    }
+  }
+  #Create list of covariates that should be included:
+  return(names_of_columns)
+}
+
+
 
 ################## Behavioral Measures (Covariate-Adjusted Models) ##############################################
 
@@ -917,41 +961,13 @@ for(i in 1:length(list_variables_to_run)){
 
   data_for_analysis <- Pulse_data %>% ungroup() %>% select(`list_possible_covariates_for_use`)
   
-  data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
-                               lapply(data_for_analysis,
-                                      function(x) replace(x, is.infinite(x), NA)))
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
   
-  data_for_analysis <- na.omit(data_for_analysis)
-  
-  y <- as.matrix(data_for_analysis[,1])
-  # covariates start in column 2
-  x <- as.matrix(data_for_analysis[,-1])
-  
-  #k-fold cross-validation for glmnet returns a value for lambda
-  
-  # (glmnet can fit linear, logistic, multinomial, poisson, and Cox regression models)
-  
-  set.seed(938)
-  fit1 = glmnet(x,y, family="gaussian")
-  cvob1 = cv.glmnet(x,y)
-  coefficients <- coef(fit1,s=cvob1$lambda.min)
-  
-  
-  data_for_regression = data_for_analysis[,1]
-  names_of_columns = colnames(data_for_analysis)[1]
-  for(x in 2:nrow(coefficients)){
-    if(coefficients[x,1] != 0){
-      z=x-1
-      data_for_regression = cbind(data_for_regression,data_for_analysis[,x])
-      names_of_columns <- c(names_of_columns,colnames(data_for_analysis)[x])
-    }
-  }
+  #Use glmnet lasso to choose covariates to be a part of model:
+  names_of_columns <- Lasso(data_for_analysis)
   
   #names_of_columns
-  
-  #Reporting unadjusted (differences in means) and covariate-adjusted 
-  #estimates of treatment effects. We will use HC2 robust standard errors in all analyses and report 
-  #$p$-values from two-tailed $t$-tests.
   
   names_of_columns <- c('Treated',names_of_columns)
   
@@ -960,11 +976,8 @@ for(i in 1:length(list_variables_to_run)){
   
   data_for_analysis <- Pulse_data[, names.use]
   
-  data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
-                               lapply(data_for_analysis,
-                                      function(x) replace(x, is.infinite(x), NA)))
-  
-  data_for_analysis <- na.omit(data_for_analysis)
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
   
   f <- paste0(list_variables_to_run[[i]][1], " ~ .")
   
@@ -972,17 +985,11 @@ for(i in 1:length(list_variables_to_run)){
   
   
   names_of_columns_2 <- c(names_of_columns,'compliance_check_1')
-  
-  
   names.use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_2)]
-  
   data_for_analysis <- Pulse_data[, names.use]
   
-  data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
-                               lapply(data_for_analysis,
-                                      function(x) replace(x, is.infinite(x), NA)))
-  
-  data_for_analysis <- na.omit(data_for_analysis)
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
   
   f <- paste0(list_variables_to_run[[i]][1], '~ . - compliance_check_1 | . - Treated')
   
@@ -991,21 +998,12 @@ for(i in 1:length(list_variables_to_run)){
   
   
   # #CACE Model 2 - Passed first and second wave compliance check
-  
   names_of_columns_3 <- c(names_of_columns,'Complied')
-  
   names.use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_3)]
-  
   data_for_analysis <- Pulse_data[, names.use]
-  
-  data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
-                               lapply(data_for_analysis,
-                                      function(x) replace(x, is.infinite(x), NA)))
-  
-  data_for_analysis <- na.omit(data_for_analysis)
-  
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
   f <- paste0(list_variables_to_run[[i]][1], '~  . - Complied | . - Treated')
-  
   CACE_Model_2 <- iv_robust(as.formula(f), data = data_for_analysis)
   
   #names of the variables:
@@ -1199,104 +1197,44 @@ for(i in 1:length(list_variables_to_run)){
   
   data_for_analysis <- data_frame_1 %>% ungroup() %>% select(`list_possible_covariates_for_use`)
   
-  data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
-                               lapply(data_for_analysis,
-                                      function(x) replace(x, is.infinite(x), NA)))
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
   
-  data_for_analysis <- na.omit(data_for_analysis)
+  #Use glmnet lasso to choose covariates to be a part of model:
+  names_of_columns <- Lasso(data_for_analysis)
   
-  y <- as.matrix(data_for_analysis[,1])
-  # covariates start in column 2
-  x <- as.matrix(data_for_analysis[,-1])
-  
-  #k-fold cross-validation for glmnet returns a value for lambda
-  
-  # (glmnet can fit linear, logistic, multinomial, poisson, and Cox regression models)
-  
-  set.seed(938)
-  fit1 = glmnet(x,y, family="gaussian")
-  cvob1 = cv.glmnet(x,y)
-  coefficients <- coef(fit1,s=cvob1$lambda.min)
-  
-  
-  data_for_regression = data_for_analysis[,1]
-  names_of_columns = colnames(data_for_analysis)[1]
-  for(x in 2:nrow(coefficients)){
-    if(coefficients[x,1] != 0){
-      z=x-1
-      data_for_regression = cbind(data_for_regression,data_for_analysis[,x])
-      names_of_columns <- c(names_of_columns,colnames(data_for_analysis)[x])
-    }
-  }
-  
-  #names_of_columns
-  
-  #Reporting unadjusted (differences in means) and covariate-adjusted 
-  #(OLS) estimates of treatment effects. We will use HC2 robust standard errors in all analyses and report 
-  #$p$-values from two-tailed $t$-tests.
-  
-  
-  #Reporting unadjusted (differences in means) and covariate-adjusted 
   #(OLS) estimates of treatment effects. We will use HC2 robust standard errors in all analyses and report 
   #$p$-values from two-tailed $t$-tests.
   
   names_of_columns <- c('Treated',names_of_columns)
-  
-  
   names.use <- names(data_frame_1)[(names(data_frame_1) %in% names_of_columns)]
-  
   data_for_analysis <- data_frame_1[, names.use]
-  
-  data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
-                               lapply(data_for_analysis,
-                                      function(x) replace(x, is.infinite(x), NA)))
-  
-  data_for_analysis <- na.omit(data_for_analysis)
-  
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
   f <- paste0(list_variables_to_run[[i]][1], " ~ .")
-  
   ITT_Model <- lm_robust(as.formula(f), data = data_for_analysis)
   
-  
+  #CACE Model 1  
   names_of_columns_2 <- c(names_of_columns,'compliance_check_1')
-  
-  
   names.use <- names(data_frame_1)[(names(data_frame_1) %in% names_of_columns_2)]
-  
   data_for_analysis <- data_frame_1[, names.use]
-  
-  data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
-                               lapply(data_for_analysis,
-                                      function(x) replace(x, is.infinite(x), NA)))
-  
-  data_for_analysis <- na.omit(data_for_analysis)
-  
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
   f <- paste0(list_variables_to_run[[i]][1], '~ . - compliance_check_1 | . - Treated')
-  
   #CACE Model 1
   CACE_Model_1 <- iv_robust(as.formula(f), data = data_for_analysis)
   
   
   # #CACE Model 2 - Passed first and second wave compliance check
-  
   names_of_columns_3 <- c(names_of_columns,'Complied')
-  
   names.use <- names(data_frame_1)[(names(data_frame_1) %in% names_of_columns_3)]
-  
   data_for_analysis <- data_frame_1[, names.use]
-  
-  data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
-                               lapply(data_for_analysis,
-                                      function(x) replace(x, is.infinite(x), NA)))
-  
-  data_for_analysis <- na.omit(data_for_analysis)
-  
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
   f <- paste0(list_variables_to_run[[i]][1], '~  . - Complied | . - Treated')
-  
   CACE_Model_2 <- iv_robust(as.formula(f), data = data_for_analysis)
   
   #names of the variables:
-  
   Variable_Names <- names(CACE_Model_2$coefficients)[-1]
   Variable_Names <- str_replace_all(Variable_Names, top_attributes_html)
   
@@ -1317,9 +1255,6 @@ texreg(list(ITT_Model,CACE_Model_1,CACE_Model_2),
 
 
 ################## Behavioral Measures (Covariate-Unadjusted Models) ##############################################
-
-
-
 
 #List of possible variables for inclusion:
 list_possible_covariates <- c("gender_dummy_fem",
@@ -1475,11 +1410,8 @@ for(i in 1:length(list_variables_to_run)){
   
   data_for_analysis <- Pulse_data %>% ungroup() %>% select(`list_possible_covariates_for_use`)
   
-  data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
-                               lapply(data_for_analysis,
-                                      function(x) replace(x, is.infinite(x), NA)))
-  
-  data_for_analysis <- na.omit(data_for_analysis)
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
   
   f <- paste0(list_variables_to_run[[i]][1], " ~ .")
   
@@ -1491,11 +1423,8 @@ for(i in 1:length(list_variables_to_run)){
   
   data_for_analysis <- Pulse_data[, names.use]
   
-  data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
-                               lapply(data_for_analysis,
-                                      function(x) replace(x, is.infinite(x), NA)))
-  
-  data_for_analysis <- na.omit(data_for_analysis)
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
   
   f <- paste0(list_variables_to_run[[i]][1], '~ . - compliance_check_1 | . - Treated')
   
@@ -1511,11 +1440,8 @@ for(i in 1:length(list_variables_to_run)){
   
   data_for_analysis <- Pulse_data[, names.use]
   
-  data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
-                               lapply(data_for_analysis,
-                                      function(x) replace(x, is.infinite(x), NA)))
-  
-  data_for_analysis <- na.omit(data_for_analysis)
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
   
   f <- paste0(list_variables_to_run[[i]][1], '~  . - Complied | . - Treated')
   
@@ -1707,11 +1633,8 @@ for(i in 1:length(list_variables_to_run)){
   
   data_for_analysis <- data_frame_1 %>% ungroup() %>% select(`list_possible_covariates_for_use`)
   
-  data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
-                               lapply(data_for_analysis,
-                                      function(x) replace(x, is.infinite(x), NA)))
-  
-  data_for_analysis <- na.omit(data_for_analysis)
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
   
   f <- paste0(list_variables_to_run[[i]][1], " ~ .")
   
@@ -1726,11 +1649,8 @@ for(i in 1:length(list_variables_to_run)){
   
   data_for_analysis <- data_frame_1[, names.use]
   
-  data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
-                               lapply(data_for_analysis,
-                                      function(x) replace(x, is.infinite(x), NA)))
-  
-  data_for_analysis <- na.omit(data_for_analysis)
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
   
   f <- paste0(list_variables_to_run[[i]][1], '~ . - compliance_check_1 | . - Treated')
   
@@ -1746,11 +1666,8 @@ for(i in 1:length(list_variables_to_run)){
   
   data_for_analysis <- data_frame_1[, names.use]
   
-  data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
-                               lapply(data_for_analysis,
-                                      function(x) replace(x, is.infinite(x), NA)))
-  
-  data_for_analysis <- na.omit(data_for_analysis)
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
   
   f <- paste0(list_variables_to_run[[i]][1], '~  . - Complied | . - Treated')
   
@@ -1889,47 +1806,12 @@ list_moderators <- c('Age',
 
 for(i in 1:length(list_variables_to_run)){
 list_possible_covariates_for_use <- c(list_variables_to_run[[i]],list_possible_covariates)
-
 data_for_analysis <- Pulse_data %>% ungroup() %>% select(`list_possible_covariates_for_use`)
+#Clean Data:
+data_for_analysis <- Clean(data_for_analysis)
+#Use glmnet lasso to choose covariates to be a part of model:
+names_of_columns <- Lasso(data_for_analysis)
 
-data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
-                             lapply(data_for_analysis,
-                                    function(x) replace(x, is.infinite(x), NA)))
-
-data_for_analysis <- na.omit(data_for_analysis)
-
-y <- as.matrix(data_for_analysis[,1])
-# covariates start in column 2
-x <- as.matrix(data_for_analysis[,-1])
-
-#k-fold cross-validation for glmnet returns a value for lambda
-
-# (glmnet can fit linear, logistic, multinomial, poisson, and Cox regression models)
-
-set.seed(938)
-fit1 = glmnet(x,y, family="gaussian")
-cvob1 = cv.glmnet(x,y)
-coefficients <- coef(fit1,s=cvob1$lambda.min)
-
-
-data_for_regression = data_for_analysis[,1]
-names_of_columns = colnames(data_for_analysis)[1]
-for(x in 2:nrow(coefficients)){
-  if(coefficients[x,1] != 0){
-    z=x-1
-    data_for_regression = cbind(data_for_regression,data_for_analysis[,x])
-    names_of_columns <- c(names_of_columns,colnames(data_for_analysis)[x])
-  }
-}
-
-#names_of_columns
-
-#Reporting unadjusted (differences in means) and covariate-adjusted 
-#(OLS) estimates of treatment effects. We will use HC2 robust standard errors in all analyses and report 
-#$p$-values from two-tailed $t$-tests.
-
-
-#Reporting unadjusted (differences in means) and covariate-adjusted 
 #(OLS) estimates of treatment effects. We will use HC2 robust standard errors in all analyses and report 
 #$p$-values from two-tailed $t$-tests.
 
@@ -1942,10 +1824,8 @@ names.use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_M1)]
 
 data_for_analysis <- Pulse_data[, names.use]
 
-data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
-                             lapply(data_for_analysis,
-                                    function(x) replace(x, is.infinite(x), NA)))
-
+#Clean Data:
+data_for_analysis <- Clean(data_for_analysis)
 
 colnames(data_for_analysis)[which(names(data_for_analysis) == "Total_DL")] <- "Moderator"
 
@@ -1965,9 +1845,8 @@ names.use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_M1)]
 
 data_for_analysis <- Pulse_data[, names.use]
 
-data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
-                             lapply(data_for_analysis,
-                                    function(x) replace(x, is.infinite(x), NA)))
+#Clean Data:
+data_for_analysis <- Clean(data_for_analysis)
 
 
 colnames(data_for_analysis)[which(names(data_for_analysis) == "Total_Science_Misinfo")] <- "Moderator"
@@ -1984,9 +1863,8 @@ names.use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_M1)]
 
 data_for_analysis <- Pulse_data[, names.use]
 
-data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
-                             lapply(data_for_analysis,
-                                    function(x) replace(x, is.infinite(x), NA)))
+#Clean Data:
+data_for_analysis <- Clean(data_for_analysis)
 
 colnames(data_for_analysis)[which(names(data_for_analysis) == "Age")] <- "Moderator"
 
@@ -2003,9 +1881,8 @@ names.use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_M1)]
 
 data_for_analysis <- Pulse_data[, names.use]
 
-data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
-                             lapply(data_for_analysis,
-                                    function(x) replace(x, is.infinite(x), NA)))
+#Clean Data:
+data_for_analysis <- Clean(data_for_analysis)
 
 colnames(data_for_analysis)[which(names(data_for_analysis) == "Social_Media_Use")] <- "Moderator"
 
@@ -2022,9 +1899,8 @@ names.use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_M2)]
 
 data_for_analysis <- Pulse_data[, names.use]
 
-data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
-                             lapply(data_for_analysis,
-                                    function(x) replace(x, is.infinite(x), NA)))
+#Clean Data:
+data_for_analysis <- Clean(data_for_analysis)
 
 colnames(data_for_analysis)[which(names(data_for_analysis) == "mean_cons")] <- "Moderator"
 
@@ -2041,9 +1917,8 @@ names.use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_M2)]
 
 data_for_analysis <- Pulse_data[, names.use]
 
-data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
-                             lapply(data_for_analysis,
-                                    function(x) replace(x, is.infinite(x), NA)))
+#Clean Data:
+data_for_analysis <- Clean(data_for_analysis)
 
 
 colnames(data_for_analysis)[which(names(data_for_analysis) == "abs_part")] <- "Moderator"
@@ -2062,9 +1937,8 @@ names.use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_M2)]
 
 data_for_analysis <- Pulse_data[, names.use]
 
-data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
-                             lapply(data_for_analysis,
-                                    function(x) replace(x, is.infinite(x), NA)))
+#Clean Data:
+data_for_analysis <- Clean(data_for_analysis)
 
 colnames(data_for_analysis)[which(names(data_for_analysis) == "Prop_Unreliable_NewsG_Score")] <- "Moderator"
 
@@ -2200,35 +2074,11 @@ for(i in 1:length(list_variables_to_run)){
   
   data_for_analysis <- data_frame_1 %>% ungroup() %>% select(`list_possible_covariates_for_use`)
   
-  data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
-                               lapply(data_for_analysis,
-                                      function(x) replace(x, is.infinite(x), NA)))
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
   
-  data_for_analysis <- na.omit(data_for_analysis)
-  
-  y <- as.matrix(data_for_analysis[,1])
-  # covariates start in column 2
-  x <- as.matrix(data_for_analysis[,-1])
-  
-  #k-fold cross-validation for glmnet returns a value for lambda
-  
-  # (glmnet can fit linear, logistic, multinomial, poisson, and Cox regression models)
-  
-  set.seed(938)
-  fit1 = glmnet(x,y, family="gaussian")
-  cvob1 = cv.glmnet(x,y)
-  coefficients <- coef(fit1,s=cvob1$lambda.min)
-  
-  
-  data_for_regression = data_for_analysis[,1]
-  names_of_columns = colnames(data_for_analysis)[1]
-  for(x in 2:nrow(coefficients)){
-    if(coefficients[x,1] != 0){
-      z=x-1
-      data_for_regression = cbind(data_for_regression,data_for_analysis[,x])
-      names_of_columns <- c(names_of_columns,colnames(data_for_analysis)[x])
-    }
-  }
+  #Use glmnet lasso to choose covariates to be a part of model:
+  names_of_columns <- Lasso(data_for_analysis)
   
   #names_of_columns
   
@@ -2250,9 +2100,8 @@ for(i in 1:length(list_variables_to_run)){
   
   data_for_analysis <- data_frame_1[, names.use]
   
-  data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
-                               lapply(data_for_analysis,
-                                      function(x) replace(x, is.infinite(x), NA)))
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
   
   
   colnames(data_for_analysis)[which(names(data_for_analysis) == "Total_DL")] <- "Moderator"
@@ -2272,9 +2121,8 @@ for(i in 1:length(list_variables_to_run)){
   
   data_for_analysis <- data_frame_1[, names.use]
   
-  data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
-                               lapply(data_for_analysis,
-                                      function(x) replace(x, is.infinite(x), NA)))
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
   
   
   colnames(data_for_analysis)[which(names(data_for_analysis) == "Total_Science_Misinfo")] <- "Moderator"
@@ -2290,9 +2138,8 @@ for(i in 1:length(list_variables_to_run)){
   
   data_for_analysis <- data_frame_1[, names.use]
   
-  data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
-                               lapply(data_for_analysis,
-                                      function(x) replace(x, is.infinite(x), NA)))
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
   
   colnames(data_for_analysis)[which(names(data_for_analysis) == "Age")] <- "Moderator"
   
@@ -2308,9 +2155,8 @@ for(i in 1:length(list_variables_to_run)){
   
   data_for_analysis <- data_frame_1[, names.use]
   
-  data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
-                               lapply(data_for_analysis,
-                                      function(x) replace(x, is.infinite(x), NA)))
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
   
   colnames(data_for_analysis)[which(names(data_for_analysis) == "Social_Media_Use")] <- "Moderator"
   
@@ -2326,9 +2172,8 @@ for(i in 1:length(list_variables_to_run)){
   
   data_for_analysis <- data_frame_1[, names.use]
   
-  data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
-                               lapply(data_for_analysis,
-                                      function(x) replace(x, is.infinite(x), NA)))
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
   
   colnames(data_for_analysis)[which(names(data_for_analysis) == "mean_cons")] <- "Moderator"
   
@@ -2344,9 +2189,8 @@ for(i in 1:length(list_variables_to_run)){
   
   data_for_analysis <- Pulse_data[, names.use]
   
-  data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
-                               lapply(data_for_analysis,
-                                      function(x) replace(x, is.infinite(x), NA)))
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
   
   colnames(data_for_analysis)[which(names(data_for_analysis) == "abs_part")] <- "Moderator"
   
@@ -2363,9 +2207,8 @@ for(i in 1:length(list_variables_to_run)){
   
   data_for_analysis <- Pulse_data[, names.use]
   
-  data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
-                               lapply(data_for_analysis,
-                                      function(x) replace(x, is.infinite(x), NA)))
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
   
   colnames(data_for_analysis)[which(names(data_for_analysis) == "Prop_Unreliable_NewsG_Score")] <- "Moderator"
   
@@ -2525,10 +2368,8 @@ for(i in 1:length(list_variables_to_run)){
   
   data_for_analysis <- Pulse_data[, names.use]
   
-  data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
-                               lapply(data_for_analysis,
-                                      function(x) replace(x, is.infinite(x), NA)))
-  
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
   
   colnames(data_for_analysis)[which(names(data_for_analysis) == "Total_DL")] <- "Moderator"
   
@@ -2548,9 +2389,8 @@ for(i in 1:length(list_variables_to_run)){
   
   data_for_analysis <- Pulse_data[, names.use]
   
-  data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
-                               lapply(data_for_analysis,
-                                      function(x) replace(x, is.infinite(x), NA)))
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
   
   
   colnames(data_for_analysis)[which(names(data_for_analysis) == "Total_Science_Misinfo")] <- "Moderator"
@@ -2567,9 +2407,8 @@ for(i in 1:length(list_variables_to_run)){
   
   data_for_analysis <- Pulse_data[, names.use]
   
-  data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
-                               lapply(data_for_analysis,
-                                      function(x) replace(x, is.infinite(x), NA)))
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
   
   colnames(data_for_analysis)[which(names(data_for_analysis) == "Age")] <- "Moderator"
   
@@ -2586,9 +2425,8 @@ for(i in 1:length(list_variables_to_run)){
   
   data_for_analysis <- Pulse_data[, names.use]
   
-  data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
-                               lapply(data_for_analysis,
-                                      function(x) replace(x, is.infinite(x), NA)))
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
   
   colnames(data_for_analysis)[which(names(data_for_analysis) == "Social_Media_Use")] <- "Moderator"
   
@@ -2605,9 +2443,8 @@ for(i in 1:length(list_variables_to_run)){
   
   data_for_analysis <- Pulse_data[, names.use]
   
-  data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
-                               lapply(data_for_analysis,
-                                      function(x) replace(x, is.infinite(x), NA)))
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
   
   colnames(data_for_analysis)[which(names(data_for_analysis) == "mean_cons")] <- "Moderator"
   
@@ -2624,9 +2461,8 @@ for(i in 1:length(list_variables_to_run)){
   
   data_for_analysis <- Pulse_data[, names.use]
   
-  data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
-                               lapply(data_for_analysis,
-                                      function(x) replace(x, is.infinite(x), NA)))
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
   
   
   colnames(data_for_analysis)[which(names(data_for_analysis) == "abs_part")] <- "Moderator"
@@ -2645,9 +2481,8 @@ for(i in 1:length(list_variables_to_run)){
   
   data_for_analysis <- Pulse_data[, names.use]
   
-  data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
-                               lapply(data_for_analysis,
-                                      function(x) replace(x, is.infinite(x), NA)))
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
   
   colnames(data_for_analysis)[which(names(data_for_analysis) == "Prop_Unreliable_NewsG_Score")] <- "Moderator"
   
@@ -2800,10 +2635,8 @@ for(i in 1:length(list_variables_to_run)){
   
   data_for_analysis <- data_frame_1[, names.use]
   
-  data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
-                               lapply(data_for_analysis,
-                                      function(x) replace(x, is.infinite(x), NA)))
-  
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
   
   colnames(data_for_analysis)[which(names(data_for_analysis) == "Total_DL")] <- "Moderator"
   
@@ -2822,9 +2655,8 @@ for(i in 1:length(list_variables_to_run)){
   
   data_for_analysis <- data_frame_1[, names.use]
   
-  data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
-                               lapply(data_for_analysis,
-                                      function(x) replace(x, is.infinite(x), NA)))
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
   
   
   colnames(data_for_analysis)[which(names(data_for_analysis) == "Total_Science_Misinfo")] <- "Moderator"
@@ -2840,9 +2672,8 @@ for(i in 1:length(list_variables_to_run)){
   
   data_for_analysis <- data_frame_1[, names.use]
   
-  data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
-                               lapply(data_for_analysis,
-                                      function(x) replace(x, is.infinite(x), NA)))
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
   
   colnames(data_for_analysis)[which(names(data_for_analysis) == "Age")] <- "Moderator"
   
@@ -2858,9 +2689,8 @@ for(i in 1:length(list_variables_to_run)){
   
   data_for_analysis <- data_frame_1[, names.use]
   
-  data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
-                               lapply(data_for_analysis,
-                                      function(x) replace(x, is.infinite(x), NA)))
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
   
   colnames(data_for_analysis)[which(names(data_for_analysis) == "Social_Media_Use")] <- "Moderator"
   
@@ -2876,9 +2706,8 @@ for(i in 1:length(list_variables_to_run)){
   
   data_for_analysis <- data_frame_1[, names.use]
   
-  data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
-                               lapply(data_for_analysis,
-                                      function(x) replace(x, is.infinite(x), NA)))
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
   
   colnames(data_for_analysis)[which(names(data_for_analysis) == "mean_cons")] <- "Moderator"
   
@@ -2894,9 +2723,8 @@ for(i in 1:length(list_variables_to_run)){
   
   data_for_analysis <- Pulse_data[, names.use]
   
-  data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
-                               lapply(data_for_analysis,
-                                      function(x) replace(x, is.infinite(x), NA)))
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
   
   colnames(data_for_analysis)[which(names(data_for_analysis) == "abs_part")] <- "Moderator"
   
@@ -2913,9 +2741,8 @@ for(i in 1:length(list_variables_to_run)){
   
   data_for_analysis <- Pulse_data[, names.use]
   
-  data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
-                               lapply(data_for_analysis,
-                                      function(x) replace(x, is.infinite(x), NA)))
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
   
   colnames(data_for_analysis)[which(names(data_for_analysis) == "Prop_Unreliable_NewsG_Score")] <- "Moderator"
   
