@@ -39,6 +39,7 @@ Pulse_data <- read_csv('./Data/Clean_NewsGuard_Digital_Trace_Data.csv',
                          Treated = col_double(),
                          Complied=col_double(),
                          Total_DL =  col_double(),
+                         Inverse_DL = col_double(),
                          Total_Science_Misinfo  =  col_double(),
                          Social_Media_Use =  col_double(),
                          income_score =  col_double(),
@@ -91,6 +92,7 @@ data_frame_1 <- read_csv('./Data/Clean_NewsGuard_Survey_Study.csv',
                            Pulse_Dummy=col_double(),
                            Complied=col_double(),
                            Total_DL =  col_double(),
+                           Inverse_DL = col_double(),
                            income_score =  col_double(),
                            Total_Science_Misinfo  =  col_double(),
                            Social_Media_Use =  col_double(),
@@ -411,8 +413,8 @@ data_frame_1$Age <- (data_frame_1$Age-min(data_frame_1$Age))/(max(data_frame_1$A
 data_frame_1$gender_dummy_fem <- (data_frame_1$gender_dummy_fem-min(data_frame_1$gender_dummy_fem))/(max(data_frame_1$gender_dummy_fem)-min(data_frame_1$gender_dummy_fem))
 data_frame_1$race_white <- (data_frame_1$race_white-min(data_frame_1$race_white))/(max(data_frame_1$race_white)-min(data_frame_1$race_white))
 data_frame_1$educ_score <- (data_frame_1$educ_score-min(data_frame_1$educ_score))/(max(data_frame_1$educ_score)-min(data_frame_1$educ_score))
-data_frame_1$dem_dummy <- ifelse(data_frame_1$party_score < 0,1,0)
-data_frame_1$rep_dummy <- ifelse(data_frame_1$party_score > 0,1,0)
+data_frame_1$dem_dummy <- ifelse(data_frame_1$party_score < 4,1,0)
+data_frame_1$rep_dummy <- ifelse(data_frame_1$party_score > 4,1,0)
 data_frame_1$Total_DL <- (data_frame_1$Total_DL-min(data_frame_1$Total_DL,na.rm=T))/(max(data_frame_1$Total_DL,na.rm=T)-min(data_frame_1$Total_DL,na.rm=T))
 data_frame_1$income_score <- (data_frame_1$income_score-min(data_frame_1$income_score,na.rm=T))/(max(data_frame_1$income_score,na.rm=T)-min(data_frame_1$income_score,na.rm=T))
 
@@ -423,8 +425,8 @@ Pulse_data$Age <- (Pulse_data$Age-min(Pulse_data$Age))/(max(Pulse_data$Age)-min(
 Pulse_data$gender_dummy_fem <- (Pulse_data$gender_dummy_fem-min(Pulse_data$gender_dummy_fem))/(max(Pulse_data$gender_dummy_fem)-min(Pulse_data$gender_dummy_fem))
 Pulse_data$race_white <- (Pulse_data$race_white-min(Pulse_data$race_white))/(max(Pulse_data$race_white)-min(Pulse_data$race_white))
 Pulse_data$educ_score <- (Pulse_data$educ_score-min(Pulse_data$educ_score))/(max(Pulse_data$educ_score)-min(Pulse_data$educ_score))
-Pulse_data$dem_dummy <- ifelse(Pulse_data$party_score < 0,1,0)
-Pulse_data$rep_dummy <- ifelse(Pulse_data$party_score > 0,1,0)
+Pulse_data$dem_dummy <- ifelse(Pulse_data$party_score < 4,1,0)
+Pulse_data$rep_dummy <- ifelse(Pulse_data$party_score > 4,1,0)
 Pulse_data$Total_DL <- (Pulse_data$Total_DL-min(Pulse_data$Total_DL,na.rm=T))/(max(Pulse_data$Total_DL,na.rm=T)-min(Pulse_data$Total_DL,na.rm=T))
 Pulse_data$income_score <- (Pulse_data$income_score-min(Pulse_data$income_score,na.rm=T))/(max(Pulse_data$income_score,na.rm=T)-min(Pulse_data$income_score,na.rm=T))
 Pulse_data$Prop_Unreliable_NewsG_Score <- (Pulse_data$Prop_Unreliable_NewsG_Score-min(Pulse_data$Prop_Unreliable_NewsG_Score,na.rm=T))/(max(Pulse_data$Prop_Unreliable_NewsG_Score,na.rm=T)-min(Pulse_data$Prop_Unreliable_NewsG_Score,na.rm=T))
@@ -453,6 +455,7 @@ res <- unnest(res)
 #Pull statistics from bootstrapping:
 resB <- res %>% 
   select(var,group,mu,mu_se)
+
 
 
 #Create confidence intervals:
@@ -500,7 +503,7 @@ ggplot(data = res, aes(x = x, y = mu)) +
                      max = hi, 
                      color = group),size=1.5) +
   scale_color_manual(labels=xlabs,values=c('red','blue','purple'), name = "Type") +
-  ylab("\n Mean") +
+  ylab("\n Mean Value") +
   theme_classic() +
   theme(axis.title.x = element_text(size=18),
         axis.text.x  = element_text(size=16),
@@ -510,14 +513,14 @@ ggplot(data = res, aes(x = x, y = mu)) +
         legend.title = element_text(size=16),
         legend.text = element_text(size=14)) +
   ylim(0,1) +
-  scale_x_continuous(" \n",breaks=c(0.9,1.4,1.9,2.4,2.9,3.4,3.9,4.4),labels=c("Digital Literacy",
-                                                                                      "Race (White Dummy)*",
+  scale_x_continuous(" \n",breaks=c(0.9,1.4,1.9,2.4,2.9,3.4,3.9,4.4),labels=c("Age",
+                                                                                      "Democrat",
+                                                                                      "Education*",
+                                                                                      "Gender (Female)",
                                                                                       "Income*",
-                                                                                      "Democrat (Dummy)",
-                                                                                      "Republican (Dummy)*",
-                                                                                      "Education",
-                                                                                      "Gender (Female Dummy)",
-                                                                                      "Age*"),limits=c(0.5,5.0)) +
+                                                                                      "Race (White)",
+                                                                                      "Republican",
+                                                                                      "Digital Literacy*"),limits=c(0.5,5.0)) +
   coord_flip()
 
 
@@ -543,6 +546,12 @@ set.seed(983)
 #Bootstrap
 res <- dat %>% group_by(var) %>% do(m=ivdesc(X=.$val,D=.$Complied,Z=.$Treated, bootn=2000, boot=TRUE))
 res_1 <- res
+
+
+
+res_1[[1]]
+res_1[[2]]
+
 res <- unnest(res)
 
 #Pull statistics from bootstrapping:
@@ -586,7 +595,7 @@ ggplot(data = res, aes(x = x, y = mu)) +
                      max = hi, 
                      color = group),size=1.5) +
   scale_color_manual(labels=xlabs,values=c('red','blue','purple'), name = "Type") +
-  ylab("\n Mean") +
+  ylab("\n Mean Value") +
   theme_classic() +
   theme(axis.title.x = element_text(size=16),
         axis.text.x  = element_text(size=14),
@@ -597,13 +606,13 @@ ggplot(data = res, aes(x = x, y = mu)) +
         legend.text = element_text(size=14)) +
   ylim(0,1) +
   scale_x_continuous(" \n",breaks=c(0.9,1.4,1.9,2.4,2.9,3.4,3.9,4.4,4.9,5.4),labels=rev(c("Digital Literacy*",
-                                                                                      "Republican\n(Dummy)",
-                                                                                      "Race\n(White Dummy)",
+                                                                                      "Republican",
+                                                                                      "Race (White)",
                                                                                       "Proportion of News Diet\nthat is Unreliable*",
                                                                                       "Income",
-                                                                                      "Gender\n(Female dummy)",
+                                                                                      "Gender",
                                                                                       "Education",
-                                                                                      "Democrat\n(Dummy)",
+                                                                                      "Democrat",
                                                                                       "Reliability Score\nof News Diet",
                                                                                       "Age")),limits=c(0.5,6.0)) +
   coord_flip()
@@ -620,8 +629,8 @@ ggsave("./Figures/fig_2.png", width=11)
 #NG_Rating <- read.csv('./Data/NewsGuard_Ratings.csv')
 
 #png(file="./Figures/fig_3.png",
-#    width=600, height=350)
-#hist(NG_Rating$Score,col='grey')
+#    width=450, height=450)
+#hist(NG_Rating$Score,col='grey',main=NULL,xlab='NewsGuard Score',ylab='Number of News Domains')
 #dev.off()
 
 
@@ -648,6 +657,7 @@ Pulse_data <- read_csv('./Data/Clean_NewsGuard_Digital_Trace_Data.csv',
                          Treated = col_double(),
                          Complied=col_double(),
                          Total_DL =  col_double(),
+                         Inverse_DL = col_double(),
                          Total_Science_Misinfo  =  col_double(),
                          Social_Media_Use =  col_double(),
                          income_score =  col_double(),
@@ -700,6 +710,7 @@ data_frame_1 <- read_csv('./Data/Clean_NewsGuard_Survey_Study.csv',
                            Pulse_Dummy=col_double(),
                            Complied=col_double(),
                            Total_DL =  col_double(),
+                           Inverse_DL = col_double(),
                            income_score =  col_double(),
                            Total_Science_Misinfo  =  col_double(),
                            Social_Media_Use =  col_double(),
@@ -772,31 +783,16 @@ Clean <- function(data_for_analysis) {
 
 #Create a function using glmnet lasso that chooses the variables to use:
 Lasso <- function(data_for_analysis) {
-  y <- as.matrix(data_for_analysis[,1])
-  x <- as.matrix(data_for_analysis[,-1])
+  set.seed(983)
+  lasso_select <- cv.glmnet(x=as.matrix(data_for_analysis[,-1]),
+                            y=as.vector(data_for_analysis[,1]),
+                            alpha=1)
   
-  #Set seed as specified in the pre-registration:
-  set.seed(938)
-  #k-fold cross-validation for glmnet returns a value for lambda
-  fit1 = glmnet(x,y, family="gaussian")
-  cvob1 = cv.glmnet(x,y)
-  coefficients <- coef(fit1,s=cvob1$lambda.min)
-  
-  #Dependent variable data:
-  data_for_regression = data_for_analysis[,1]
-  #Possible independent variables:
-  names_of_columns = colnames(data_for_analysis)[1]
-  
-  #Create list of coefficients that should be included:
-  for(i in 2:nrow(coefficients)){
-    if(coefficients[i,1] != 0){
-      z=i-1
-      data_for_regression = cbind(data_for_regression,data_for_analysis[,i])
-      names_of_columns <- c(names_of_columns,colnames(data_for_analysis)[i])
-    }
-  }
-  #Create list of covariates that should be included:
-  return(names_of_columns)
+  coef.out <- coef(lasso_select, exact = TRUE)
+  indices <- which(coef.out != 0)
+  names_of_columns <- c(rownames(coef.out)[indices],colnames(data_for_analysis)[1])
+  names_of_columns_3 <- names_of_columns[!names_of_columns %in% "(Intercept)"]
+  return(names_of_columns_3)
 }
 
 
@@ -827,48 +823,19 @@ list_possible_covariates <- c("gender_dummy_fem",
                               "log_news")
 
 
+
+
 #Create Sets of variables to use in models:
-var1 <- list('variables'=c('Prop_Unreliable_NewsG_Score_dv',
-                                         'Prop_Unreliable_NewsG_Score'))
-
-var2 <- list('variables'=c('Prop_Reliable_NewsG_Score_dv',
-                                         'Prop_Reliable_NewsG_Score'))
-
-var3 <- list('variables'=c('Count_Unreliable_NewsG_Score_dv',
-                                         'Count_Unreliable_NewsG_Score'))
-
-var4 <- list('variables'=c('Count_Reliable_NewsG_Score_dv',
-                                         'Count_Reliable_NewsG_Score'))
-
-var5 <- list('variables'=c('Average_domain_NewsG_Score_dv',
-                                         'Average_domain_NewsG_Score'))
-
-
-var6 <- list('variables'=c('Prop_Unreliable_NewsG_Score_post',
-                                         'Prop_Unreliable_NewsG_Score'))
-
-var7 <- list('variables'=c('Prop_Reliable_NewsG_Score_post',
-                                         'Prop_Reliable_NewsG_Score'))
-
-var8 <- list('variables'=c('Count_Unreliable_NewsG_Score_post',
-                                         'Count_Unreliable_NewsG_Score'))
-
-var9 <- list('variables'=c('Count_Reliable_NewsG_Score_post',
-                                         'Count_Reliable_NewsG_Score'))
-
-var10 <- list('variables'=c('Average_domain_NewsG_Score_post',
-                                         'Average_domain_NewsG_Score'))
-
-list_variables_to_run <- c('a'=var1,
-                           'b'=var2,
-                           'c'=var3,
-                           'd'=var4,
-                           'e'=var5,
-                           'f'=var6,
-                           'g'=var7,
-                           'h'=var8,
-                           'i'=var9,
-                           'j'=var10)
+list_variables_to_run_1 = list(c('Prop_Unreliable_NewsG_Score_dv','Prop_Unreliable_NewsG_Score'),
+                             c('Prop_Reliable_NewsG_Score_dv','Prop_Reliable_NewsG_Score'),
+                             c('Count_Unreliable_NewsG_Score_dv','Count_Unreliable_NewsG_Score'),
+                             c('Count_Reliable_NewsG_Score_dv','Count_Reliable_NewsG_Score'),
+                             c('Average_domain_NewsG_Score_dv','Average_domain_NewsG_Score'),
+                             c('Prop_Unreliable_NewsG_Score_post','Prop_Unreliable_NewsG_Score'),
+                             c('Prop_Reliable_NewsG_Score_post','Prop_Reliable_NewsG_Score'),
+                             c('Count_Unreliable_NewsG_Score_post','Count_Unreliable_NewsG_Score'),
+                             c('Count_Reliable_NewsG_Score_post','Count_Reliable_NewsG_Score'),
+                             c('Average_domain_NewsG_Score_post','Average_domain_NewsG_Score'))
 
 #Create list of Titles:
 Titles <- c('Testing the Effect of the Intervention on Proportion of News Diet That is Unreliable with Covariate-Adjusted Models (HC2 Robust standard errors) (Before July 1st)',
@@ -955,9 +922,10 @@ names(top_attributes_html) <- top_attribute_names
 
 #Run For loop to produce Tables 3-12:
 
-for(i in 1:length(list_variables_to_run)){
-  print(i)
-  list_possible_covariates_for_use <- c(list_variables_to_run[[i]],list_possible_covariates)
+
+
+for(i in 1:length(list_variables_to_run_1)){
+  list_possible_covariates_for_use <- c(list_variables_to_run_1[[i]],list_possible_covariates)
 
   data_for_analysis <- Pulse_data %>% ungroup() %>% select(`list_possible_covariates_for_use`)
   
@@ -972,26 +940,26 @@ for(i in 1:length(list_variables_to_run)){
   names_of_columns <- c('Treated',names_of_columns)
   
   
-  names.use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns)]
+  names_use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns)]
   
-  data_for_analysis <- Pulse_data[, names.use]
+  data_for_analysis <- Pulse_data[, names_use]
   
   #Clean Data:
   data_for_analysis <- Clean(data_for_analysis)
   
-  f <- paste0(list_variables_to_run[[i]][1], " ~ .")
+  f <- paste0(list_variables_to_run_1[[i]][1], " ~ .")
   
   ITT_Model <- lm_robust(as.formula(f), data = data_for_analysis)
   
   
   names_of_columns_2 <- c(names_of_columns,'compliance_check_1')
-  names.use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_2)]
-  data_for_analysis <- Pulse_data[, names.use]
+  names_use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_2)]
+  data_for_analysis <- Pulse_data[, names_use]
   
   #Clean Data:
   data_for_analysis <- Clean(data_for_analysis)
   
-  f <- paste0(list_variables_to_run[[i]][1], '~ . - compliance_check_1 | . - Treated')
+  f <- paste0(list_variables_to_run_1[[i]][1], '~ . - compliance_check_1 | . - Treated')
   
   #CACE Model 1
   CACE_Model_1 <- iv_robust(as.formula(f), data = data_for_analysis)
@@ -999,15 +967,15 @@ for(i in 1:length(list_variables_to_run)){
   
   # #CACE Model 2 - Passed first and second wave compliance check
   names_of_columns_3 <- c(names_of_columns,'Complied')
-  names.use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_3)]
-  data_for_analysis <- Pulse_data[, names.use]
+  names_use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_3)]
+  data_for_analysis <- Pulse_data[, names_use]
   #Clean Data:
   data_for_analysis <- Clean(data_for_analysis)
-  f <- paste0(list_variables_to_run[[i]][1], '~  . - Complied | . - Treated')
+  f <- paste0(list_variables_to_run_1[[i]][1], '~  . - Complied | . - Treated')
   CACE_Model_2 <- iv_robust(as.formula(f), data = data_for_analysis)
   
   #names of the variables:
-  Variable_Names <- names(CACE_Model_2$coefficients)[-1]
+  Variable_Names <- names(ITT_Model$coefficients)[-1]
   Variable_Names <- str_replace_all(Variable_Names, top_attributes_html)
   
   #Write Table
@@ -1021,6 +989,7 @@ texreg(list(ITT_Model,CACE_Model_1,CACE_Model_2),
          custom.coef.names = c(Variable_Names),
          custom.model.names= c("Intent-To-Treat (ITT)", "CACE (Model 1)","CACE (Model 2)"),
          file=Tables_title[i],
+         float.pos = "!htbp",
          caption.above = TRUE)
 }
 
@@ -1051,50 +1020,29 @@ list_possible_covariates <- c("gender_dummy_fem",
                               "cons_mobile",
                               "Safari_dummy")
 
-#Create Sets of variables to use in models:
-var11 <- list('variables'=c('BLM_Misinfo_Index_w2'))
-var12 <- list('variables'=c('BLM_info_Index_w2'))
-var13 <- list('variables'=c('Covid_Misinfo_Index_w2'))
-var14 <- list('variables'=c('Covid_info_Index_w2'))
-var15 <- list('variables'=c('Trust_Media_w2'))
-var16 <- list('variables'=c('aff_pol_w2',
-                           'aff_pol_w1'))
-var17 <- list('variables'=c('SMP4326_w2',
-                           'SMP4326'))
-var18 <- list('variables'=c('SMP4310_w2',
-                           'SMP4310'))
-var19 <- list('variables'=c('Trust_inst_w2',
-                           'Trust_inst_w1'))
-var20 <- list('variables'=c('CBS_Trust_2',
-                            'CBS_Trust_1'))
-var21 <- list('variables'=c('ABC_Trust_2',
-                           'ABC_Trust_1'))
-var22 <- list('variables'=c('NBC_Trust_2',
-                           'NBC_Trust_1'))
-var23 <- list('variables'=c('CNN_Trust_2',
-                            'CNN_Trust_1'))
-var24 <- list('variables'=c('Fox_Trust_2',
-                            'Fox_Trust_1'))
 
-list_variables_to_run <- c('a'=var11,
-                           'b'=var12,
-                           'c'=var13,
-                           'd'=var14,
-                           'e'=var15,
-                           'f'=var16,
-                           'g'=var17,
-                           'h'=var18,
-                           'i'=var19,
-                           'j'=var20,
-                           'g'=var21,
-                           'h'=var22,
-                           'i'=var23,
-                           'j'=var24)
+
+
+#Create Sets of variables to use in models:
+list_variables_to_run_2 = list(c('BLM_Misinfo_Index_w2'),
+                             c('BLM_info_Index_w2'),
+                             c('Covid_Misinfo_Index_w2'),
+                             c('Covid_info_Index_w2'),
+                             c('Trust_Media_w2'),
+                             c('aff_pol_w2','aff_pol_w1'),
+                             c('SMP4326_w2','SMP4326'),
+                             c('SMP4310_w2','SMP4310'),
+                             c('Trust_inst_w2','Trust_inst_w1'),
+                             c('CBS_Trust_2','CBS_Trust_1'),
+                             c('ABC_Trust_2','ABC_Trust_1'),
+                             c('NBC_Trust_2','NBC_Trust_1'),
+                             c('CNN_Trust_2','CNN_Trust_1'),
+                             c('Fox_Trust_2','Fox_Trust_1'))
 
 #Create list of Titles:
 Titles <- c('Testing Effect of Intervention on Belief in Misinformation about the Black Lives Matter Movement with Covariate-Adjusted Models (HC2 Robust standard errors)',
-            'Testing Effect of Intervention on Belief in Misinformation about Covid-19 with Covariate-Adjusted Models (HC2 Robust standard errors)',
             'Testing Effect of Intervention on Belief in True Information about the Black Lives Matter Movement with Covariate-Adjusted Models (HC2 Robust standard errors)',
+            'Testing Effect of Intervention on Belief in Misinformation about Covid-19 with Covariate-Adjusted Models (HC2 Robust standard errors)',
             'Testing Effect of Intervention on Belief in True Information about Covid-19 with Covariate-Adjusted Models (HC2 Robust standard errors)',
             'Testing Effect of Intervention on Trust in Media with Covariate-Adjusted Models (HC2 Robust standard errors)',
             'Testing Effect of Intervention on Affective Polarization with Covariate-Adjusted Models (HC2 Robust standard errors)',
@@ -1191,9 +1139,8 @@ names(top_attributes_html) <- top_attribute_names
 
 #Run For loop to produce Tables 13-26:
 
-for(i in 1:length(list_variables_to_run)){
-  print(i)
-  list_possible_covariates_for_use <- c(list_variables_to_run[[i]],list_possible_covariates)
+for(i in 1:length(list_variables_to_run_2)){
+  list_possible_covariates_for_use <- c(list_variables_to_run_2[[i]],list_possible_covariates)
   
   data_for_analysis <- data_frame_1 %>% ungroup() %>% select(`list_possible_covariates_for_use`)
   
@@ -1207,35 +1154,35 @@ for(i in 1:length(list_variables_to_run)){
   #$p$-values from two-tailed $t$-tests.
   
   names_of_columns <- c('Treated',names_of_columns)
-  names.use <- names(data_frame_1)[(names(data_frame_1) %in% names_of_columns)]
-  data_for_analysis <- data_frame_1[, names.use]
+  names_use <- names(data_frame_1)[(names(data_frame_1) %in% names_of_columns)]
+  data_for_analysis <- data_frame_1[, names_use]
   #Clean Data:
   data_for_analysis <- Clean(data_for_analysis)
-  f <- paste0(list_variables_to_run[[i]][1], " ~ .")
+  f <- paste0(list_variables_to_run_2[[i]][1], " ~ .")
   ITT_Model <- lm_robust(as.formula(f), data = data_for_analysis)
   
   #CACE Model 1  
   names_of_columns_2 <- c(names_of_columns,'compliance_check_1')
-  names.use <- names(data_frame_1)[(names(data_frame_1) %in% names_of_columns_2)]
-  data_for_analysis <- data_frame_1[, names.use]
+  names_use <- names(data_frame_1)[(names(data_frame_1) %in% names_of_columns_2)]
+  data_for_analysis <- data_frame_1[, names_use]
   #Clean Data:
   data_for_analysis <- Clean(data_for_analysis)
-  f <- paste0(list_variables_to_run[[i]][1], '~ . - compliance_check_1 | . - Treated')
+  f <- paste0(list_variables_to_run_2[[i]][1], '~ . - compliance_check_1 | . - Treated')
   #CACE Model 1
   CACE_Model_1 <- iv_robust(as.formula(f), data = data_for_analysis)
   
   
   # #CACE Model 2 - Passed first and second wave compliance check
   names_of_columns_3 <- c(names_of_columns,'Complied')
-  names.use <- names(data_frame_1)[(names(data_frame_1) %in% names_of_columns_3)]
-  data_for_analysis <- data_frame_1[, names.use]
+  names_use <- names(data_frame_1)[(names(data_frame_1) %in% names_of_columns_3)]
+  data_for_analysis <- data_frame_1[, names_use]
   #Clean Data:
   data_for_analysis <- Clean(data_for_analysis)
-  f <- paste0(list_variables_to_run[[i]][1], '~  . - Complied | . - Treated')
+  f <- paste0(list_variables_to_run_2[[i]][1], '~  . - Complied | . - Treated')
   CACE_Model_2 <- iv_robust(as.formula(f), data = data_for_analysis)
   
   #names of the variables:
-  Variable_Names <- names(CACE_Model_2$coefficients)[-1]
+  Variable_Names <- names(ITT_Model$coefficients)[-1]
   Variable_Names <- str_replace_all(Variable_Names, top_attributes_html)
   
 
@@ -1250,7 +1197,8 @@ texreg(list(ITT_Model,CACE_Model_1,CACE_Model_2),
                      custom.coef.names = c(Variable_Names),
                      custom.model.names= c("Intent-To-Treat (ITT)", "CACE (Model 1)","CACE (Model 2)"),
                      file=Tables_title[i],
-       caption.above = TRUE)
+                     float.pos = "!htbp",
+                     caption.above = TRUE)
 }
 
 
@@ -1276,49 +1224,6 @@ list_possible_covariates <- c("gender_dummy_fem",
                               "cons_mobile",
                               "Safari_dummy",
                               "log_news")
-
-#Create Sets of variables to use in models:
-var1 <- list('variables'=c('Prop_Unreliable_NewsG_Score_dv',
-                           'Prop_Unreliable_NewsG_Score'))
-
-var2 <- list('variables'=c('Prop_Reliable_NewsG_Score_dv',
-                           'Prop_Reliable_NewsG_Score'))
-
-var3 <- list('variables'=c('Count_Unreliable_NewsG_Score_dv',
-                           'Count_Unreliable_NewsG_Score'))
-
-var4 <- list('variables'=c('Count_Reliable_NewsG_Score_dv',
-                           'Count_Reliable_NewsG_Score'))
-
-var5 <- list('variables'=c('Average_domain_NewsG_Score_dv',
-                           'Average_domain_NewsG_Score'))
-
-
-var6 <- list('variables'=c('Prop_Unreliable_NewsG_Score_post',
-                           'Prop_Unreliable_NewsG_Score'))
-
-var7 <- list('variables'=c('Prop_Reliable_NewsG_Score_post',
-                           'Prop_Reliable_NewsG_Score'))
-
-var8 <- list('variables'=c('Count_Unreliable_NewsG_Score_post',
-                           'Count_Unreliable_NewsG_Score'))
-
-var9 <- list('variables'=c('Count_Reliable_NewsG_Score_post',
-                           'Count_Reliable_NewsG_Score'))
-
-var10 <- list('variables'=c('Average_domain_NewsG_Score_post',
-                            'Average_domain_NewsG_Score'))
-
-list_variables_to_run <- c('a'=var1,
-                           'b'=var2,
-                           'c'=var3,
-                           'd'=var4,
-                           'e'=var5,
-                           'f'=var6,
-                           'g'=var7,
-                           'h'=var8,
-                           'i'=var9,
-                           'j'=var10)
 
 #Create list of Titles:
 Titles <- c('Testing the Effect of the Intervention on Proportion of News Diet That is Unreliable with Covariate-Unadjusted Models (HC2 Robust standard errors) (Before July 1st) ',
@@ -1404,29 +1309,30 @@ names(top_attributes_html) <- top_attribute_names
 
 #Run For loop to produce Tables 27-36:
 
-for(i in 1:length(list_variables_to_run)){
-  print(i)
-  list_possible_covariates_for_use <- c('Treated',list_variables_to_run[[i]],list_possible_covariates)
+i=1
+
+for(i in 1:length(list_variables_to_run_1)){
+  list_possible_covariates_for_use <- c('Treated',list_variables_to_run_1[[i]],list_possible_covariates)
   
   data_for_analysis <- Pulse_data %>% ungroup() %>% select(`list_possible_covariates_for_use`)
   
   #Clean Data:
   data_for_analysis <- Clean(data_for_analysis)
   
-  f <- paste0(list_variables_to_run[[i]][1], " ~ .")
+  f <- paste0(list_variables_to_run_1[[i]][1], " ~ .")
   
   ITT_Model <- lm_robust(as.formula(f), data = data_for_analysis)
   
   names_of_columns_2 <- c('Treated',list_possible_covariates_for_use,'compliance_check_1')
   
-  names.use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_2)]
+  names_use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_2)]
   
-  data_for_analysis <- Pulse_data[, names.use]
+  data_for_analysis <- Pulse_data[, names_use]
   
   #Clean Data:
   data_for_analysis <- Clean(data_for_analysis)
   
-  f <- paste0(list_variables_to_run[[i]][1], '~ . - compliance_check_1 | . - Treated')
+  f <- paste0(list_variables_to_run_1[[i]][1], '~ . - compliance_check_1 | . - Treated')
   
   #CACE Model 1
   CACE_Model_1 <- iv_robust(as.formula(f), data = data_for_analysis)
@@ -1436,20 +1342,20 @@ for(i in 1:length(list_variables_to_run)){
   
   names_of_columns_3 <- c('Treated',list_possible_covariates_for_use,'Complied')
   
-  names.use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_3)]
+  names_use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_3)]
   
-  data_for_analysis <- Pulse_data[, names.use]
+  data_for_analysis <- Pulse_data[, names_use]
   
   #Clean Data:
   data_for_analysis <- Clean(data_for_analysis)
   
-  f <- paste0(list_variables_to_run[[i]][1], '~  . - Complied | . - Treated')
+  f <- paste0(list_variables_to_run_1[[i]][1], '~  . - Complied | . - Treated')
   
   CACE_Model_2 <- iv_robust(as.formula(f), data = data_for_analysis)
   
   #names of the variables:
   
-  Variable_Names <- names(CACE_Model_2$coefficients)[-1]
+  Variable_Names <- names(ITT_Model$coefficients)[-1]
   Variable_Names <- str_replace_all(Variable_Names, top_attributes_html)
   
   #Write Table
@@ -1463,7 +1369,8 @@ texreg(list(ITT_Model,CACE_Model_1,CACE_Model_2),
                      custom.coef.names = c(Variable_Names),
                      custom.model.names= c("Intent-To-Treat (ITT)", "CACE (Model 1)","CACE (Model 2)"),
                      file=Tables_title[i],
-       caption.above = TRUE)
+                     float.pos = "!htbp",
+                     caption.above = TRUE)
 }
 
 
@@ -1488,50 +1395,10 @@ list_possible_covariates <- c("gender_dummy_fem",
                               "cons_mobile",
                               "Safari_dummy")
 
-#Create Sets of variables to use in models:
-var11 <- list('variables'=c('BLM_Misinfo_Index_w2'))
-var12 <- list('variables'=c('BLM_info_Index_w2'))
-var13 <- list('variables'=c('Covid_Misinfo_Index_w2'))
-var14 <- list('variables'=c('Covid_info_Index_w2'))
-var15 <- list('variables'=c('Trust_Media_w2'))
-var16 <- list('variables'=c('aff_pol_w2',
-                            'aff_pol_w1'))
-var17 <- list('variables'=c('SMP4326_w2',
-                            'SMP4326'))
-var18 <- list('variables'=c('SMP4310_w2',
-                            'SMP4310'))
-var19 <- list('variables'=c('Trust_inst_w2',
-                            'Trust_inst_w1'))
-var20 <- list('variables'=c('CBS_Trust_2',
-                            'CBS_Trust_1'))
-var21 <- list('variables'=c('ABC_Trust_2',
-                            'ABC_Trust_1'))
-var22 <- list('variables'=c('NBC_Trust_2',
-                            'NBC_Trust_1'))
-var23 <- list('variables'=c('CNN_Trust_2',
-                            'CNN_Trust_1'))
-var24 <- list('variables'=c('Fox_Trust_2',
-                            'Fox_Trust_1'))
-
-list_variables_to_run <- c('a'=var11,
-                           'b'=var12,
-                           'c'=var13,
-                           'd'=var14,
-                           'e'=var15,
-                           'f'=var16,
-                           'g'=var17,
-                           'h'=var18,
-                           'i'=var19,
-                           'j'=var20,
-                           'g'=var21,
-                           'h'=var22,
-                           'i'=var23,
-                           'j'=var24)
-
 #Create list of Titles:
 Titles <- c('Testing Effect of Intervention on Belief in Misinformation about the Black Lives Matter Movement with Covariate-Unadjusted Models (HC2 Robust standard errors)',
-            'Testing Effect of Intervention on Belief in Misinformation about Covid-19 with Covariate-Unadjusted Models (HC2 Robust standard errors)',
             'Testing Effect of Intervention on Belief in True Information about the Black Lives Matter Movement with Covariate-Unadjusted Models (HC2 Robust standard errors)',
+            'Testing Effect of Intervention on Belief in Misinformation about Covid-19 with Covariate-Unadjusted Models (HC2 Robust standard errors)',
             'Testing Effect of Intervention on Belief in True Information about Covid-19 with Covariate-Unadjusted Models (HC2 Robust standard errors)',
             'Testing Effect of Intervention on Trust in Media with Covariate-Unadjusted Models (HC2 Robust standard errors)',
             'Testing Effect of Intervention on Affective Polarization with Covariate-Unadjusted Models (HC2 Robust standard errors)',
@@ -1627,16 +1494,15 @@ names(top_attributes_html) <- top_attribute_names
 
 #Run For loop to produce Tables 37-50:
 
-for(i in 1:length(list_variables_to_run)){
-  print(i)
-  list_possible_covariates_for_use <- c('Treated',list_variables_to_run[[i]],list_possible_covariates)
+for(i in 1:length(list_variables_to_run_2)){
+  list_possible_covariates_for_use <- c('Treated',list_variables_to_run_2[[i]],list_possible_covariates)
   
   data_for_analysis <- data_frame_1 %>% ungroup() %>% select(`list_possible_covariates_for_use`)
   
   #Clean Data:
   data_for_analysis <- Clean(data_for_analysis)
   
-  f <- paste0(list_variables_to_run[[i]][1], " ~ .")
+  f <- paste0(list_variables_to_run_2[[i]][1], " ~ .")
   
   ITT_Model <- lm_robust(as.formula(f), data = data_for_analysis)
   summary(ITT_Model)
@@ -1645,14 +1511,14 @@ for(i in 1:length(list_variables_to_run)){
   names_of_columns_2 <- c('Treated',list_possible_covariates_for_use,'compliance_check_1')
   
   
-  names.use <- names(data_frame_1)[(names(data_frame_1) %in% names_of_columns_2)]
+  names_use <- names(data_frame_1)[(names(data_frame_1) %in% names_of_columns_2)]
   
-  data_for_analysis <- data_frame_1[, names.use]
+  data_for_analysis <- data_frame_1[, names_use]
   
   #Clean Data:
   data_for_analysis <- Clean(data_for_analysis)
   
-  f <- paste0(list_variables_to_run[[i]][1], '~ . - compliance_check_1 | . - Treated')
+  f <- paste0(list_variables_to_run_2[[i]][1], '~ . - compliance_check_1 | . - Treated')
   
   #CACE Model 1
   CACE_Model_1 <- iv_robust(as.formula(f), data = data_for_analysis)
@@ -1662,20 +1528,20 @@ for(i in 1:length(list_variables_to_run)){
   
   names_of_columns_3 <- c('Treated',list_possible_covariates_for_use,'Complied')
   
-  names.use <- names(data_frame_1)[(names(data_frame_1) %in% names_of_columns_3)]
+  names_use <- names(data_frame_1)[(names(data_frame_1) %in% names_of_columns_3)]
   
-  data_for_analysis <- data_frame_1[, names.use]
+  data_for_analysis <- data_frame_1[, names_use]
   
   #Clean Data:
   data_for_analysis <- Clean(data_for_analysis)
   
-  f <- paste0(list_variables_to_run[[i]][1], '~  . - Complied | . - Treated')
+  f <- paste0(list_variables_to_run_2[[i]][1], '~  . - Complied | . - Treated')
   
   CACE_Model_2 <- iv_robust(as.formula(f), data = data_for_analysis)
   
   #names of the variables:
   
-  Variable_Names <- names(CACE_Model_2$coefficients)[-1]
+  Variable_Names <- names(ITT_Model$coefficients)[-1]
   Variable_Names <- str_replace_all(Variable_Names, top_attributes_html)
   
 
@@ -1690,7 +1556,8 @@ texreg(list(ITT_Model,CACE_Model_1,CACE_Model_2),
                      custom.coef.names = c(Variable_Names),
                      custom.model.names= c("Intent-To-Treat (ITT)", "CACE (Model 1)","CACE (Model 2)"),
                      file=Tables_title[i],
-       caption.above = TRUE)
+                     float.pos = "!htbp",
+                     caption.above = TRUE)
 }
 
 
@@ -1721,14 +1588,8 @@ list_possible_covariates <- c("gender_dummy_fem",
 
 
 #Create Sets of variables to use in models:
-var1 <- list('variables'=c('Prop_Unreliable_NewsG_Score_post',
-                           'Prop_Unreliable_NewsG_Score'))
-
-var2 <- list('variables'=c('Average_domain_NewsG_Score_post',
-                            'Average_domain_NewsG_Score'))
-
-list_variables_to_run <- c('a'=var1,
-                           'b'=var2)
+list_variables_to_run_3 <- list(c('Prop_Unreliable_NewsG_Score_post','Prop_Unreliable_NewsG_Score'),
+                              c('Average_domain_NewsG_Score_post','Average_domain_NewsG_Score'))
 
 #Create list of Titles:
 Titles <- c('Testing Effect of Intervention Using Different Moderators on Average Reliability Score of Online News Viewed (Covariate-Adjusted)',
@@ -1792,20 +1653,12 @@ top_attributes_html <- c('Gender',
 
 names(top_attributes_html) <- top_attribute_names
 
-list_moderators <- c('Age',
-                     'Total_DL',
-                     'Total_Science_Misinfo',
-                     'Social_Media_Use',
-                     'mean_cons',
-                     'abs_part',
-                     'Prop_Unreliable_NewsG_Score')
-
 
 
 #Run For loop to produce Tables 51-52:
 
-for(i in 1:length(list_variables_to_run)){
-list_possible_covariates_for_use <- c(list_variables_to_run[[i]],list_possible_covariates)
+for(i in 1:length(list_variables_to_run_3)){
+list_possible_covariates_for_use <- c(list_variables_to_run_3[[i]],list_possible_covariates)
 data_for_analysis <- Pulse_data %>% ungroup() %>% select(`list_possible_covariates_for_use`)
 #Clean Data:
 data_for_analysis <- Clean(data_for_analysis)
@@ -1818,18 +1671,18 @@ names_of_columns <- Lasso(data_for_analysis)
 names_of_columns <- c('Treated',names_of_columns)
 
 #DL
-names_of_columns_M1 <- c(names_of_columns,'Total_DL')
+names_of_columns_M1 <- c(names_of_columns,'Inverse_DL')
 
-names.use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_M1)]
+names_use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_M1)]
 
-data_for_analysis <- Pulse_data[, names.use]
+data_for_analysis <- Pulse_data[, names_use]
 
 #Clean Data:
 data_for_analysis <- Clean(data_for_analysis)
 
-colnames(data_for_analysis)[which(names(data_for_analysis) == "Total_DL")] <- "Moderator"
+colnames(data_for_analysis)[which(names(data_for_analysis) == "Inverse_DL")] <- "Moderator"
 
-f <- paste0(list_variables_to_run[[i]][1], " ~ Treated*Moderator + .")
+f <- paste0(list_variables_to_run_3[[i]][1], " ~ Treated*Moderator + .")
 
 lm_adj_MT_DL <- lm_robust(as.formula(f), data = data_for_analysis)
 summary(lm_adj_MT_DL)
@@ -1841,9 +1694,9 @@ Variable_Names <- str_replace_all(Variable_Names, top_attributes_html)
 
 names_of_columns_M1 <- c(names_of_columns,'Total_Science_Misinfo')
 
-names.use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_M1)]
+names_use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_M1)]
 
-data_for_analysis <- Pulse_data[, names.use]
+data_for_analysis <- Pulse_data[, names_use]
 
 #Clean Data:
 data_for_analysis <- Clean(data_for_analysis)
@@ -1851,42 +1704,24 @@ data_for_analysis <- Clean(data_for_analysis)
 
 colnames(data_for_analysis)[which(names(data_for_analysis) == "Total_Science_Misinfo")] <- "Moderator"
 
-f <- paste0(list_variables_to_run[[i]][1], " ~ Treated*Moderator + .")
+f <- paste0(list_variables_to_run_3[[i]][1], " ~ Treated*Moderator + .")
 
 lm_adj_MT_S_Misinfo <- lm_robust(as.formula(f), data = data_for_analysis)
 summary(lm_adj_MT_S_Misinfo)
 
-#Age
-names_of_columns_M1 <- c(names_of_columns,'Age')
-
-names.use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_M1)]
-
-data_for_analysis <- Pulse_data[, names.use]
-
-#Clean Data:
-data_for_analysis <- Clean(data_for_analysis)
-
-colnames(data_for_analysis)[which(names(data_for_analysis) == "Age")] <- "Moderator"
-
-f <- paste0(list_variables_to_run[[i]][1], " ~ Treated*Moderator + .")
-
-lm_adj_MT_Age <- lm_robust(as.formula(f), data = data_for_analysis)
-summary(lm_adj_MT_Age)
-
-
 #SM Use
 names_of_columns_M1 <- c(names_of_columns,'Social_Media_Use')
 
-names.use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_M1)]
+names_use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_M1)]
 
-data_for_analysis <- Pulse_data[, names.use]
+data_for_analysis <- Pulse_data[, names_use]
 
 #Clean Data:
 data_for_analysis <- Clean(data_for_analysis)
 
 colnames(data_for_analysis)[which(names(data_for_analysis) == "Social_Media_Use")] <- "Moderator"
 
-f <- paste0(list_variables_to_run[[i]][1], " ~ Treated*Moderator + .")
+f <- paste0(list_variables_to_run_3[[i]][1], " ~ Treated*Moderator + .")
 
 lm_adj_MT_SM_use <- lm_robust(as.formula(f), data = data_for_analysis)
 summary(lm_adj_MT_SM_use)
@@ -1895,16 +1730,16 @@ summary(lm_adj_MT_SM_use)
 
 names_of_columns_M2 <- c('mean_cons',names_of_columns)
 
-names.use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_M2)]
+names_use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_M2)]
 
-data_for_analysis <- Pulse_data[, names.use]
+data_for_analysis <- Pulse_data[, names_use]
 
 #Clean Data:
 data_for_analysis <- Clean(data_for_analysis)
 
 colnames(data_for_analysis)[which(names(data_for_analysis) == "mean_cons")] <- "Moderator"
 
-f <- paste0(list_variables_to_run[[i]][1], " ~ Treated*Moderator + . - cons_desk - cons_mobile")
+f <- paste0(list_variables_to_run_3[[i]][1], " ~ Treated*Moderator + . - cons_desk - cons_mobile")
 
 lm_adj_MT_consump <- lm_robust(as.formula(f), data = data_for_analysis)
 summary(lm_adj_MT_consump)
@@ -1913,9 +1748,9 @@ summary(lm_adj_MT_consump)
 
 names_of_columns_M2 <- c('abs_part',names_of_columns)
 
-names.use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_M2)]
+names_use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_M2)]
 
-data_for_analysis <- Pulse_data[, names.use]
+data_for_analysis <- Pulse_data[, names_use]
 
 #Clean Data:
 data_for_analysis <- Clean(data_for_analysis)
@@ -1923,7 +1758,7 @@ data_for_analysis <- Clean(data_for_analysis)
 
 colnames(data_for_analysis)[which(names(data_for_analysis) == "abs_part")] <- "Moderator"
 
-f <- paste0(list_variables_to_run[[i]][1], " ~ Treated*Moderator + .")
+f <- paste0(list_variables_to_run_3[[i]][1], " ~ Treated*Moderator + .")
 
 lm_adj_MT_Part <- lm_robust(as.formula(f), data = data_for_analysis)
 summary(lm_adj_MT_Part)
@@ -1933,16 +1768,16 @@ summary(lm_adj_MT_Part)
 
 names_of_columns_M2 <- c('Prop_Unreliable_NewsG_Score',names_of_columns)
 
-names.use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_M2)]
+names_use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_M2)]
 
-data_for_analysis <- Pulse_data[, names.use]
+data_for_analysis <- Pulse_data[, names_use]
 
 #Clean Data:
 data_for_analysis <- Clean(data_for_analysis)
 
 colnames(data_for_analysis)[which(names(data_for_analysis) == "Prop_Unreliable_NewsG_Score")] <- "Moderator"
 
-f <- paste0(list_variables_to_run[[i]][1], " ~ Treated*Moderator + .")
+f <- paste0(list_variables_to_run_3[[i]][1], " ~ Treated*Moderator + .")
 
 lm_adj_MT_Prop_Unrel <- lm_robust(as.formula(f), data = data_for_analysis)
 summary(lm_adj_MT_Prop_Unrel)
@@ -1950,7 +1785,7 @@ summary(lm_adj_MT_Prop_Unrel)
 
 #Write Table:
 
-texreg(list(lm_adj_MT_DL,lm_adj_MT_S_Misinfo,lm_adj_MT_Age,lm_adj_MT_SM_use,lm_adj_MT_consump,lm_adj_MT_Part,lm_adj_MT_Prop_Unrel),
+texreg(list(lm_adj_MT_DL,lm_adj_MT_S_Misinfo,lm_adj_MT_SM_use,lm_adj_MT_consump,lm_adj_MT_Part,lm_adj_MT_Prop_Unrel),
        include.ci = FALSE,
        digits=4,
        omit.coef = '(Intercept)',
@@ -1958,8 +1793,9 @@ texreg(list(lm_adj_MT_DL,lm_adj_MT_S_Misinfo,lm_adj_MT_Age,lm_adj_MT_SM_use,lm_a
        label = "table",
        include.rmse = FALSE,
        custom.coef.names = Variable_Names,
-       custom.model.names= c("Dig. Lit.", "Sci. Misinf.","Age","S.M. Use","News Consump.","Partisan. of News Diet","Unreliable News Consumed"),
+       custom.model.names= c("Dig. Lit.", "Sci. Misinf.","S.M. Use","News Consump.","Partisan. of News Diet","Unreliable News Consumed"),
        file=Tables_title[i],
+       float.pos = "!htbp",
        caption.above = TRUE)
 }
 
@@ -1986,30 +1822,22 @@ list_possible_covariates <- c("gender_dummy_fem",
                               "Safari_dummy")
 
 #Create Sets of variables to use in models:
-var1 <- list('variables'=c('BLM_Misinfo_Index_w2'))
-var2 <- list('variables'=c('Covid_Misinfo_Index_w2'))
-var3 <- list('variables'=c('Trust_Media_w2'))
-var4 <- list('variables'=c('SMP4310_w2',
-                            'SMP4310'))
-
-list_variables_to_run <- c('a'=var1,
-                           'b'=var2,
-                           'c'=var3,
-                           'd'=var4)
+#Create Sets of variables to use in models:
+list_variables_to_run_4 <- list(c('BLM_Misinfo_Index_w2'),
+                              c('Covid_Misinfo_Index_w2'),
+                              c('Trust_Media_w2'))
 
 #Create list of Titles:
 Titles <- c('Testing Effect of Intervention Using Different Moderators on Belief in BLM Misinformation (Covariate-Adjusted)',
             'Testing Effect of Intervention Using Different Moderators on Belief in Covid Misinformation (Covariate-Adjusted)',
-            'Testing Effect of Intervention Using Different Moderators on Trust in Media (Covariate-Adjusted)',
-            'Testing Effect of Intervention Using Different Moderators on Belief that \'\'fake news is a problem in the mainstream media\'\' (Covariate-Adjusted)')
+            'Testing Effect of Intervention Using Different Moderators on Trust in Media (Covariate-Adjusted)')
 
 
 
 #Create list of filenames:
 Tables_title <-  c('./Tables/Table_53.txt',
                    './Tables/Table_54.txt',
-                   './Tables/Table_55.txt',
-                   './Tables/Table_56.txt')
+                   './Tables/Table_55.txt')
 
 #Create crosswalk for variables and display names:
 top_attribute_names <- c("gender_dummy_fem",
@@ -2059,18 +1887,10 @@ top_attributes_html <- c('Gender',
 
 names(top_attributes_html) <- top_attribute_names
 
-list_moderators <- c('Age',
-                     'Total_DL',
-                     'Total_Science_Misinfo',
-                     'Social_Media_Use',
-                     'mean_cons',
-                     'abs_part',
-                     'Prop_Unreliable_NewsG_Score')
 
-#Run For loop to produce Tables 53-56:
-
-for(i in 1:length(list_variables_to_run)){
-  list_possible_covariates_for_use <- c(list_variables_to_run[[i]],list_possible_covariates)
+#Run For loop to produce Tables 53-55:
+for(i in 1:length(list_variables_to_run_4)){
+  list_possible_covariates_for_use <- c(list_variables_to_run_4[[i]],list_possible_covariates)
   
   data_for_analysis <- data_frame_1 %>% ungroup() %>% select(`list_possible_covariates_for_use`)
   
@@ -2094,19 +1914,19 @@ for(i in 1:length(list_variables_to_run)){
   names_of_columns <- c('Treated',names_of_columns)
   
   #DL
-  names_of_columns_M1 <- c(names_of_columns,'Total_DL')
+  names_of_columns_M1 <- c(names_of_columns,'Inverse_DL')
   
-  names.use <- names(data_frame_1)[(names(data_frame_1) %in% names_of_columns_M1)]
+  names_use <- names(data_frame_1)[(names(data_frame_1) %in% names_of_columns_M1)]
   
-  data_for_analysis <- data_frame_1[, names.use]
+  data_for_analysis <- data_frame_1[, names_use]
   
   #Clean Data:
   data_for_analysis <- Clean(data_for_analysis)
   
   
-  colnames(data_for_analysis)[which(names(data_for_analysis) == "Total_DL")] <- "Moderator"
+  colnames(data_for_analysis)[which(names(data_for_analysis) == "Inverse_DL")] <- "Moderator"
   
-  f <- paste0(list_variables_to_run[[i]][1], " ~ Treated*Moderator + .")
+  f <- paste0(list_variables_to_run_4[[i]][1], " ~ Treated*Moderator + .")
   
   lm_adj_MT_DL <- lm_robust(as.formula(f), data = data_for_analysis)
   
@@ -2117,9 +1937,9 @@ for(i in 1:length(list_variables_to_run)){
   
   names_of_columns_M1 <- c(names_of_columns,'Total_Science_Misinfo')
   
-  names.use <- names(data_frame_1)[(names(data_frame_1) %in% names_of_columns_M1)]
+  names_use <- names(data_frame_1)[(names(data_frame_1) %in% names_of_columns_M1)]
   
-  data_for_analysis <- data_frame_1[, names.use]
+  data_for_analysis <- data_frame_1[, names_use]
   
   #Clean Data:
   data_for_analysis <- Clean(data_for_analysis)
@@ -2127,40 +1947,23 @@ for(i in 1:length(list_variables_to_run)){
   
   colnames(data_for_analysis)[which(names(data_for_analysis) == "Total_Science_Misinfo")] <- "Moderator"
   
-  f <- paste0(list_variables_to_run[[i]][1], " ~ Treated*Moderator + .")
+  f <- paste0(list_variables_to_run_4[[i]][1], " ~ Treated*Moderator + .")
   
   lm_adj_MT_S_Misinfo <- lm_robust(as.formula(f), data = data_for_analysis)
-  
-  #Age
-  names_of_columns_M1 <- c(names_of_columns,'Age')
-  
-  names.use <- names(data_frame_1)[(names(data_frame_1) %in% names_of_columns_M1)]
-  
-  data_for_analysis <- data_frame_1[, names.use]
-  
-  #Clean Data:
-  data_for_analysis <- Clean(data_for_analysis)
-  
-  colnames(data_for_analysis)[which(names(data_for_analysis) == "Age")] <- "Moderator"
-  
-  f <- paste0(list_variables_to_run[[i]][1], " ~ Treated*Moderator + .")
-  
-  lm_adj_MT_Age <- lm_robust(as.formula(f), data = data_for_analysis)
-  
   
   #SM Use
   names_of_columns_M1 <- c(names_of_columns,'Social_Media_Use')
   
-  names.use <- names(data_frame_1)[(names(data_frame_1) %in% names_of_columns_M1)]
+  names_use <- names(data_frame_1)[(names(data_frame_1) %in% names_of_columns_M1)]
   
-  data_for_analysis <- data_frame_1[, names.use]
+  data_for_analysis <- data_frame_1[, names_use]
   
   #Clean Data:
   data_for_analysis <- Clean(data_for_analysis)
   
   colnames(data_for_analysis)[which(names(data_for_analysis) == "Social_Media_Use")] <- "Moderator"
   
-  f <- paste0(list_variables_to_run[[i]][1], " ~ Treated*Moderator + .")
+  f <- paste0(list_variables_to_run_4[[i]][1], " ~ Treated*Moderator + .")
   
   lm_adj_MT_SM_use <- lm_robust(as.formula(f), data = data_for_analysis)
   
@@ -2168,16 +1971,16 @@ for(i in 1:length(list_variables_to_run)){
   
   names_of_columns_M2 <- c('mean_cons',names_of_columns)
   
-  names.use <- names(data_frame_1)[(names(data_frame_1) %in% names_of_columns_M2)]
+  names_use <- names(data_frame_1)[(names(data_frame_1) %in% names_of_columns_M2)]
   
-  data_for_analysis <- data_frame_1[, names.use]
+  data_for_analysis <- data_frame_1[, names_use]
   
   #Clean Data:
   data_for_analysis <- Clean(data_for_analysis)
   
   colnames(data_for_analysis)[which(names(data_for_analysis) == "mean_cons")] <- "Moderator"
   
-  f <- paste0(list_variables_to_run[[i]][1], " ~ Treated*Moderator + . - cons_desk - cons_mobile")
+  f <- paste0(list_variables_to_run_4[[i]][1], " ~ Treated*Moderator + . - cons_desk - cons_mobile")
   
   lm_adj_MT_consump <- lm_robust(as.formula(f), data = data_for_analysis)
   
@@ -2185,16 +1988,16 @@ for(i in 1:length(list_variables_to_run)){
   
   names_of_columns_M2 <- c('abs_part',names_of_columns)
   
-  names.use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_M2)]
+  names_use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_M2)]
   
-  data_for_analysis <- Pulse_data[, names.use]
+  data_for_analysis <- Pulse_data[, names_use]
   
   #Clean Data:
   data_for_analysis <- Clean(data_for_analysis)
   
   colnames(data_for_analysis)[which(names(data_for_analysis) == "abs_part")] <- "Moderator"
   
-  f <- paste0(list_variables_to_run[[i]][1], " ~ Treated*Moderator + .")
+  f <- paste0(list_variables_to_run_4[[i]][1], " ~ Treated*Moderator + .")
   
   lm_adj_MT_Part <- lm_robust(as.formula(f), data = data_for_analysis)
   
@@ -2203,16 +2006,16 @@ for(i in 1:length(list_variables_to_run)){
   
   names_of_columns_M2 <- c('Prop_Unreliable_NewsG_Score',names_of_columns)
   
-  names.use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_M2)]
+  names_use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_M2)]
   
-  data_for_analysis <- Pulse_data[, names.use]
+  data_for_analysis <- Pulse_data[, names_use]
   
   #Clean Data:
   data_for_analysis <- Clean(data_for_analysis)
   
   colnames(data_for_analysis)[which(names(data_for_analysis) == "Prop_Unreliable_NewsG_Score")] <- "Moderator"
   
-  f <- paste0(list_variables_to_run[[i]][1], " ~ Treated*Moderator + .")
+  f <- paste0(list_variables_to_run_4[[i]][1], " ~ Treated*Moderator + .")
   
   lm_adj_MT_Prop_Unrel <- lm_robust(as.formula(f), data = data_for_analysis)
   
@@ -2221,7 +2024,7 @@ for(i in 1:length(list_variables_to_run)){
   
   
   #Write Table
-texreg(list(lm_adj_MT_DL,lm_adj_MT_S_Misinfo,lm_adj_MT_Age,lm_adj_MT_SM_use,lm_adj_MT_consump,lm_adj_MT_Part,lm_adj_MT_Prop_Unrel),
+texreg(list(lm_adj_MT_DL,lm_adj_MT_S_Misinfo,lm_adj_MT_SM_use,lm_adj_MT_consump,lm_adj_MT_Part,lm_adj_MT_Prop_Unrel),
                      include.ci = FALSE,
                      digits=4,
                      omit.coef = '(Intercept)',
@@ -2229,9 +2032,10 @@ texreg(list(lm_adj_MT_DL,lm_adj_MT_S_Misinfo,lm_adj_MT_Age,lm_adj_MT_SM_use,lm_a
                      label = "table",
                      include.rmse = FALSE,
                      custom.coef.names = Variable_Names,
-                     custom.model.names= c("Dig. Lit.", "Sci. Misinf.","Age","S.M. Use","News Consump.","Partisan. of News Diet","Unreliable News Consumed"),
+                     custom.model.names= c("Dig. Lit.", "Sci. Misinf.","S.M. Use","News Consump.","Partisan. of News Diet","Unreliable News Consumed"),
                      file=Tables_title[i],
-       caption.above = TRUE)
+                     float.pos = "!htbp",
+                     caption.above = TRUE)
 }
 
 
@@ -2261,16 +2065,6 @@ list_possible_covariates <- c("gender_dummy_fem",
                               'log_news')
 
 
-#Create Sets of variables to use in models:
-var1 <- list('variables'=c('Prop_Unreliable_NewsG_Score_post',
-                           'Prop_Unreliable_NewsG_Score'))
-
-var2 <- list('variables'=c('Average_domain_NewsG_Score_post',
-                           'Average_domain_NewsG_Score'))
-
-list_variables_to_run <- c('a'=var1,
-                           'b'=var2)
-
 #Create list of Titles:
 Titles <- c('Testing Effect of Intervention Using Different Moderators on Average Reliability Score of Online News Viewed (Covariate-Unadjusted)',
             'Testing Effect of Intervention Using Different Moderators on Proportion of Unreliable Online News Viewed (Covariate-Unadjusted)')
@@ -2278,8 +2072,8 @@ Titles <- c('Testing Effect of Intervention Using Different Moderators on Averag
 
 
 #Create list of filenames:
-Tables_title <-  c('./Tables/Table_57.txt',
-                   './Tables/Table_58.txt')
+Tables_title <-  c('./Tables/Table_56.txt',
+                   './Tables/Table_57.txt')
 
 
 #Create crosswalk for variables and display names:
@@ -2334,21 +2128,11 @@ top_attributes_html <- c('Gender',
 
 names(top_attributes_html) <- top_attribute_names
 
-list_moderators <- c('Age',
-                     'Total_DL',
-                     'Total_Science_Misinfo',
-                     'Social_Media_Use',
-                     'mean_cons',
-                     'abs_part',
-                     'Prop_Unreliable_NewsG_Score')
-
-
 
 #Run For loop to produce Tables 57-58:
-
-for(i in 1:length(list_variables_to_run)){
+for(i in 1:length(list_variables_to_run_3)){
   #names_of_columns
-  names_of_columns <- c(list_variables_to_run[[i]],list_possible_covariates)
+  names_of_columns <- c(list_variables_to_run_3[[i]],list_possible_covariates)
   
   #Reporting unadjusted (differences in means) and covariate-adjusted 
   #(OLS) estimates of treatment effects. We will use HC2 robust standard errors in all analyses and report 
@@ -2362,18 +2146,18 @@ for(i in 1:length(list_variables_to_run)){
   names_of_columns <- c('Treated',names_of_columns)
   
   #DL
-  names_of_columns_M1 <- c(names_of_columns,'Total_DL')
+  names_of_columns_M1 <- c(names_of_columns,'Inverse_DL')
   
-  names.use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_M1)]
+  names_use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_M1)]
   
-  data_for_analysis <- Pulse_data[, names.use]
+  data_for_analysis <- Pulse_data[, names_use]
   
   #Clean Data:
   data_for_analysis <- Clean(data_for_analysis)
   
-  colnames(data_for_analysis)[which(names(data_for_analysis) == "Total_DL")] <- "Moderator"
+  colnames(data_for_analysis)[which(names(data_for_analysis) == "Inverse_DL")] <- "Moderator"
   
-  f <- paste0(list_variables_to_run[[i]][1], " ~ Treated*Moderator + .")
+  f <- paste0(list_variables_to_run_3[[i]][1], " ~ Treated*Moderator + .")
   
   lm_adj_MT_DL <- lm_robust(as.formula(f), data = data_for_analysis)
   summary(lm_adj_MT_DL)
@@ -2385,9 +2169,9 @@ for(i in 1:length(list_variables_to_run)){
   
   names_of_columns_M1 <- c(names_of_columns,'Total_Science_Misinfo')
   
-  names.use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_M1)]
+  names_use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_M1)]
   
-  data_for_analysis <- Pulse_data[, names.use]
+  data_for_analysis <- Pulse_data[, names_use]
   
   #Clean Data:
   data_for_analysis <- Clean(data_for_analysis)
@@ -2395,42 +2179,24 @@ for(i in 1:length(list_variables_to_run)){
   
   colnames(data_for_analysis)[which(names(data_for_analysis) == "Total_Science_Misinfo")] <- "Moderator"
   
-  f <- paste0(list_variables_to_run[[i]][1], " ~ Treated*Moderator + .")
+  f <- paste0(list_variables_to_run_3[[i]][1], " ~ Treated*Moderator + .")
   
   lm_adj_MT_S_Misinfo <- lm_robust(as.formula(f), data = data_for_analysis)
   summary(lm_adj_MT_S_Misinfo)
   
-  #Age
-  names_of_columns_M1 <- c(names_of_columns,'Age')
-  
-  names.use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_M1)]
-  
-  data_for_analysis <- Pulse_data[, names.use]
-  
-  #Clean Data:
-  data_for_analysis <- Clean(data_for_analysis)
-  
-  colnames(data_for_analysis)[which(names(data_for_analysis) == "Age")] <- "Moderator"
-  
-  f <- paste0(list_variables_to_run[[i]][1], " ~ Treated*Moderator + .")
-  
-  lm_adj_MT_Age <- lm_robust(as.formula(f), data = data_for_analysis)
-  summary(lm_adj_MT_Age)
-  
-  
   #SM Use
   names_of_columns_M1 <- c(names_of_columns,'Social_Media_Use')
   
-  names.use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_M1)]
+  names_use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_M1)]
   
-  data_for_analysis <- Pulse_data[, names.use]
+  data_for_analysis <- Pulse_data[, names_use]
   
   #Clean Data:
   data_for_analysis <- Clean(data_for_analysis)
   
   colnames(data_for_analysis)[which(names(data_for_analysis) == "Social_Media_Use")] <- "Moderator"
   
-  f <- paste0(list_variables_to_run[[i]][1], " ~ Treated*Moderator + .")
+  f <- paste0(list_variables_to_run_3[[i]][1], " ~ Treated*Moderator + .")
   
   lm_adj_MT_SM_use <- lm_robust(as.formula(f), data = data_for_analysis)
   summary(lm_adj_MT_SM_use)
@@ -2439,16 +2205,16 @@ for(i in 1:length(list_variables_to_run)){
   
   names_of_columns_M2 <- c('mean_cons',names_of_columns)
   
-  names.use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_M2)]
+  names_use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_M2)]
   
-  data_for_analysis <- Pulse_data[, names.use]
+  data_for_analysis <- Pulse_data[, names_use]
   
   #Clean Data:
   data_for_analysis <- Clean(data_for_analysis)
   
   colnames(data_for_analysis)[which(names(data_for_analysis) == "mean_cons")] <- "Moderator"
   
-  f <- paste0(list_variables_to_run[[i]][1], " ~ Treated*Moderator + . - cons_desk - cons_mobile")
+  f <- paste0(list_variables_to_run_3[[i]][1], " ~ Treated*Moderator + . - cons_desk - cons_mobile")
   
   lm_adj_MT_consump <- lm_robust(as.formula(f), data = data_for_analysis)
   summary(lm_adj_MT_consump)
@@ -2457,9 +2223,9 @@ for(i in 1:length(list_variables_to_run)){
   
   names_of_columns_M2 <- c('abs_part',names_of_columns)
   
-  names.use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_M2)]
+  names_use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_M2)]
   
-  data_for_analysis <- Pulse_data[, names.use]
+  data_for_analysis <- Pulse_data[, names_use]
   
   #Clean Data:
   data_for_analysis <- Clean(data_for_analysis)
@@ -2467,7 +2233,7 @@ for(i in 1:length(list_variables_to_run)){
   
   colnames(data_for_analysis)[which(names(data_for_analysis) == "abs_part")] <- "Moderator"
   
-  f <- paste0(list_variables_to_run[[i]][1], " ~ Treated*Moderator + .")
+  f <- paste0(list_variables_to_run_3[[i]][1], " ~ Treated*Moderator + .")
   
   lm_adj_MT_Part <- lm_robust(as.formula(f), data = data_for_analysis)
   summary(lm_adj_MT_Part)
@@ -2477,22 +2243,22 @@ for(i in 1:length(list_variables_to_run)){
   
   names_of_columns_M2 <- c('Prop_Unreliable_NewsG_Score',names_of_columns)
   
-  names.use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_M2)]
+  names_use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_M2)]
   
-  data_for_analysis <- Pulse_data[, names.use]
+  data_for_analysis <- Pulse_data[, names_use]
   
   #Clean Data:
   data_for_analysis <- Clean(data_for_analysis)
   
   colnames(data_for_analysis)[which(names(data_for_analysis) == "Prop_Unreliable_NewsG_Score")] <- "Moderator"
   
-  f <- paste0(list_variables_to_run[[i]][1], " ~ Treated*Moderator + .")
+  f <- paste0(list_variables_to_run_3[[i]][1], " ~ Treated*Moderator + .")
   
   lm_adj_MT_Prop_Unrel <- lm_robust(as.formula(f), data = data_for_analysis)
   summary(lm_adj_MT_Prop_Unrel)
   
   #Write Table
-texreg(list(lm_adj_MT_DL,lm_adj_MT_S_Misinfo,lm_adj_MT_Age,lm_adj_MT_SM_use,lm_adj_MT_consump,lm_adj_MT_Part,lm_adj_MT_Prop_Unrel),
+texreg(list(lm_adj_MT_DL,lm_adj_MT_S_Misinfo,lm_adj_MT_SM_use,lm_adj_MT_consump,lm_adj_MT_Part,lm_adj_MT_Prop_Unrel),
                      include.ci = FALSE,
                      digits=4,
                      omit.coef = '(Intercept)',
@@ -2500,9 +2266,10 @@ texreg(list(lm_adj_MT_DL,lm_adj_MT_S_Misinfo,lm_adj_MT_Age,lm_adj_MT_SM_use,lm_a
                      label = "table",
                      include.rmse = FALSE,
                      custom.coef.names = Variable_Names,
-                     custom.model.names= c("Dig. Lit.", "Sci. Misinf.","Age","S.M. Use","News Consump.","Partisan. of News Diet","Unreliable News Consumed"),
+                     custom.model.names= c("Dig. Lit.", "Sci. Misinf.","S.M. Use","News Consump.","Partisan. of News Diet","Unreliable News Consumed"),
                      file=Tables_title[i],
-       caption.above = TRUE)
+                     float.pos = "!htbp",
+                     caption.above = TRUE)
 }
 
 
@@ -2528,18 +2295,6 @@ list_possible_covariates <- c("gender_dummy_fem",
                               "cons_mobile",
                               "Safari_dummy")
 
-#Create Sets of variables to use in models:
-var1 <- list('variables'=c('BLM_Misinfo_Index_w2'))
-var2 <- list('variables'=c('Covid_Misinfo_Index_w2'))
-var3 <- list('variables'=c('Trust_Media_w2'))
-var4 <- list('variables'=c('SMP4310_w2',
-                           'SMP4310'))
-
-list_variables_to_run <- c('a'=var1,
-                           'b'=var2,
-                           'c'=var3,
-                           'd'=var4)
-
 #Create list of Titles:
 Titles <- c('Testing Effect of Intervention Using Different Moderators on Belief in BLM Misinformation  (Covariate-Unadjusted)',
             'Testing Effect of Intervention Using Different Moderators on Belief in Covid Misinformation  (Covariate-Unadjusted)',
@@ -2549,10 +2304,9 @@ Titles <- c('Testing Effect of Intervention Using Different Moderators on Belief
 
 
 #Create list of filenames:
-Tables_title <-  c('./Tables/Table_59.txt',
-                   './Tables/Table_60.txt',
-                   './Tables/Table_61.txt',
-                   './Tables/Table_62.txt')
+Tables_title <-  c('./Tables/Table_58.txt',
+                   './Tables/Table_59.txt',
+                   './Tables/Table_60.txt')
 
 
 #Create crosswalk for variables and display names:
@@ -2603,19 +2357,11 @@ top_attributes_html <- c('Gender',
 
 names(top_attributes_html) <- top_attribute_names
 
-list_moderators <- c('Age',
-                     'Total_DL',
-                     'Total_Science_Misinfo',
-                     'Social_Media_Use',
-                     'mean_cons',
-                     'abs_part',
-                     'Prop_Unreliable_NewsG_Score')
 
 #Run For loop to produce Tables 59-62:
-
-for(i in 1:length(list_variables_to_run)){
+for(i in 1:length(list_variables_to_run_4)){
   #names_of_columns
-  names_of_columns <- c(list_variables_to_run[[i]],list_possible_covariates)
+  names_of_columns <- c(list_variables_to_run_4[[i]],list_possible_covariates)
   
   #Reporting unadjusted (differences in means) and covariate-adjusted 
   #(OLS) estimates of treatment effects. We will use HC2 robust standard errors in all analyses and report 
@@ -2629,18 +2375,18 @@ for(i in 1:length(list_variables_to_run)){
   names_of_columns <- c('Treated',names_of_columns)
   
   #DL
-  names_of_columns_M1 <- c(names_of_columns,'Total_DL')
+  names_of_columns_M1 <- c(names_of_columns,'Inverse_DL')
   
-  names.use <- names(data_frame_1)[(names(data_frame_1) %in% names_of_columns_M1)]
+  names_use <- names(data_frame_1)[(names(data_frame_1) %in% names_of_columns_M1)]
   
-  data_for_analysis <- data_frame_1[, names.use]
+  data_for_analysis <- data_frame_1[, names_use]
   
   #Clean Data:
   data_for_analysis <- Clean(data_for_analysis)
   
-  colnames(data_for_analysis)[which(names(data_for_analysis) == "Total_DL")] <- "Moderator"
+  colnames(data_for_analysis)[which(names(data_for_analysis) == "Inverse_DL")] <- "Moderator"
   
-  f <- paste0(list_variables_to_run[[i]][1], " ~ Treated*Moderator + .")
+  f <- paste0(list_variables_to_run_4[[i]][1], " ~ Treated*Moderator + .")
   
   lm_adj_MT_DL <- lm_robust(as.formula(f), data = data_for_analysis)
   
@@ -2651,9 +2397,9 @@ for(i in 1:length(list_variables_to_run)){
   
   names_of_columns_M1 <- c(names_of_columns,'Total_Science_Misinfo')
   
-  names.use <- names(data_frame_1)[(names(data_frame_1) %in% names_of_columns_M1)]
+  names_use <- names(data_frame_1)[(names(data_frame_1) %in% names_of_columns_M1)]
   
-  data_for_analysis <- data_frame_1[, names.use]
+  data_for_analysis <- data_frame_1[, names_use]
   
   #Clean Data:
   data_for_analysis <- Clean(data_for_analysis)
@@ -2661,40 +2407,23 @@ for(i in 1:length(list_variables_to_run)){
   
   colnames(data_for_analysis)[which(names(data_for_analysis) == "Total_Science_Misinfo")] <- "Moderator"
   
-  f <- paste0(list_variables_to_run[[i]][1], " ~ Treated*Moderator + .")
+  f <- paste0(list_variables_to_run_4[[i]][1], " ~ Treated*Moderator + .")
   
   lm_adj_MT_S_Misinfo <- lm_robust(as.formula(f), data = data_for_analysis)
-  
-  #Age
-  names_of_columns_M1 <- c(names_of_columns,'Age')
-  
-  names.use <- names(data_frame_1)[(names(data_frame_1) %in% names_of_columns_M1)]
-  
-  data_for_analysis <- data_frame_1[, names.use]
-  
-  #Clean Data:
-  data_for_analysis <- Clean(data_for_analysis)
-  
-  colnames(data_for_analysis)[which(names(data_for_analysis) == "Age")] <- "Moderator"
-  
-  f <- paste0(list_variables_to_run[[i]][1], " ~ Treated*Moderator + .")
-  
-  lm_adj_MT_Age <- lm_robust(as.formula(f), data = data_for_analysis)
-  
   
   #SM Use
   names_of_columns_M1 <- c(names_of_columns,'Social_Media_Use')
   
-  names.use <- names(data_frame_1)[(names(data_frame_1) %in% names_of_columns_M1)]
+  names_use <- names(data_frame_1)[(names(data_frame_1) %in% names_of_columns_M1)]
   
-  data_for_analysis <- data_frame_1[, names.use]
+  data_for_analysis <- data_frame_1[, names_use]
   
   #Clean Data:
   data_for_analysis <- Clean(data_for_analysis)
   
   colnames(data_for_analysis)[which(names(data_for_analysis) == "Social_Media_Use")] <- "Moderator"
   
-  f <- paste0(list_variables_to_run[[i]][1], " ~ Treated*Moderator + .")
+  f <- paste0(list_variables_to_run_4[[i]][1], " ~ Treated*Moderator + .")
   
   lm_adj_MT_SM_use <- lm_robust(as.formula(f), data = data_for_analysis)
   
@@ -2702,16 +2431,16 @@ for(i in 1:length(list_variables_to_run)){
   
   names_of_columns_M2 <- c('mean_cons',names_of_columns)
   
-  names.use <- names(data_frame_1)[(names(data_frame_1) %in% names_of_columns_M2)]
+  names_use <- names(data_frame_1)[(names(data_frame_1) %in% names_of_columns_M2)]
   
-  data_for_analysis <- data_frame_1[, names.use]
+  data_for_analysis <- data_frame_1[, names_use]
   
   #Clean Data:
   data_for_analysis <- Clean(data_for_analysis)
   
   colnames(data_for_analysis)[which(names(data_for_analysis) == "mean_cons")] <- "Moderator"
   
-  f <- paste0(list_variables_to_run[[i]][1], " ~ Treated*Moderator + . - cons_desk - cons_mobile")
+  f <- paste0(list_variables_to_run_4[[i]][1], " ~ Treated*Moderator + . - cons_desk - cons_mobile")
 
   lm_adj_MT_consump <- lm_robust(as.formula(f), data = data_for_analysis)
   
@@ -2719,16 +2448,16 @@ for(i in 1:length(list_variables_to_run)){
   
   names_of_columns_M2 <- c('abs_part',names_of_columns)
   
-  names.use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_M2)]
+  names_use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_M2)]
   
-  data_for_analysis <- Pulse_data[, names.use]
+  data_for_analysis <- Pulse_data[, names_use]
   
   #Clean Data:
   data_for_analysis <- Clean(data_for_analysis)
   
   colnames(data_for_analysis)[which(names(data_for_analysis) == "abs_part")] <- "Moderator"
   
-  f <- paste0(list_variables_to_run[[i]][1], " ~ Treated*Moderator + .")
+  f <- paste0(list_variables_to_run_4[[i]][1], " ~ Treated*Moderator + .")
   
   lm_adj_MT_Part <- lm_robust(as.formula(f), data = data_for_analysis)
   
@@ -2737,22 +2466,22 @@ for(i in 1:length(list_variables_to_run)){
   
   names_of_columns_M2 <- c('Prop_Unreliable_NewsG_Score',names_of_columns)
   
-  names.use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_M2)]
+  names_use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_M2)]
   
-  data_for_analysis <- Pulse_data[, names.use]
+  data_for_analysis <- Pulse_data[, names_use]
   
   #Clean Data:
   data_for_analysis <- Clean(data_for_analysis)
   
   colnames(data_for_analysis)[which(names(data_for_analysis) == "Prop_Unreliable_NewsG_Score")] <- "Moderator"
   
-  f <- paste0(list_variables_to_run[[i]][1], " ~ Treated*Moderator + .")
+  f <- paste0(list_variables_to_run_4[[i]][1], " ~ Treated*Moderator + .")
   
   lm_adj_MT_Prop_Unrel <- lm_robust(as.formula(f), data = data_for_analysis)
   
 
   #Write Table
-texreg(list(lm_adj_MT_DL,lm_adj_MT_S_Misinfo,lm_adj_MT_Age,lm_adj_MT_SM_use,lm_adj_MT_consump,lm_adj_MT_Part,lm_adj_MT_Prop_Unrel),
+texreg(list(lm_adj_MT_DL,lm_adj_MT_S_Misinfo,lm_adj_MT_SM_use,lm_adj_MT_consump,lm_adj_MT_Part,lm_adj_MT_Prop_Unrel),
                      include.ci = FALSE,
                      digits=4,
                      omit.coef = '(Intercept)',
@@ -2760,9 +2489,10 @@ texreg(list(lm_adj_MT_DL,lm_adj_MT_S_Misinfo,lm_adj_MT_Age,lm_adj_MT_SM_use,lm_a
                      label = "table",
                      include.rmse = FALSE,
                      custom.coef.names = Variable_Names,
-                     custom.model.names= c("Dig. Lit.", "Sci. Misinf.","Age","S.M. Use","News Consump.","Partisan. of News Diet","Unreliable News Consumed"),
+                     custom.model.names= c("Dig. Lit.", "Sci. Misinf.","S.M. Use","News Consump.","Partisan. of News Diet","Unreliable News Consumed"),
                      file=Tables_title[i],
-       caption.above = TRUE)
+                     float.pos = "!htbp",
+                     caption.above = TRUE)
 }
 
 

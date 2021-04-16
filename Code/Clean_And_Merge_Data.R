@@ -102,6 +102,8 @@ dataframe_1$IE_dummy <- ifelse(startsWith(dataframe_1$web_browser,'MS'),1,0)
 dataframe_1$Chrome_dummy <- ifelse(startsWith(dataframe_1$web_browser,'Chrome'),1,0)
 dataframe_1$Firefox_dummy <- ifelse(startsWith(dataframe_1$web_browser,'Firefox'),1,0)
 dataframe_1$Safari_dummy <- ifelse(startsWith(dataframe_1$web_browser,'Safari'),1,0)
+dataframe_1$N_Safari_dummy <- ifelse(startsWith(dataframe_1$web_browser,'Safari'),0,1)
+
 
 ##Create Variables for the trust of different news producers:
 
@@ -260,8 +262,14 @@ colnames(dl_matrix) <- c('DL_1','DL_2','DL_3','DL_4','DL_5','DL_6','DL_7','DL_8'
 dl_matrix <- dl_matrix %>% mutate(Total_DL = DL_1 + DL_2 + DL_3 + DL_4 + DL_5 + DL_6 + DL_7 + DL_8 + DL_9 + DL_10)
 dl_matrix <- dl_matrix %>% select(Total_DL)
 
+dl_matrix <- dl_matrix %>% select(Total_DL)
 
 dataframe_1 <- cbind(dataframe_1,dl_matrix)
+
+#Make this the inverse:
+dataframe_1$Inverse_DL <- 66-dataframe_1$Total_DL
+dataframe_1$Inverse_DL <- abs(dataframe_1$Inverse_DL)
+
 
 #Create Scientific Misinformation Index:
 
@@ -386,13 +394,12 @@ dataframe_1$Party_ID <- ifelse(dataframe_1$Party_ID == 'Independent',dataframe_1
 dataframe_1$Party_ID <- ifelse(dataframe_1$Party_ID == 'A Democrat',dataframe_1$SMP8202C,dataframe_1$Party_ID)
 dataframe_1$Party_ID <- ifelse(dataframe_1$Party_ID == 'A Republican',dataframe_1$SMP8202D,dataframe_1$Party_ID)
 
-
-dataframe_1$party_score <- ifelse(dataframe_1$Party_ID == "Strong Democrat",-3,0)
-dataframe_1$party_score <- ifelse(dataframe_1$Party_ID == "Not very strong Democrat",-2,dataframe_1$party_score)
-dataframe_1$party_score <- ifelse(dataframe_1$Party_ID == "Closer to the Democratic Party",-1,dataframe_1$party_score)
-dataframe_1$party_score <- ifelse(dataframe_1$Party_ID == "Strong Republican",3,dataframe_1$party_score)
-dataframe_1$party_score <- ifelse(dataframe_1$Party_ID == "Not very strong Republican",2,dataframe_1$party_score)
-dataframe_1$party_score <- ifelse(dataframe_1$Party_ID == "Closer to the Republican Party",1,dataframe_1$party_score)
+dataframe_1$party_score <- ifelse(dataframe_1$Party_ID == "Strong Democrat",1,0)
+dataframe_1$party_score <- ifelse(dataframe_1$Party_ID == "Not very strong Democrat",2,dataframe_1$party_score)
+dataframe_1$party_score <- ifelse(dataframe_1$Party_ID == "Closer to the Democratic Party",3,dataframe_1$party_score)
+dataframe_1$party_score <- ifelse(dataframe_1$Party_ID == "Strong Republican",7,dataframe_1$party_score)
+dataframe_1$party_score <- ifelse(dataframe_1$Party_ID == "Not very strong Republican",6,dataframe_1$party_score)
+dataframe_1$party_score <- ifelse(dataframe_1$Party_ID == "Closer to the Republican Party",5,dataframe_1$party_score)
 
 #Create Dummy variable for race (White):
 dataframe_1 <- dataframe_1 %>% mutate(race_white = ifelse(race == 'White',1,0))
@@ -566,6 +573,9 @@ dataframe_1$SMP5065_w2 <- as.numeric(dataframe_1$SMP5065_w2)
 dataframe_1 <- dataframe_1 %>% group_by(visa1)  %>% mutate(Covid_Misinfo_Index_w2 = mean(c(SMP5061_w2,SMP5062_w2,SMP5064_w2),na.rm=T))
 dataframe_1 <- dataframe_1 %>% group_by(visa1)  %>% mutate(Covid_info_Index_w2 = mean(c(SMP5063_w2,SMP5065_w2),na.rm=T))
 
+dataframe_1$Covid_Misinfo_Index_w2 <- dataframe_1$Covid_Misinfo_Index_w2 - 1
+dataframe_1$Covid_info_Index_w2 <- dataframe_1$Covid_info_Index_w2 - 1
+
 
 #Create BLM Misinformation and Information Index:
 
@@ -611,8 +621,8 @@ dataframe_1$SMP5085_w2 <- as.numeric(dataframe_1$SMP5085_w2)
 dataframe_1 <- dataframe_1 %>% group_by(visa1)  %>% mutate(BLM_Misinfo_Index_w2 = mean(c(SMP5081_w2,SMP5082_w2,SMP5084_w2),na.rm=T))
 dataframe_1 <- dataframe_1 %>% group_by(visa1)  %>% mutate(BLM_info_Index_w2 = mean(c(SMP5083_w2,SMP5085_w2),na.rm=T))
 
-
-
+dataframe_1$BLM_Misinfo_Index_w2 <- dataframe_1$BLM_Misinfo_Index_w2 - 1
+dataframe_1$BLM_info_Index_w2 <- dataframe_1$BLM_info_Index_w2 - 1
 
 #Trust and Consumption in news:
 

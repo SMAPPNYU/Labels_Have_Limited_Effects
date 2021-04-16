@@ -3,22 +3,22 @@
     "path": "~/Documents/Live_Informational_Feedback/Code/Figures_Tables_In_Appendix.R",
     "project_path": "Code/Figures_Tables_In_Appendix.R",
     "type": "r_source",
-    "hash": "0",
+    "hash": "3618059706",
     "contents": "",
     "dirty": false,
     "created": 1617828207746.0,
     "source_on_save": false,
     "relative_order": 3,
     "properties": {
-        "cursorPosition": "624,1",
-        "scrollLine": "610"
+        "cursorPosition": "633,1",
+        "scrollLine": "612"
     },
     "folds": "",
-    "lastKnownWriteTime": 1618238042,
+    "lastKnownWriteTime": 1618537558,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1618238042,
+    "last_content_update": 1618537558517,
     "read_only": false,
     "read_only_alternatives": []
 }

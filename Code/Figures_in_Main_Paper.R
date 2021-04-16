@@ -130,34 +130,17 @@ data_frame_1 <- data_frame_1[order(data_frame_1$visa1),]
 
 #Create a function using glmnet lasso that chooses the variables to use:
 Lasso <- function(data_for_analysis) {
-  y <- as.matrix(data_for_analysis[,1])
-  x <- as.matrix(data_for_analysis[,-1])
+  set.seed(983)
+  lasso_select <- cv.glmnet(x=as.matrix(data_for_analysis[,-1]),
+                            y=as.vector(data_for_analysis[,1]),
+                            alpha=1)
   
-  #Set seed as specified in the pre-registration:
-  set.seed(938)
-  #k-fold cross-validation for glmnet returns a value for lambda
-  fit1 = glmnet(x,y, family="gaussian")
-  cvob1 = cv.glmnet(x,y)
-  coefficients <- coef(fit1,s=cvob1$lambda.min)
-  
-  #Dependent variable data:
-  data_for_regression = data_for_analysis[,1]
-  #Possible independent variables:
-  names_of_columns = colnames(data_for_analysis)[1]
-  
-  #Create list of coefficients that should be included:
-  for(i in 2:nrow(coefficients)){
-    if(coefficients[i,1] != 0){
-      z=i-1
-      data_for_regression = cbind(data_for_regression,data_for_analysis[,i])
-      names_of_columns <- c(names_of_columns,colnames(data_for_analysis)[i])
-    }
-  }
-  #Create list of covariates that should be included:
-  names_of_columns_3 <- c(names_of_columns,'Complied','Treated')
-  
+  coef.out <- coef(lasso_select, exact = TRUE)
+  indices <- which(coef.out != 0)
+  names_of_columns_3 <- c(rownames(coef.out)[indices],'Complied','Treated',colnames(data_for_analysis)[1])
+  names_of_columns_3 <- names_of_columns_3[!names_of_columns_3 %in% "(Intercept)"]
   return(names_of_columns_3)
-}
+    }
 
 #Function for cleaning data:
 
@@ -182,8 +165,6 @@ return(data_for_analysis)
 ######################### (Hypothesis 1) ################################
 
 ################## Proportion Unreliable (After July 1st) ##############################################
-
-
 
 data_for_analysis <- Pulse_data %>% ungroup() %>% select(Prop_Unreliable_NewsG_Score_post,
                                                          Prop_Unreliable_NewsG_Score,
@@ -615,10 +596,10 @@ data_for_analysis <- data_frame_1 %>% ungroup() %>% select(Trust_Media_w2,
                                                           cons_mobile,
                                                           Safari_dummy)
 
-data_for_analysis_2  <- data_for_analysis 
+str(data_for_analysis)
 
 #Remove NA values:
-data_for_analysis <- na.omit(data_for_analysis)
+data_for_analysis <- Clean(data_for_analysis)
 
 #Use glmnet lasso to choose covariates to be a part of model:
 names_of_columns_3 <- Lasso(data_for_analysis)
@@ -656,7 +637,7 @@ data_for_analysis <- data_frame_1 %>% ungroup() %>% select(CBS_Trust_2,
                                                           Safari_dummy)
 
 #Remove NA values:
-data_for_analysis <- na.omit(data_for_analysis)
+data_for_analysis <- Clean(data_for_analysis)
 
 #Use glmnet lasso to choose covariates to be a part of model:
 names_of_columns_3 <- Lasso(data_for_analysis)
@@ -695,7 +676,7 @@ data_for_analysis <- data_frame_1 %>% ungroup() %>% select(ABC_Trust_2,
                                                           Safari_dummy)
 
 #Remove NA values:
-data_for_analysis <- na.omit(data_for_analysis)
+data_for_analysis <- Clean(data_for_analysis)
 
 #Use glmnet lasso to choose covariates to be a part of model:
 names_of_columns_3 <- Lasso(data_for_analysis)
@@ -733,7 +714,7 @@ data_for_analysis <- data_frame_1 %>% ungroup() %>% select(NBC_Trust_2,
 
 
 #Remove NA values:
-data_for_analysis <- na.omit(data_for_analysis)
+data_for_analysis <- Clean(data_for_analysis)
 
 #Use glmnet lasso to choose covariates to be a part of model:
 names_of_columns_3 <- Lasso(data_for_analysis)
@@ -772,7 +753,7 @@ data_for_analysis <- data_frame_1 %>% ungroup() %>% select(CNN_Trust_2,
 
 
 #Remove NA values:
-data_for_analysis <- na.omit(data_for_analysis)
+data_for_analysis <- Clean(data_for_analysis)
 
 #Use glmnet lasso to choose covariates to be a part of model:
 names_of_columns_3 <- Lasso(data_for_analysis)
@@ -812,7 +793,7 @@ data_for_analysis <- data_frame_1 %>% ungroup() %>% select(Fox_Trust_2,
 
 
 #Remove NA values:
-data_for_analysis <- na.omit(data_for_analysis)
+data_for_analysis <- Clean(data_for_analysis)
 
 #Use glmnet lasso to choose covariates to be a part of model:
 names_of_columns_3 <- Lasso(data_for_analysis)
@@ -849,7 +830,7 @@ data_for_analysis <- data_frame_1 %>% ungroup() %>% select(aff_pol_w2,
                                                           Safari_dummy)
 
 #Remove NA values:
-data_for_analysis <- na.omit(data_for_analysis)
+data_for_analysis <- Clean(data_for_analysis)
 
 #Use glmnet lasso to choose covariates to be a part of model:
 names_of_columns_3 <- Lasso(data_for_analysis)
@@ -885,7 +866,7 @@ data_for_analysis <- data_frame_1 %>% ungroup() %>% select(Pol_cyn_2,
                                                           Safari_dummy)
 
 #Remove NA values:
-data_for_analysis <- na.omit(data_for_analysis)
+data_for_analysis <- Clean(data_for_analysis)
 
 #Use glmnet lasso to choose covariates to be a part of model:
 names_of_columns_3 <- Lasso(data_for_analysis)
@@ -905,7 +886,7 @@ ivreg_Pol_cyn_compl_2 <- iv_robust(Pol_cyn_2 ~  . - Complied | . - Treated, data
 ###### Research Question 1: Can it can reduce people's beliefs in both accurate and inaccurate information ######
 
 
-################################# BLM Misinforamtion Index ################################
+################################# BLM Misinformation Index ################################
 
 data_for_analysis <- data_frame_1 %>% ungroup() %>% select(BLM_Misinfo_Index_w2,
                                                           gender_dummy_fem,
@@ -930,7 +911,7 @@ data_for_analysis <- data_frame_1 %>% ungroup() %>% select(BLM_Misinfo_Index_w2,
 
 
 #Remove NA values:
-data_for_analysis <- na.omit(data_for_analysis)
+data_for_analysis <- Clean(data_for_analysis)
 
 #Use glmnet lasso to choose covariates to be a part of model:
 names_of_columns_3 <- Lasso(data_for_analysis)
@@ -941,6 +922,8 @@ data_for_analysis <- data_frame_1[, names.use]
 
 
 ivreg_BLM_Misinfo_compl_2 <- iv_robust(BLM_Misinfo_Index_w2 ~  . - Complied | . - Treated, data = data_for_analysis)
+
+mean(data_for_analysis$BLM_Misinfo_Index_w2,na.rm=T)
 
 ################################# Covid Misinformation Index ################################
 data_for_analysis <- data_frame_1 %>% ungroup() %>% select(Covid_Misinfo_Index_w2,
@@ -967,7 +950,7 @@ data_for_analysis <- data_frame_1 %>% ungroup() %>% select(Covid_Misinfo_Index_w
 
 
 #Remove NA values:
-data_for_analysis <- na.omit(data_for_analysis)
+data_for_analysis <- Clean(data_for_analysis)
 
 #Use glmnet lasso to choose covariates to be a part of model:
 names_of_columns_3 <- Lasso(data_for_analysis)
@@ -978,6 +961,7 @@ data_for_analysis <- data_frame_1[, names.use]
 
 
 ivreg_Covid_Misinfo_compl_2 <- iv_robust(Covid_Misinfo_Index_w2 ~  . - Complied | . - Treated, data = data_for_analysis)
+
 
 ################################# BLM Information Index ################################
 data_for_analysis <- data_frame_1 %>% ungroup() %>% select(BLM_info_Index_w2,
@@ -1001,7 +985,7 @@ data_for_analysis <- data_frame_1 %>% ungroup() %>% select(BLM_info_Index_w2,
                                                           Safari_dummy)
 
 #Remove NA values:
-data_for_analysis <- na.omit(data_for_analysis)
+data_for_analysis <- Clean(data_for_analysis)
 
 #Use glmnet lasso to choose covariates to be a part of model:
 names_of_columns_3 <- Lasso(data_for_analysis)
@@ -1036,7 +1020,7 @@ data_for_analysis <- data_frame_1 %>% ungroup() %>% select(Covid_info_Index_w2,
 
 
 #Remove NA values:
-data_for_analysis <- na.omit(data_for_analysis)
+data_for_analysis <- Clean(data_for_analysis)
 
 #Use glmnet lasso to choose covariates to be a part of model:
 names_of_columns_3 <- Lasso(data_for_analysis)
@@ -1073,7 +1057,7 @@ data_for_analysis <- data_frame_1 %>% ungroup() %>% select(SMP4310_w2,
                                                           Safari_dummy)
 
 #Remove NA values:
-data_for_analysis <- na.omit(data_for_analysis)
+data_for_analysis <- Clean(data_for_analysis)
 
 #Use glmnet lasso to choose covariates to be a part of model:
 names_of_columns_3 <- Lasso(data_for_analysis)
@@ -1112,7 +1096,7 @@ data_for_analysis <- data_frame_1 %>% ungroup() %>% select(SMP4326_w2,
                                                           Safari_dummy)
 
 #Remove NA values:
-data_for_analysis <- na.omit(data_for_analysis)
+data_for_analysis <- Clean(data_for_analysis)
 
 #Use glmnet lasso to choose covariates to be a part of model:
 names_of_columns_3 <- Lasso(data_for_analysis)
@@ -1151,7 +1135,7 @@ data_for_analysis <- data_frame_1 %>% ungroup() %>% select(Trust_inst_w2,
                                                           Safari_dummy)
 
 #Remove NA values:
-data_for_analysis <- na.omit(data_for_analysis)
+data_for_analysis <- Clean(data_for_analysis)
 
 #Use glmnet lasso to choose covariates to be a part of model:
 names_of_columns_3 <- Lasso(data_for_analysis)

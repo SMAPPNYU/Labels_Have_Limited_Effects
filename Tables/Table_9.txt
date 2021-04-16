@@ -1,20 +1,18 @@
 
-\begin{table}
+\begin{table}[!htbp]
 \caption{Testing the Effect of the Intervention on Proportion of News Diet That is Reliable with Covariate-Adjusted Models (HC2 Robust standard errors) (After July 1st)}
 \begin{center}
 \begin{tabular}{l c c c}
 \hline
  & Intent-To-Treat (ITT) & CACE (Model 1) & CACE (Model 2) \\
 \hline
-Treatment           & $-0.0009$      & $0.0011$       & $0.0017$       \\
+Treatment           & $-0.0013$      & $0.0005$       & $0.0010$       \\
                     & $(0.0142)$     & $(0.0151)$     & $(0.0175)$     \\
-Ideology            & $0.0032$       & $0.0030$       & $0.0022$       \\
-                    & $(0.0034)$     & $(0.0035)$     & $(0.0034)$     \\
-Pre-Treatment Value & $0.7730^{***}$ & $0.7722^{***}$ & $0.7829^{***}$ \\
-                    & $(0.0248)$     & $(0.0254)$     & $(0.0250)$     \\
+Pre-Treatment Value & $0.7730^{***}$ & $0.7724^{***}$ & $0.7832^{***}$ \\
+                    & $(0.0249)$     & $(0.0254)$     & $(0.0250)$     \\
 \hline
-R$^2$               & $0.6075$       & $0.6021$       & $0.6159$       \\
-Adj. R$^2$          & $0.6059$       & $0.6005$       & $0.6143$       \\
+R$^2$               & $0.6070$       & $0.6017$       & $0.6157$       \\
+Adj. R$^2$          & $0.6060$       & $0.6007$       & $0.6146$       \\
 Num. obs.           & $760$          & $747$          & $736$          \\
 \hline
 \multicolumn{4}{l}{\scriptsize{$^{***}p<0.001$; $^{**}p<0.01$; $^{*}p<0.05$}}
