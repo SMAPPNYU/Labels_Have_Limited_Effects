@@ -1,0 +1,24 @@
+
+\begin{table}[!htbp]
+\caption{Testing Effect of Intervention Using Different Moderators on Trust in Fox News with Covariate-Unadjusted Models (HC2 Robust standard errors)}
+\begin{center}
+\begin{tabular}{l c c c c c c}
+\hline
+ & Dig. Lit. & Sci. Misinf. & S.M. Use & News Consump. & Partisan. of News Diet & Unreliable News Consumed \\
+\hline
+Treatment           & $-0.0306$      & $0.1033$       & $-0.0300$     & $0.0158$        & $0.1746$       & $0.0151$   \\
+                    & $(0.0750)$     & $(0.0837)$     & $(0.0784)$    & $(0.1122)$      & $(0.1396)$     & $(0.0841)$ \\
+Moderator           & $0.0144^{***}$ & $0.3226^{***}$ & $-0.0348^{*}$ & $-0.0838^{***}$ & $0.7623^{***}$ & $0.2491$   \\
+                    & $(0.0028)$     & $(0.0276)$     & $(0.0160)$    & $(0.0245)$      & $(0.1427)$     & $(0.6790)$ \\
+Treatment*Moderator & $0.0017$       & $-0.0422$      & $0.0063$      & $-0.0061$       & $-0.1908$      & $-0.3079$  \\
+                    & $(0.0036)$     & $(0.0350)$     & $(0.0205)$    & $(0.0315)$      & $(0.1792)$     & $(0.8573)$ \\
+\hline
+R$^2$               & $0.0240$       & $0.0849$       & $0.0030$      & $0.0099$        & $0.0905$       & $0.0003$   \\
+Adj. R$^2$          & $0.0231$       & $0.0841$       & $0.0021$      & $0.0090$        & $0.0860$       & $-0.0035$  \\
+Num. obs.           & $3332$         & $3336$         & $3336$        & $3336$          & $616$          & $795$      \\
+\hline
+\multicolumn{7}{l}{\scriptsize{$^{***}p<0.001$; $^{**}p<0.01$; $^{*}p<0.05$}}
+\end{tabular}
+\label{table}
+\end{center}
+\end{table}

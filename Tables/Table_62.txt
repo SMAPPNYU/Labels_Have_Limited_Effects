@@ -1,0 +1,26 @@
+
+\begin{table}[!htbp]
+\caption{Testing the Effect of Moderators on the Intervention on Count of Unreliable News Consumed with Covariate-Adjusted Models (HC2 Robust standard errors) (After July 1st)}
+\begin{center}
+\begin{tabular}{l c c c c c c}
+\hline
+ & Dig. Lit. & Sci. Misinf. & S.M. Use & News Consump. & Partisan. of News Diet & Unreliable News Consumed \\
+\hline
+Treatment           & $-0.0196$      & $0.0015$       & $0.0403$       & $-0.0161$      & $0.0242$       & $0.0098$       \\
+                    & $(0.0375)$     & $(0.0440)$     & $(0.0412)$     & $(0.0490)$     & $(0.0387)$     & $(0.0196)$     \\
+Moderator           & $-0.0014$      & $0.0142$       & $0.0059$       & $-0.0081$      & $0.1190^{**}$  & $0.4473$       \\
+                    & $(0.0014)$     & $(0.0142)$     & $(0.0083)$     & $(0.0117)$     & $(0.0398)$     & $(0.3522)$     \\
+Pre-Treatment Value & $0.7032^{***}$ & $0.7023^{***}$ & $0.7040^{***}$ & $0.7040^{***}$ & $0.6775^{***}$ & $0.6637^{***}$ \\
+                    & $(0.0290)$     & $(0.0292)$     & $(0.0296)$     & $(0.0293)$     & $(0.0326)$     & $(0.0370)$     \\
+Treatment*Moderator & $0.0014$       & $0.0026$       & $-0.0104$      & $0.0070$       & $-0.0034$      & $-0.2120$      \\
+                    & $(0.0018)$     & $(0.0180)$     & $(0.0108)$     & $(0.0150)$     & $(0.0519)$     & $(0.3465)$     \\
+\hline
+R$^2$               & $0.6539$       & $0.6549$       & $0.6542$       & $0.6540$       & $0.6561$       & $0.6595$       \\
+Adj. R$^2$          & $0.6522$       & $0.6533$       & $0.6525$       & $0.6523$       & $0.6538$       & $0.6578$       \\
+Num. obs.           & $839$          & $841$          & $841$          & $841$          & $616$          & $795$          \\
+\hline
+\multicolumn{7}{l}{\scriptsize{$^{***}p<0.001$; $^{**}p<0.01$; $^{*}p<0.05$}}
+\end{tabular}
+\label{table}
+\end{center}
+\end{table}

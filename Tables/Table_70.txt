@@ -1,0 +1,26 @@
+
+\begin{table}[!htbp]
+\caption{Testing Effect of Intervention Using Different Moderators on Affective Polarization with Covariate-adjusted Models (HC2 Robust standard errors)}
+\begin{center}
+\begin{tabular}{l c c c c c c}
+\hline
+ & Dig. Lit. & Sci. Misinf. & S.M. Use & News Consump. & Partisan. of News Diet & Unreliable News Consumed \\
+\hline
+Treatment           & $-0.5693$      & $-0.6119$      & $-0.8618$      & $1.5148$       & $2.3348$       & $-0.3065$      \\
+                    & $(1.0936)$     & $(1.3244)$     & $(1.1457)$     & $(1.7799)$     & $(2.2412)$     & $(1.2578)$     \\
+Moderator           & $0.0180$       & $-0.1760$      & $0.0797$       & $0.4680$       & $2.9095$       & $3.1537$       \\
+                    & $(0.0407)$     & $(0.4476)$     & $(0.2306)$     & $(0.3672)$     & $(2.0457)$     & $(5.8774)$     \\
+Pre-Treatment Value & $0.8701^{***}$ & $0.8701^{***}$ & $0.8701^{***}$ & $0.8697^{***}$ & $0.8670^{***}$ & $0.8663^{***}$ \\
+                    & $(0.0095)$     & $(0.0095)$     & $(0.0095)$     & $(0.0096)$     & $(0.0221)$     & $(0.0206)$     \\
+Treatment*Moderator & $0.0312$       & $0.2842$       & $0.2627$       & $-0.4452$      & $-1.3290$      & $3.3147$       \\
+                    & $(0.0524)$     & $(0.5745)$     & $(0.3017)$     & $(0.4840)$     & $(2.5583)$     & $(6.9582)$     \\
+\hline
+R$^2$               & $0.7169$       & $0.7159$       & $0.7162$       & $0.7160$       & $0.7139$       & $0.6913$       \\
+Adj. R$^2$          & $0.7165$       & $0.7155$       & $0.7158$       & $0.7157$       & $0.7120$       & $0.6897$       \\
+Num. obs.           & $3190$         & $3193$         & $3193$         & $3193$         & $605$          & $773$          \\
+\hline
+\multicolumn{7}{l}{\scriptsize{$^{***}p<0.001$; $^{**}p<0.01$; $^{*}p<0.05$}}
+\end{tabular}
+\label{table}
+\end{center}
+\end{table}

@@ -1,0 +1,24 @@
+
+\begin{table}[!htbp]
+\caption{Testing Effect of Intervention Using Different Moderators on Belief in True Information about Covid-19 with Covariate-Unadjusted Models (HC2 Robust standard errors)}
+\begin{center}
+\begin{tabular}{l c c c c c c}
+\hline
+ & Dig. Lit. & Sci. Misinf. & S.M. Use & News Consump. & Partisan. of News Diet & Unreliable News Consumed \\
+\hline
+Treatment           & $0.0516$      & $0.0044$        & $0.0282$   & $-0.0241$      & $-0.0386$     & $0.0449$   \\
+                    & $(0.0385)$    & $(0.0447)$      & $(0.0406)$ & $(0.0626)$     & $(0.0790)$    & $(0.0435)$ \\
+Moderator           & $-0.0037^{*}$ & $-0.1183^{***}$ & $0.0067$   & $0.0483^{***}$ & $-0.2333^{*}$ & $-0.4740$  \\
+                    & $(0.0015)$    & $(0.0165)$      & $(0.0079)$ & $(0.0128)$     & $(0.0945)$    & $(0.3343)$ \\
+Treatment*Moderator & $-0.0025$     & $-0.0020$       & $-0.0062$  & $0.0081$       & $0.1257$      & $0.3966$   \\
+                    & $(0.0019)$    & $(0.0215)$      & $(0.0105)$ & $(0.0164)$     & $(0.1094)$    & $(0.3804)$ \\
+\hline
+R$^2$               & $0.0112$      & $0.0534$        & $0.0003$   & $0.0143$       & $0.0276$      & $0.0061$   \\
+Adj. R$^2$          & $0.0103$      & $0.0526$        & $-0.0006$  & $0.0134$       & $0.0228$      & $0.0023$   \\
+Num. obs.           & $3266$        & $3270$          & $3270$     & $3270$         & $609$         & $785$      \\
+\hline
+\multicolumn{7}{l}{\scriptsize{$^{***}p<0.001$; $^{**}p<0.01$; $^{*}p<0.05$}}
+\end{tabular}
+\label{table}
+\end{center}
+\end{table}

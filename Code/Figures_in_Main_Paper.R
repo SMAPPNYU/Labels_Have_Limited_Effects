@@ -30,6 +30,10 @@ Pulse_data <- read_csv('./Data/Clean_NewsGuard_Digital_Trace_Data.csv',
                .default= col_character(),
                Treated = col_double(),
                Complied=col_double(),
+               IE_dummy = col_double(),
+               Chrome_dummy = col_double(),
+               Firefox_dummy = col_double(),
+               Social_Media_Use = col_double(),
                compliance_check_1=col_double(),
                Average_domain_NewsG_Score_post= col_double(),
                Average_domain_NewsG_Score= col_double(),
@@ -74,6 +78,10 @@ Pulse_data <- read_csv('./Data/Clean_NewsGuard_Digital_Trace_Data.csv',
 data_frame_1 <- read_csv('./Data/Clean_NewsGuard_Survey_Study.csv',
                          col_types = cols(
                          .default= col_character(),
+                         IE_dummy = col_double(),
+                         Chrome_dummy = col_double(),
+                         Firefox_dummy = col_double(),
+                         Social_Media_Use = col_double(),
                          Treated = col_double(),
                          SMP4310=col_double(),
                          SMP4310_w2=col_double(),
@@ -130,7 +138,7 @@ data_frame_1 <- data_frame_1[order(data_frame_1$visa1),]
 
 #Create a function using glmnet lasso that chooses the variables to use:
 Lasso <- function(data_for_analysis) {
-  set.seed(983)
+  set.seed(938)
   lasso_select <- cv.glmnet(x=as.matrix(data_for_analysis[,-1]),
                             y=as.vector(data_for_analysis[,1]),
                             alpha=1)
@@ -186,7 +194,13 @@ data_for_analysis <- Pulse_data %>% ungroup() %>% select(Prop_Unreliable_NewsG_S
                                                          cons_desk,
                                                          cons_mobile,
                                                          Safari_dummy,
-                                                         log_news)
+                                                         log_news,
+                                                         IE_dummy,
+                                                         Chrome_dummy,
+                                                         Firefox_dummy,
+                                                         Social_Media_Use)
+
+
 
 #Clean Data:
 data_for_analysis <- Clean(data_for_analysis)
@@ -199,7 +213,7 @@ names.use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_3)]
 data_for_analysis <- Pulse_data[, names.use]
 
 
-ivreg_Unrel_Post_compl_2 <- iv_robust(Prop_Unreliable_NewsG_Score_post ~  . - Complied | . - Treated, data = data_for_analysis)
+ivreg_Unrel_Post_compl_2 <- iv_robust(Prop_Unreliable_NewsG_Score_post ~  . - Treated | . - Complied, data = data_for_analysis)
 
 
 
@@ -244,7 +258,7 @@ data_for_analysis <- do.call(data.frame,                      # Replace Inf in d
 
 
 
-ivreg_news_Post_compl_2 <- iv_robust(Average_domain_NewsG_Score_post ~  . - Complied | . - Treated, data = data_for_analysis)
+ivreg_news_Post_compl_2 <- iv_robust(Average_domain_NewsG_Score_post ~  . - Treated | . - Complied, data = data_for_analysis)
 
 ################## Proportion Reliable (After July 1st)   ##############################################
 data_for_analysis <- Pulse_data %>% ungroup() %>%  select(Prop_Reliable_NewsG_Score_post,
@@ -267,7 +281,11 @@ data_for_analysis <- Pulse_data %>% ungroup() %>%  select(Prop_Reliable_NewsG_Sc
                                                           cons_desk,
                                                           cons_mobile,
                                                           Safari_dummy,
-                                                          log_news)
+                                                          log_news,
+                                                          IE_dummy,
+                                                          Chrome_dummy,
+                                                          Firefox_dummy,
+                                                          Social_Media_Use)
 
 #Clean Data:
 data_for_analysis <- Clean(data_for_analysis)
@@ -280,7 +298,7 @@ names.use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_3)]
 data_for_analysis <- Pulse_data[, names.use]
 
 
-ivreg_Rel_Post_compl_2 <- iv_robust(Prop_Reliable_NewsG_Score_post ~  . - Complied | . - Treated, data = data_for_analysis)
+ivreg_Rel_Post_compl_2 <- iv_robust(Prop_Reliable_NewsG_Score_post ~  . - Treated | . - Complied, data = data_for_analysis)
 
 
 
@@ -305,7 +323,11 @@ data_for_analysis <- Pulse_data %>% ungroup() %>%  select(Count_Unreliable_NewsG
                                                           cons_desk,
                                                           cons_mobile,
                                                           Safari_dummy,
-                                                          log_news)
+                                                          log_news,
+                                                          IE_dummy,
+                                                          Chrome_dummy,
+                                                          Firefox_dummy,
+                                                          Social_Media_Use)
 
 #Clean Data:
 data_for_analysis <- Clean(data_for_analysis)
@@ -323,7 +345,7 @@ data_for_analysis <- do.call(data.frame,                      # Replace Inf in d
 
 
 
-ivreg_Unrel_c_Post_compl_2 <- iv_robust(Count_Unreliable_NewsG_Score_post ~  . - Complied | . - Treated, data = data_for_analysis)
+ivreg_Unrel_c_Post_compl_2 <- iv_robust(Count_Unreliable_NewsG_Score_post ~  . - Treated | . - Complied, data = data_for_analysis)
 
 
 ################## Count of Reliable (After July 1st)  ##############################################
@@ -347,7 +369,11 @@ data_for_analysis <- Pulse_data %>% ungroup() %>%  select(Count_Reliable_NewsG_S
                                                           cons_desk,
                                                           cons_mobile,
                                                           Safari_dummy,
-                                                          log_news)
+                                                          log_news,
+                                                          IE_dummy,
+                                                          Chrome_dummy,
+                                                          Firefox_dummy,
+                                                          Social_Media_Use)
 
 #Clean Data:
 data_for_analysis <- Clean(data_for_analysis)
@@ -363,7 +389,7 @@ data_for_analysis <- do.call(data.frame,                      # Replace Inf in d
                              lapply(data_for_analysis,
                                     function(x) replace(x, is.infinite(x), NA)))
 
-ivreg_rel_c_Post_compl_2 <- iv_robust(Count_Reliable_NewsG_Score_post ~  . - Complied | . - Treated, data = data_for_analysis)
+ivreg_rel_c_Post_compl_2 <- iv_robust(Count_Reliable_NewsG_Score_post ~  . - Treated | . - Complied, data = data_for_analysis)
 
 
 
@@ -391,7 +417,11 @@ data_for_analysis <- Pulse_data %>% ungroup() %>%  select(Prop_Unreliable_NewsG_
                                                           cons_desk,
                                                           cons_mobile,
                                                           Safari_dummy,
-                                                          log_news)
+                                                          log_news,
+                                                          IE_dummy,
+                                                          Chrome_dummy,
+                                                          Firefox_dummy,
+                                                          Social_Media_Use)
 
 #Clean Data:
 data_for_analysis <- Clean(data_for_analysis)
@@ -404,7 +434,7 @@ names.use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_3)]
 data_for_analysis <- Pulse_data[, names.use]
 
 
-ivreg_Unrel_dv_compl_2 <- iv_robust(Prop_Unreliable_NewsG_Score_dv ~  . - Complied | . - Treated, data = data_for_analysis)
+ivreg_Unrel_dv_compl_2 <- iv_robust(Prop_Unreliable_NewsG_Score_dv ~  . - Treated | . - Complied, data = data_for_analysis)
 
 ################## Domain Score (Treatment Period)  ##############################################
 data_for_analysis <- Pulse_data %>%  ungroup() %>%  select(Average_domain_NewsG_Score_dv,
@@ -427,7 +457,11 @@ data_for_analysis <- Pulse_data %>%  ungroup() %>%  select(Average_domain_NewsG_
                                                            cons_desk,
                                                            cons_mobile,
                                                            Safari_dummy,
-                                                           log_news)
+                                                           log_news,
+                                                           IE_dummy,
+                                                           Chrome_dummy,
+                                                           Firefox_dummy,
+                                                           Social_Media_Use)
 
 #Clean Data:
 data_for_analysis <- Clean(data_for_analysis)
@@ -446,7 +480,7 @@ data_for_analysis <- do.call(data.frame,                      # Replace Inf in d
 
 
 
-ivreg_news_dv_compl_2 <- iv_robust(Average_domain_NewsG_Score_dv ~  . - Complied | . - Treated, data = data_for_analysis)
+ivreg_news_dv_compl_2 <- iv_robust(Average_domain_NewsG_Score_dv ~  . - Treated | . - Complied, data = data_for_analysis)
 
 
 
@@ -472,7 +506,11 @@ data_for_analysis <- Pulse_data %>% ungroup() %>%  select(Prop_Reliable_NewsG_Sc
                                                           cons_desk,
                                                           cons_mobile,
                                                           Safari_dummy,
-                                                          log_news)
+                                                          log_news,
+                                                          IE_dummy,
+                                                          Chrome_dummy,
+                                                          Firefox_dummy,
+                                                          Social_Media_Use)
 
 #Clean Data:
 data_for_analysis <- Clean(data_for_analysis)
@@ -485,7 +523,7 @@ names.use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_3)]
 data_for_analysis <- Pulse_data[, names.use]
 
 
-ivreg_Rel_dv_compl_2 <- iv_robust(Prop_Reliable_NewsG_Score_dv ~  . - Complied | . - Treated, data = data_for_analysis)
+ivreg_Rel_dv_compl_2 <- iv_robust(Prop_Reliable_NewsG_Score_dv ~  . - Treated | . - Complied, data = data_for_analysis)
 
 ################## Count of Unreliable (Treatment Period)  ##############################################
 
@@ -509,7 +547,11 @@ data_for_analysis <- Pulse_data %>% ungroup() %>%  select(Count_Unreliable_NewsG
                                                           cons_desk,
                                                           cons_mobile,
                                                           Safari_dummy,
-                                                          log_news)
+                                                          log_news,
+                                                          IE_dummy,
+                                                          Chrome_dummy,
+                                                          Firefox_dummy,
+                                                          Social_Media_Use)
 
 #Clean Data:
 data_for_analysis <- Clean(data_for_analysis)
@@ -525,7 +567,7 @@ data_for_analysis <- do.call(data.frame,                      # Replace Inf in d
                              lapply(data_for_analysis,
                                     function(x) replace(x, is.infinite(x), NA)))
 
-ivreg_Unrel_c_dv_compl_2 <- iv_robust(Count_Unreliable_NewsG_Score_dv ~  . - Complied | . - Treated, data = data_for_analysis)
+ivreg_Unrel_c_dv_compl_2 <- iv_robust(Count_Unreliable_NewsG_Score_dv ~  . - Treated | . - Complied, data = data_for_analysis)
 
 ################## Count of Reliable (Treatment Period) ##############################################
 
@@ -549,7 +591,11 @@ data_for_analysis <- Pulse_data %>% ungroup() %>%  select(Count_Reliable_NewsG_S
                                                           cons_desk,
                                                           cons_mobile,
                                                           Safari_dummy,
-                                                          log_news)
+                                                          log_news,
+                                                          IE_dummy,
+                                                          Chrome_dummy,
+                                                          Firefox_dummy,
+                                                          Social_Media_Use)
 
 #Clean Data:
 data_for_analysis <- Clean(data_for_analysis)
@@ -568,7 +614,7 @@ data_for_analysis <- do.call(data.frame,                      # Replace Inf in d
 
 
 
-ivreg_rel_c_dv_compl_2 <- iv_robust(Count_Reliable_NewsG_Score_dv ~  . - Complied | . - Treated, data = data_for_analysis)
+ivreg_rel_c_dv_compl_2 <- iv_robust(Count_Reliable_NewsG_Score_dv ~  . - Treated | . - Complied, data = data_for_analysis)
 
 
 
@@ -594,7 +640,11 @@ data_for_analysis <- data_frame_1 %>% ungroup() %>% select(Trust_Media_w2,
                                                           cons_talk,
                                                           cons_desk,
                                                           cons_mobile,
-                                                          Safari_dummy)
+                                                          Safari_dummy,
+                                                          IE_dummy,
+                                                          Chrome_dummy,
+                                                          Firefox_dummy,
+                                                          Social_Media_Use)
 
 str(data_for_analysis)
 
@@ -610,7 +660,7 @@ names.use <- names(data_frame_1)[(names(data_frame_1) %in% names_of_columns_3)]
 data_for_analysis <- data_frame_1[, names.use]
 
 #Report estimates from covariate-adjusted CACE. We use HC2 robust standard errors in all analyses and report p-values from two-tailed t-tests.
-ivreg_media_trust_compl_2 <- iv_robust(Trust_Media_w2 ~  . - Complied | . - Treated, data = data_for_analysis)
+ivreg_media_trust_compl_2 <- iv_robust(Trust_Media_w2 ~  . - Treated | . - Complied, data = data_for_analysis)
 
 
 ################################# Hypothesis 2b: Trust in Reliable Source (CBS) ################################
@@ -634,7 +684,11 @@ data_for_analysis <- data_frame_1 %>% ungroup() %>% select(CBS_Trust_2,
                                                           cons_talk,
                                                           cons_desk,
                                                           cons_mobile,
-                                                          Safari_dummy)
+                                                          Safari_dummy,
+                                                          IE_dummy,
+                                                          Chrome_dummy,
+                                                          Firefox_dummy,
+                                                          Social_Media_Use)
 
 #Remove NA values:
 data_for_analysis <- Clean(data_for_analysis)
@@ -649,7 +703,7 @@ data_for_analysis <- data_frame_1[, names.use]
 data_for_analysis <- data_for_analysis %>%
   select(Treated, everything())
 
-ivreg_CBS_compl_2 <- iv_robust(CBS_Trust_2 ~  . - Complied | . - Treated, data = data_for_analysis)
+ivreg_CBS_compl_2 <- iv_robust(CBS_Trust_2 ~  . - Treated | . - Complied, data = data_for_analysis)
 
 ################################# Hypothesis 2c: Trust in Reliable Source (ABC) ################################
 
@@ -673,7 +727,11 @@ data_for_analysis <- data_frame_1 %>% ungroup() %>% select(ABC_Trust_2,
                                                           cons_talk,
                                                           cons_desk,
                                                           cons_mobile,
-                                                          Safari_dummy)
+                                                          Safari_dummy,
+                                                          IE_dummy,
+                                                          Chrome_dummy,
+                                                          Firefox_dummy,
+                                                          Social_Media_Use)
 
 #Remove NA values:
 data_for_analysis <- Clean(data_for_analysis)
@@ -688,7 +746,7 @@ data_for_analysis <- data_frame_1[, names.use]
 data_for_analysis <- data_for_analysis %>%
   select(Treated, everything())
 
-ivreg_ABC_compl_2 <- iv_robust(ABC_Trust_2 ~  . - Complied | . - Treated, data = data_for_analysis)
+ivreg_ABC_compl_2 <- iv_robust(ABC_Trust_2 ~  . - Treated | . - Complied, data = data_for_analysis)
 
 ################################# Hypothesis 2d: Trust in Reliable Source (NBC) ################################
 data_for_analysis <- data_frame_1 %>% ungroup() %>% select(NBC_Trust_2,
@@ -710,7 +768,11 @@ data_for_analysis <- data_frame_1 %>% ungroup() %>% select(NBC_Trust_2,
                                                           cons_talk,
                                                           cons_desk,
                                                           cons_mobile,
-                                                          Safari_dummy)
+                                                          Safari_dummy,
+                                                          IE_dummy,
+                                                          Chrome_dummy,
+                                                          Firefox_dummy,
+                                                          Social_Media_Use)
 
 
 #Remove NA values:
@@ -726,7 +788,7 @@ data_for_analysis <- data_frame_1[, names.use]
 data_for_analysis <- data_for_analysis %>%
   select(Treated, everything())
 
-ivreg_NBC_compl_2 <- iv_robust(NBC_Trust_2 ~  . - Complied | . - Treated, data = data_for_analysis)
+ivreg_NBC_compl_2 <- iv_robust(NBC_Trust_2 ~  . - Treated | . - Complied, data = data_for_analysis)
 
 ################################# Hypothesis 2e: Trust in Reliable Source (CNN) ################################
 
@@ -749,7 +811,11 @@ data_for_analysis <- data_frame_1 %>% ungroup() %>% select(CNN_Trust_2,
                                                           cons_talk,
                                                           cons_desk,
                                                           cons_mobile,
-                                                          Safari_dummy)
+                                                          Safari_dummy,
+                                                          IE_dummy,
+                                                          Chrome_dummy,
+                                                          Firefox_dummy,
+                                                          Social_Media_Use)
 
 
 #Remove NA values:
@@ -765,7 +831,7 @@ data_for_analysis <- data_frame_1[, names.use]
 data_for_analysis <- data_for_analysis %>%
   select(Treated, everything())
 
-ivreg_CNN_compl_2 <- iv_robust(CNN_Trust_2 ~  . - Complied | . - Treated, data = data_for_analysis)
+ivreg_CNN_compl_2 <- iv_robust(CNN_Trust_2 ~  . - Treated | . - Complied, data = data_for_analysis)
 
 ################################# Hypothesis 2f: Trust in Reliable Source (Fox News) ################################
 
@@ -789,7 +855,11 @@ data_for_analysis <- data_frame_1 %>% ungroup() %>% select(Fox_Trust_2,
                                                           cons_talk,
                                                           cons_desk,
                                                           cons_mobile,
-                                                          Safari_dummy)
+                                                          Safari_dummy,
+                                                          IE_dummy,
+                                                          Chrome_dummy,
+                                                          Firefox_dummy,
+                                                          Social_Media_Use)
 
 
 #Remove NA values:
@@ -805,7 +875,7 @@ data_for_analysis <- data_frame_1[, names.use]
 data_for_analysis <- data_for_analysis %>%
   select(Treated, everything())
 
-ivreg_Fox_compl_2 <- iv_robust(Fox_Trust_2 ~  . - Complied | . - Treated, data = data_for_analysis)
+ivreg_Fox_compl_2 <- iv_robust(Fox_Trust_2 ~  . - Treated | . - Complied, data = data_for_analysis)
 
 ################################# Hypothesis 3a: Affective Polarization ################################
 data_for_analysis <- data_frame_1 %>% ungroup() %>% select(aff_pol_w2,
@@ -827,7 +897,11 @@ data_for_analysis <- data_frame_1 %>% ungroup() %>% select(aff_pol_w2,
                                                           cons_talk,
                                                           cons_desk,
                                                           cons_mobile,
-                                                          Safari_dummy)
+                                                          Safari_dummy,
+                                                          IE_dummy,
+                                                          Chrome_dummy,
+                                                          Firefox_dummy,
+                                                          Social_Media_Use)
 
 #Remove NA values:
 data_for_analysis <- Clean(data_for_analysis)
@@ -840,7 +914,7 @@ names.use <- names(data_frame_1)[(names(data_frame_1) %in% names_of_columns_3)]
 #Create dataset using the covariates that are specified that should be included:
 data_for_analysis <- data_frame_1[, names.use]
 
-ivreg_aff_pol_compl_2 <- iv_robust(aff_pol_w2 ~  . - Complied | . - Treated, data = data_for_analysis)
+ivreg_aff_pol_compl_2 <- iv_robust(aff_pol_w2 ~  . - Treated | . - Complied, data = data_for_analysis)
 
 ################################# Hypothesis 3b: Political Cynicism ################################
 
@@ -863,7 +937,11 @@ data_for_analysis <- data_frame_1 %>% ungroup() %>% select(Pol_cyn_2,
                                                           cons_talk,
                                                           cons_desk,
                                                           cons_mobile,
-                                                          Safari_dummy)
+                                                          Safari_dummy,
+                                                          IE_dummy,
+                                                          Chrome_dummy,
+                                                          Firefox_dummy,
+                                                          Social_Media_Use)
 
 #Remove NA values:
 data_for_analysis <- Clean(data_for_analysis)
@@ -876,7 +954,7 @@ names.use <- names(data_frame_1)[(names(data_frame_1) %in% names_of_columns_3)]
 #Create dataset using the covariates that are specified that should be included:
 data_for_analysis <- data_frame_1[, names.use]
 
-ivreg_Pol_cyn_compl_2 <- iv_robust(Pol_cyn_2 ~  . - Complied | . - Treated, data = data_for_analysis)
+ivreg_Pol_cyn_compl_2 <- iv_robust(Pol_cyn_2 ~  . - Treated | . - Complied, data = data_for_analysis)
 
 
 
@@ -906,7 +984,11 @@ data_for_analysis <- data_frame_1 %>% ungroup() %>% select(BLM_Misinfo_Index_w2,
                                                           cons_talk,
                                                           cons_desk,
                                                           cons_mobile,
-                                                          Safari_dummy)
+                                                          Safari_dummy,
+                                                          IE_dummy,
+                                                          Chrome_dummy,
+                                                          Firefox_dummy,
+                                                          Social_Media_Use)
 
 
 
@@ -921,9 +1003,7 @@ names.use <- names(data_frame_1)[(names(data_frame_1) %in% names_of_columns_3)]
 data_for_analysis <- data_frame_1[, names.use]
 
 
-ivreg_BLM_Misinfo_compl_2 <- iv_robust(BLM_Misinfo_Index_w2 ~  . - Complied | . - Treated, data = data_for_analysis)
-
-mean(data_for_analysis$BLM_Misinfo_Index_w2,na.rm=T)
+ivreg_BLM_Misinfo_compl_2 <- iv_robust(BLM_Misinfo_Index_w2 ~  . - Treated | . - Complied, data = data_for_analysis)
 
 ################################# Covid Misinformation Index ################################
 data_for_analysis <- data_frame_1 %>% ungroup() %>% select(Covid_Misinfo_Index_w2,
@@ -944,7 +1024,11 @@ data_for_analysis <- data_frame_1 %>% ungroup() %>% select(Covid_Misinfo_Index_w
                                                           cons_talk,
                                                           cons_desk,
                                                           cons_mobile,
-                                                          Safari_dummy)
+                                                          Safari_dummy,
+                                                          IE_dummy,
+                                                          Chrome_dummy,
+                                                          Firefox_dummy,
+                                                          Social_Media_Use)
 
 
 
@@ -960,7 +1044,7 @@ names.use <- names(data_frame_1)[(names(data_frame_1) %in% names_of_columns_3)]
 data_for_analysis <- data_frame_1[, names.use]
 
 
-ivreg_Covid_Misinfo_compl_2 <- iv_robust(Covid_Misinfo_Index_w2 ~  . - Complied | . - Treated, data = data_for_analysis)
+ivreg_Covid_Misinfo_compl_2 <- iv_robust(Covid_Misinfo_Index_w2 ~  . - Treated | . - Complied, data = data_for_analysis)
 
 
 ################################# BLM Information Index ################################
@@ -982,7 +1066,11 @@ data_for_analysis <- data_frame_1 %>% ungroup() %>% select(BLM_info_Index_w2,
                                                           cons_talk,
                                                           cons_desk,
                                                           cons_mobile,
-                                                          Safari_dummy)
+                                                          Safari_dummy,
+                                                          IE_dummy,
+                                                          Chrome_dummy,
+                                                          Firefox_dummy,
+                                                          Social_Media_Use)
 
 #Remove NA values:
 data_for_analysis <- Clean(data_for_analysis)
@@ -995,7 +1083,7 @@ names.use <- names(data_frame_1)[(names(data_frame_1) %in% names_of_columns_3)]
 data_for_analysis <- data_frame_1[, names.use]
 
 
-ivreg_BLM_info_compl_2 <- iv_robust(BLM_info_Index_w2 ~  . - Complied | . - Treated, data = data_for_analysis)
+ivreg_BLM_info_compl_2 <- iv_robust(BLM_info_Index_w2 ~  . - Treated | . - Complied, data = data_for_analysis)
 
 ################################# Covid-19 Information Index ################################
 data_for_analysis <- data_frame_1 %>% ungroup() %>% select(Covid_info_Index_w2,
@@ -1016,7 +1104,11 @@ data_for_analysis <- data_frame_1 %>% ungroup() %>% select(Covid_info_Index_w2,
                                                           cons_talk,
                                                           cons_desk,
                                                           cons_mobile,
-                                                          Safari_dummy)
+                                                          Safari_dummy,
+                                                          IE_dummy,
+                                                          Chrome_dummy,
+                                                          Firefox_dummy,
+                                                          Social_Media_Use)
 
 
 #Remove NA values:
@@ -1029,7 +1121,7 @@ names.use <- names(data_frame_1)[(names(data_frame_1) %in% names_of_columns_3)]
 
 data_for_analysis <- data_frame_1[, names.use]
 
-ivreg_Covid_info_compl_2 <- iv_robust(Covid_info_Index_w2 ~  . - Complied | . - Treated, data = data_for_analysis)
+ivreg_Covid_info_compl_2 <- iv_robust(Covid_info_Index_w2 ~  . - Treated | . - Complied, data = data_for_analysis)
 
 
 ###### Research Question 2: We explore whether downstream effects occur on other outcomes such as trust in institutions, belief that ``fake news'' is a problem in general, and belief that ``fake news'' is a problem in the mainstream media ######
@@ -1054,7 +1146,11 @@ data_for_analysis <- data_frame_1 %>% ungroup() %>% select(SMP4310_w2,
                                                           cons_talk,
                                                           cons_desk,
                                                           cons_mobile,
-                                                          Safari_dummy)
+                                                          Safari_dummy,
+                                                          IE_dummy,
+                                                          Chrome_dummy,
+                                                          Firefox_dummy,
+                                                          Social_Media_Use)
 
 #Remove NA values:
 data_for_analysis <- Clean(data_for_analysis)
@@ -1069,7 +1165,7 @@ data_for_analysis <- data_frame_1[, names.use]
 data_for_analysis <- data_for_analysis %>%
   select(Treated, everything())
 
-ivreg_FN_prob_main_compl_2 <- iv_robust(SMP4310_w2 ~  . - Complied | . - Treated, data = data_for_analysis)
+ivreg_FN_prob_main_compl_2 <- iv_robust(SMP4310_w2 ~  . - Treated | . - Complied, data = data_for_analysis)
 
 
 ################################# Fake News is a Problem  ################################
@@ -1093,7 +1189,11 @@ data_for_analysis <- data_frame_1 %>% ungroup() %>% select(SMP4326_w2,
                                                           cons_talk,
                                                           cons_desk,
                                                           cons_mobile,
-                                                          Safari_dummy)
+                                                          Safari_dummy,
+                                                          IE_dummy,
+                                                          Chrome_dummy,
+                                                          Firefox_dummy,
+                                                          Social_Media_Use)
 
 #Remove NA values:
 data_for_analysis <- Clean(data_for_analysis)
@@ -1108,7 +1208,7 @@ data_for_analysis <- data_frame_1[, names.use]
 data_for_analysis <- data_for_analysis %>%
   select(Treated, everything())
 
-ivreg_FN_prob_compl_2 <- iv_robust(SMP4326_w2 ~  . - Complied | . - Treated, data = data_for_analysis)
+ivreg_FN_prob_compl_2 <- iv_robust(SMP4326_w2 ~  . - Treated | . - Complied, data = data_for_analysis)
 
 
 ################################# Hypothesis: Trust in Institutions  ################################
@@ -1132,7 +1232,11 @@ data_for_analysis <- data_frame_1 %>% ungroup() %>% select(Trust_inst_w2,
                                                           cons_talk,
                                                           cons_desk,
                                                           cons_mobile,
-                                                          Safari_dummy)
+                                                          Safari_dummy,
+                                                          IE_dummy,
+                                                          Chrome_dummy,
+                                                          Firefox_dummy,
+                                                          Social_Media_Use)
 
 #Remove NA values:
 data_for_analysis <- Clean(data_for_analysis)
@@ -1146,7 +1250,7 @@ names.use <- names(data_frame_1)[(names(data_frame_1) %in% names_of_columns_3)]
 data_for_analysis <- data_frame_1[, names.use]
 
 
-ivreg_Trust_inst_compl_2 <- iv_robust(Trust_inst_w2 ~  . - Complied | . - Treated, data = data_for_analysis)
+ivreg_Trust_inst_compl_2 <- iv_robust(Trust_inst_w2 ~  . - Treated | . - Complied, data = data_for_analysis)
 
 
 
@@ -1182,11 +1286,11 @@ Coef_names <- c('Proportion of Online News Consumed that is Unreliable',
 
 Coefficients <- c(ivreg_Unrel_dv_compl_2$coefficients[2]/sd(Pulse_data$Prop_Unreliable_NewsG_Score,na.rm=T),
                   ivreg_Unrel_Post_compl_2$coefficients[2]/sd(Pulse_data$Prop_Unreliable_NewsG_Score,na.rm=T),
-                  ivreg_Unrel_c_dv_compl_2$coefficients[2]/sd(Pulse_data$Count_Unreliable_NewsG_Score,na.rm=T),
+                  ivreg_Unrel_c_dv_compl_2$coefficients[3]/sd(Pulse_data$Count_Unreliable_NewsG_Score,na.rm=T),
                   ivreg_Unrel_c_Post_compl_2$coefficients[2]/sd(Pulse_data$Count_Unreliable_NewsG_Score,na.rm=T),
                   ivreg_Rel_dv_compl_2$coefficients[2]/sd(Pulse_data$Prop_Reliable_NewsG_Score,na.rm=T),
                   ivreg_Rel_Post_compl_2$coefficients[2]/sd(Pulse_data$Prop_Reliable_NewsG_Score,na.rm=T),
-                  ivreg_rel_c_dv_compl_2$coefficients[2]/sd(Pulse_data$Count_Reliable_NewsG_Score,na.rm=T),
+                  ivreg_rel_c_dv_compl_2$coefficients[3]/sd(Pulse_data$Count_Reliable_NewsG_Score,na.rm=T),
                   ivreg_rel_c_Post_compl_2$coefficients[2]/sd(Pulse_data$Count_Reliable_NewsG_Score,na.rm=T),
                   ivreg_news_dv_compl_2$coefficients[2]/sd(Pulse_data$Average_domain_NewsG_Score,na.rm=T),
                   ivreg_news_Post_compl_2$coefficients[2]/sd(Pulse_data$Average_domain_NewsG_Score,na.rm=T))                 
@@ -1194,11 +1298,11 @@ Coefficients <- c(ivreg_Unrel_dv_compl_2$coefficients[2]/sd(Pulse_data$Prop_Unre
 
 CI_Upper <- c(ivreg_Unrel_dv_compl_2$conf.high[2]/sd(Pulse_data$Prop_Unreliable_NewsG_Score,na.rm=T),
               ivreg_Unrel_Post_compl_2$conf.high[2]/sd(Pulse_data$Prop_Unreliable_NewsG_Score,na.rm=T),
-              ivreg_Unrel_c_dv_compl_2$conf.high[2]/sd(Pulse_data$Count_Unreliable_NewsG_Score,na.rm=T),
+              ivreg_Unrel_c_dv_compl_2$conf.high[3]/sd(Pulse_data$Count_Unreliable_NewsG_Score,na.rm=T),
               ivreg_Unrel_c_Post_compl_2$conf.high[2]/sd(Pulse_data$Count_Unreliable_NewsG_Score,na.rm=T),
               ivreg_Rel_dv_compl_2$conf.high[2]/sd(Pulse_data$Prop_Reliable_NewsG_Score,na.rm=T),
               ivreg_Rel_Post_compl_2$conf.high[2]/sd(Pulse_data$Prop_Reliable_NewsG_Score,na.rm=T),
-              ivreg_rel_c_dv_compl_2$conf.high[2]/sd(Pulse_data$Count_Reliable_NewsG_Score,na.rm=T),
+              ivreg_rel_c_dv_compl_2$conf.high[3]/sd(Pulse_data$Count_Reliable_NewsG_Score,na.rm=T),
               ivreg_rel_c_Post_compl_2$conf.high[2]/sd(Pulse_data$Count_Reliable_NewsG_Score,na.rm=T),
               ivreg_news_dv_compl_2$conf.high[2]/sd(Pulse_data$Average_domain_NewsG_Score,na.rm=T),
               ivreg_news_Post_compl_2$conf.high[2]/sd(Pulse_data$Average_domain_NewsG_Score,na.rm=T))                 
@@ -1207,11 +1311,11 @@ CI_Upper <- c(ivreg_Unrel_dv_compl_2$conf.high[2]/sd(Pulse_data$Prop_Unreliable_
 
 CI_Lower <- c(ivreg_Unrel_dv_compl_2$conf.low[2]/sd(Pulse_data$Prop_Unreliable_NewsG_Score,na.rm=T),
               ivreg_Unrel_Post_compl_2$conf.low[2]/sd(Pulse_data$Prop_Unreliable_NewsG_Score,na.rm=T),
-              ivreg_Unrel_c_dv_compl_2$conf.low[2]/sd(Pulse_data$Count_Unreliable_NewsG_Score,na.rm=T),
+              ivreg_Unrel_c_dv_compl_2$conf.low[3]/sd(Pulse_data$Count_Unreliable_NewsG_Score,na.rm=T),
               ivreg_Unrel_c_Post_compl_2$conf.low[2]/sd(Pulse_data$Count_Unreliable_NewsG_Score,na.rm=T),
               ivreg_Rel_dv_compl_2$conf.low[2]/sd(Pulse_data$Prop_Reliable_NewsG_Score,na.rm=T),
               ivreg_Rel_Post_compl_2$conf.low[2]/sd(Pulse_data$Prop_Reliable_NewsG_Score,na.rm=T),
-              ivreg_rel_c_dv_compl_2$conf.low[2]/sd(Pulse_data$Count_Reliable_NewsG_Score,na.rm=T),
+              ivreg_rel_c_dv_compl_2$conf.low[3]/sd(Pulse_data$Count_Reliable_NewsG_Score,na.rm=T),
               ivreg_rel_c_Post_compl_2$conf.low[2]/sd(Pulse_data$Count_Reliable_NewsG_Score,na.rm=T),
               ivreg_news_dv_compl_2$conf.low[2]/sd(Pulse_data$Average_domain_NewsG_Score,na.rm=T),
               ivreg_news_Post_compl_2$conf.low[2]/sd(Pulse_data$Average_domain_NewsG_Score,na.rm=T))                 
@@ -1421,54 +1525,54 @@ Coef_names <- c('Trust in Media',
                 'Belief that \"fake news is \n a problem\"',
                 'Belief that \"fake news is \n a problem in the mainstream media\"')
 
-Coefficients <- c(ivreg_media_trust_compl_2$coefficients[2]/sd(data_frame_1$Trust_Media_w1,na.rm=T),
-                  ivreg_CBS_compl_2$coefficients[2]/sd(data_frame_1$CBS_Trust_1,na.rm=T),
-                  ivreg_ABC_compl_2$coefficients[2]/sd(data_frame_1$ABC_Trust_1,na.rm=T),
-                  ivreg_NBC_compl_2$coefficients[2]/sd(data_frame_1$NBC_Trust_1,na.rm=T),
-                  ivreg_CNN_compl_2$coefficients[2]/sd(data_frame_1$CNN_Trust_1,na.rm=T),
-                  ivreg_Fox_compl_2$coefficients[2]/sd(data_frame_1$Fox_Trust_1,na.rm=T),
-                  ivreg_aff_pol_compl_2$coefficients[2]/sd(data_frame_1$aff_pol_w1,na.rm=T),
-                  ivreg_Pol_cyn_compl_2$coefficients[2]/sd(data_frame_1$Pol_cyn_1,na.rm=T),
-                  ivreg_BLM_Misinfo_compl_2$coefficients[2]/sd(data_frame_1$BLM_Misinfo_Index_w2,na.rm=T),
-                  ivreg_Covid_Misinfo_compl_2$coefficients[2]/sd(data_frame_1$Covid_Misinfo_Index_w2,na.rm=T),
-                  ivreg_BLM_info_compl_2$coefficients[2]/sd(data_frame_1$BLM_info_Index_w2,na.rm=T),
-                  ivreg_Covid_info_compl_2$coefficients[2]/sd(data_frame_1$Covid_info_Index_w2,na.rm=T),
+Coefficients <- c(ivreg_media_trust_compl_2$coefficients[4]/sd(data_frame_1$Trust_Media_w1,na.rm=T),
+                  ivreg_CBS_compl_2$coefficients[5]/sd(data_frame_1$CBS_Trust_1,na.rm=T),
+                  ivreg_ABC_compl_2$coefficients[5]/sd(data_frame_1$ABC_Trust_1,na.rm=T),
+                  ivreg_NBC_compl_2$coefficients[5]/sd(data_frame_1$NBC_Trust_1,na.rm=T),
+                  ivreg_CNN_compl_2$coefficients[5]/sd(data_frame_1$CNN_Trust_1,na.rm=T),
+                  ivreg_Fox_compl_2$coefficients[4]/sd(data_frame_1$Fox_Trust_1,na.rm=T),
+                  ivreg_aff_pol_compl_2$coefficients[3]/sd(data_frame_1$aff_pol_w1,na.rm=T),
+                  ivreg_Pol_cyn_compl_2$coefficients[3]/sd(data_frame_1$Pol_cyn_1,na.rm=T),
+                  ivreg_BLM_Misinfo_compl_2$coefficients[8]/sd(data_frame_1$BLM_Misinfo_Index_w2,na.rm=T),
+                  ivreg_Covid_Misinfo_compl_2$coefficients[6]/sd(data_frame_1$Covid_Misinfo_Index_w2,na.rm=T),
+                  ivreg_BLM_info_compl_2$coefficients[4]/sd(data_frame_1$BLM_info_Index_w2,na.rm=T),
+                  ivreg_Covid_info_compl_2$coefficients[3]/sd(data_frame_1$Covid_info_Index_w2,na.rm=T),
                   ivreg_Trust_inst_compl_2$coefficients[2]/sd(data_frame_1$Trust_inst_w1,na.rm=T),
-                  ivreg_FN_prob_compl_2$coefficients[2]/sd(data_frame_1$SMP4326,na.rm=T),
-                  ivreg_FN_prob_main_compl_2$coefficients[2]/sd(data_frame_1$SMP4310,na.rm=T))
+                  ivreg_FN_prob_compl_2$coefficients[5]/sd(data_frame_1$SMP4326,na.rm=T),
+                  ivreg_FN_prob_main_compl_2$coefficients[5]/sd(data_frame_1$SMP4310,na.rm=T))
 
 
-CI_Upper <- c(ivreg_media_trust_compl_2$conf.high[2]/sd(data_frame_1$Trust_Media_w1,na.rm=T),
-              ivreg_CBS_compl_2$conf.high[2]/sd(data_frame_1$CBS_Trust_1,na.rm=T),
-              ivreg_ABC_compl_2$conf.high[2]/sd(data_frame_1$ABC_Trust_1,na.rm=T),
-              ivreg_NBC_compl_2$conf.high[2]/sd(data_frame_1$NBC_Trust_1,na.rm=T),
-              ivreg_CNN_compl_2$conf.high[2]/sd(data_frame_1$CNN_Trust_1,na.rm=T),
-              ivreg_Fox_compl_2$conf.high[2]/sd(data_frame_1$Fox_Trust_1,na.rm=T),
-              ivreg_aff_pol_compl_2$conf.high[2]/sd(data_frame_1$aff_pol_w1,na.rm=T),
-              ivreg_Pol_cyn_compl_2$conf.high[2]/sd(data_frame_1$Pol_cyn_1,na.rm=T),
-              ivreg_BLM_Misinfo_compl_2$conf.high[2]/sd(data_frame_1$BLM_Misinfo_Index_w2,na.rm=T),
-              ivreg_Covid_Misinfo_compl_2$conf.high[2]/sd(data_frame_1$Covid_Misinfo_Index_w2,na.rm=T),
-              ivreg_BLM_info_compl_2$conf.high[2]/sd(data_frame_1$BLM_info_Index_w2,na.rm=T),
-              ivreg_Covid_info_compl_2$conf.high[2]/sd(data_frame_1$Covid_info_Index_w2,na.rm=T),
+CI_Upper <- c(ivreg_media_trust_compl_2$conf.high[4]/sd(data_frame_1$Trust_Media_w1,na.rm=T),
+              ivreg_CBS_compl_2$conf.high[5]/sd(data_frame_1$CBS_Trust_1,na.rm=T),
+              ivreg_ABC_compl_2$conf.high[5]/sd(data_frame_1$ABC_Trust_1,na.rm=T),
+              ivreg_NBC_compl_2$conf.high[5]/sd(data_frame_1$NBC_Trust_1,na.rm=T),
+              ivreg_CNN_compl_2$conf.high[5]/sd(data_frame_1$CNN_Trust_1,na.rm=T),
+              ivreg_Fox_compl_2$conf.high[4]/sd(data_frame_1$Fox_Trust_1,na.rm=T),
+              ivreg_aff_pol_compl_2$conf.high[3]/sd(data_frame_1$aff_pol_w1,na.rm=T),
+              ivreg_Pol_cyn_compl_2$conf.high[3]/sd(data_frame_1$Pol_cyn_1,na.rm=T),
+              ivreg_BLM_Misinfo_compl_2$conf.high[8]/sd(data_frame_1$BLM_Misinfo_Index_w2,na.rm=T),
+              ivreg_Covid_Misinfo_compl_2$conf.high[6]/sd(data_frame_1$Covid_Misinfo_Index_w2,na.rm=T),
+              ivreg_BLM_info_compl_2$conf.high[4]/sd(data_frame_1$BLM_info_Index_w2,na.rm=T),
+              ivreg_Covid_info_compl_2$conf.high[3]/sd(data_frame_1$Covid_info_Index_w2,na.rm=T),
               ivreg_Trust_inst_compl_2$conf.high[2]/sd(data_frame_1$Trust_inst_w1,na.rm=T),
-              ivreg_FN_prob_compl_2$conf.high[2]/sd(data_frame_1$SMP4326,na.rm=T),
-              ivreg_FN_prob_main_compl_2$conf.high[2]/sd(data_frame_1$SMP4310,na.rm=T))              
+              ivreg_FN_prob_compl_2$conf.high[5]/sd(data_frame_1$SMP4326,na.rm=T),
+              ivreg_FN_prob_main_compl_2$conf.high[5]/sd(data_frame_1$SMP4310,na.rm=T))              
 
-CI_Lower <- c(ivreg_media_trust_compl_2$conf.low[2]/sd(data_frame_1$Trust_Media_w1,na.rm=T),
-              ivreg_CBS_compl_2$conf.low[2]/sd(data_frame_1$CBS_Trust_1,na.rm=T),
-              ivreg_ABC_compl_2$conf.low[2]/sd(data_frame_1$ABC_Trust_1,na.rm=T),
-              ivreg_NBC_compl_2$conf.low[2]/sd(data_frame_1$NBC_Trust_1,na.rm=T),
-              ivreg_CNN_compl_2$conf.low[2]/sd(data_frame_1$CNN_Trust_1,na.rm=T),
-              ivreg_Fox_compl_2$conf.low[2]/sd(data_frame_1$Fox_Trust_1,na.rm=T),
-              ivreg_aff_pol_compl_2$conf.low[2]/sd(data_frame_1$aff_pol_w1,na.rm=T),
-              ivreg_Pol_cyn_compl_2$conf.low[2]/sd(data_frame_1$Pol_cyn_1,na.rm=T),
-              ivreg_BLM_Misinfo_compl_2$conf.low[2]/sd(data_frame_1$BLM_Misinfo_Index_w2,na.rm=T),
-              ivreg_Covid_Misinfo_compl_2$conf.low[2]/sd(data_frame_1$Covid_Misinfo_Index_w2,na.rm=T),
-              ivreg_BLM_info_compl_2$conf.low[2]/sd(data_frame_1$BLM_info_Index_w2,na.rm=T),
-              ivreg_Covid_info_compl_2$conf.low[2]/sd(data_frame_1$Covid_info_Index_w2,na.rm=T),
+CI_Lower <- c(ivreg_media_trust_compl_2$conf.low[4]/sd(data_frame_1$Trust_Media_w1,na.rm=T),
+              ivreg_CBS_compl_2$conf.low[5]/sd(data_frame_1$CBS_Trust_1,na.rm=T),
+              ivreg_ABC_compl_2$conf.low[5]/sd(data_frame_1$ABC_Trust_1,na.rm=T),
+              ivreg_NBC_compl_2$conf.low[5]/sd(data_frame_1$NBC_Trust_1,na.rm=T),
+              ivreg_CNN_compl_2$conf.low[5]/sd(data_frame_1$CNN_Trust_1,na.rm=T),
+              ivreg_Fox_compl_2$conf.low[4]/sd(data_frame_1$Fox_Trust_1,na.rm=T),
+              ivreg_aff_pol_compl_2$conf.low[3]/sd(data_frame_1$aff_pol_w1,na.rm=T),
+              ivreg_Pol_cyn_compl_2$conf.low[3]/sd(data_frame_1$Pol_cyn_1,na.rm=T),
+              ivreg_BLM_Misinfo_compl_2$conf.low[8]/sd(data_frame_1$BLM_Misinfo_Index_w2,na.rm=T),
+              ivreg_Covid_Misinfo_compl_2$conf.low[6]/sd(data_frame_1$Covid_Misinfo_Index_w2,na.rm=T),
+              ivreg_BLM_info_compl_2$conf.low[4]/sd(data_frame_1$BLM_info_Index_w2,na.rm=T),
+              ivreg_Covid_info_compl_2$conf.low[3]/sd(data_frame_1$Covid_info_Index_w2,na.rm=T),
               ivreg_Trust_inst_compl_2$conf.low[2]/sd(data_frame_1$Trust_inst_w1,na.rm=T),
-              ivreg_FN_prob_compl_2$conf.low[2]/sd(data_frame_1$SMP4326,na.rm=T),
-              ivreg_FN_prob_main_compl_2$conf.low[2]/sd(data_frame_1$SMP4310,na.rm=T))                
+              ivreg_FN_prob_compl_2$conf.low[5]/sd(data_frame_1$SMP4326,na.rm=T),
+              ivreg_FN_prob_main_compl_2$conf.low[5]/sd(data_frame_1$SMP4310,na.rm=T))                
 
 
 

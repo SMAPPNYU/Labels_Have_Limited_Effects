@@ -1,0 +1,24 @@
+
+\begin{table}[!htbp]
+\caption{Testing Effect of Intervention Using Different Moderators on Trust in CBS with Covariate-Unadjusted Models (HC2 Robust standard errors)}
+\begin{center}
+\begin{tabular}{l c c c c c c}
+\hline
+ & Dig. Lit. & Sci. Misinf. & S.M. Use & News Consump. & Partisan. of News Diet & Unreliable News Consumed \\
+\hline
+Treatment           & $0.0551$       & $0.0082$        & $0.1847^{*}$   & $0.1398$       & $0.0893$        & $-0.0040$  \\
+                    & $(0.0741)$     & $(0.0853)$      & $(0.0728)$     & $(0.1055)$     & $(0.1415)$      & $(0.0802)$ \\
+Moderator           & $-0.0071^{**}$ & $-0.1771^{***}$ & $0.0917^{***}$ & $0.1411^{***}$ & $-0.6070^{***}$ & $-0.7928$  \\
+                    & $(0.0027)$     & $(0.0275)$      & $(0.0148)$     & $(0.0234)$     & $(0.1219)$      & $(0.8031)$ \\
+Treatment*Moderator & $0.0002$       & $0.0198$        & $-0.0379^{*}$  & $-0.0256$      & $-0.1070$       & $0.4787$   \\
+                    & $(0.0035)$     & $(0.0352)$      & $(0.0189)$     & $(0.0296)$     & $(0.1553)$      & $(0.9846)$ \\
+\hline
+R$^2$               & $0.0064$       & $0.0297$        & $0.0185$       & $0.0237$       & $0.1090$        & $0.0034$   \\
+Adj. R$^2$          & $0.0055$       & $0.0288$        & $0.0176$       & $0.0228$       & $0.1047$        & $-0.0004$  \\
+Num. obs.           & $3333$         & $3337$          & $3337$         & $3337$         & $616$           & $795$      \\
+\hline
+\multicolumn{7}{l}{\scriptsize{$^{***}p<0.001$; $^{**}p<0.01$; $^{*}p<0.05$}}
+\end{tabular}
+\label{table}
+\end{center}
+\end{table}

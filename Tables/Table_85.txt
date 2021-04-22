@@ -1,0 +1,24 @@
+
+\begin{table}[!htbp]
+\caption{Testing the Effect of Moderators on the Intervention on Proportion of News Diet That is Reliable with Covariate-Unadjusted Models (HC2 Robust standard errors) (After July 1st)}
+\begin{center}
+\begin{tabular}{l c c c c c c}
+\hline
+ & Dig. Lit. & Sci. Misinf. & S.M. Use & News Consump. & Partisan. of News Diet & Unreliable News Consumed \\
+\hline
+Treatment           & $-0.0207$  & $0.0252$   & $0.0508$   & $0.0849$   & $-0.0095$  & $0.0099$        \\
+                    & $(0.0477)$ & $(0.0538)$ & $(0.0484)$ & $(0.0674)$ & $(0.0420)$ & $(0.0240)$      \\
+Moderator           & $0.0007$   & $-0.0201$  & $-0.0055$  & $0.0270$   & $-0.0543$  & $-0.5848^{***}$ \\
+                    & $(0.0019)$ & $(0.0191)$ & $(0.0095)$ & $(0.0154)$ & $(0.0388)$ & $(0.0786)$      \\
+Treatment*Moderator & $0.0017$   & $-0.0064$  & $-0.0108$  & $-0.0227$  & $0.0112$   & $0.0825$        \\
+                    & $(0.0022)$ & $(0.0236)$ & $(0.0127)$ & $(0.0193)$ & $(0.0502)$ & $(0.1256)$      \\
+\hline
+R$^2$               & $0.0059$   & $0.0070$   & $0.0062$   & $0.0052$   & $0.0063$   & $0.0380$        \\
+Adj. R$^2$          & $0.0020$   & $0.0032$   & $0.0024$   & $0.0014$   & $0.0013$   & $0.0342$        \\
+Num. obs.           & $781$      & $781$      & $781$      & $781$      & $597$      & $760$           \\
+\hline
+\multicolumn{7}{l}{\scriptsize{$^{***}p<0.001$; $^{**}p<0.01$; $^{*}p<0.05$}}
+\end{tabular}
+\label{table}
+\end{center}
+\end{table}

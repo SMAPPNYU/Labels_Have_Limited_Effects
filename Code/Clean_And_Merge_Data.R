@@ -400,6 +400,10 @@ dataframe_1$party_score <- ifelse(dataframe_1$Party_ID == "Closer to the Democra
 dataframe_1$party_score <- ifelse(dataframe_1$Party_ID == "Strong Republican",7,dataframe_1$party_score)
 dataframe_1$party_score <- ifelse(dataframe_1$Party_ID == "Not very strong Republican",6,dataframe_1$party_score)
 dataframe_1$party_score <- ifelse(dataframe_1$Party_ID == "Closer to the Republican Party",5,dataframe_1$party_score)
+dataframe_1$party_score <- ifelse(dataframe_1$Party_ID == "Neither",4,dataframe_1$party_score)
+dataframe_1$party_score <- ifelse(dataframe_1$Party_ID == "Something else",4,dataframe_1$party_score)
+
+
 
 #Create Dummy variable for race (White):
 dataframe_1 <- dataframe_1 %>% mutate(race_white = ifelse(race == 'White',1,0))
@@ -478,14 +482,17 @@ dataframe_1$Trust_Media_w2 <- as.numeric(dataframe_1$SMP_w2) + as.numeric(datafr
 Compliance_Check <- read.csv('./Data/Compliance_Check_Data.csv')
 
 #Only use compliance checks during the period in which the first wave survey was out
-First_Check <- Compliance_Check %>% filter(timestamp < 1593000000000)
+First_Check <- Compliance_Check %>% filter(timestamp < 1592500000000)
 #Use the last compliance check for each respondent in this time frame:
 First_Check <- First_Check %>% group_by(user_id) %>% top_n(1, timestamp)
 #Set column names:
 colnames(First_Check) <- c('user_id','compliance_check_1','timestamp_1')
 
+mean(First_Check$compliance_check_1,na.rm=T)
+
+
 #Only use compliance checks during the period in which the second wave survey was out
-Second_Check <- Compliance_Check %>% filter(timestamp > 1593000000000)
+Second_Check <- Compliance_Check %>% filter(timestamp > 1592500000000)
 #Use the last compliance check for each respondent in this time frame:
 Second_Check <- Second_Check %>% group_by(user_id) %>% top_n(1, timestamp)
 #Set column names:
@@ -497,20 +504,10 @@ df_new <- df_1 %>% select(visa1,Treated,compliance_check_1,timestamp_1)
 #Merge the second check with the existing data-frame
 df_new_1 <- merge(df_new,Second_Check,by.x='visa1',by.y='user_id',all.x=T)
 
-#Create Groups of Respondent:
-df_new_1 <- df_new_1 %>% mutate(Groups = ifelse(Treated == 1 & compliance_check_1 == 1 & compliance_check_2 == 1,'Treated and Complied','Treated, but only complied in the second wave'))
-df_new_1 <- df_new_1 %>% mutate(Groups = ifelse(Treated == 1 & compliance_check_1 == 1 & compliance_check_2 == 0,'Treated, but removed NewsGuard between the first and second wave',Groups))
-df_new_1 <- df_new_1 %>% mutate(Groups = ifelse(Treated == 1 & compliance_check_1 == 0 & compliance_check_2 == 0,'Treated, but never complied',Groups))
-df_new_1 <- df_new_1 %>% mutate(Groups = ifelse(Treated == 0 & compliance_check_1 == 0 & compliance_check_2 == 0,'Not Treated',Groups))
-df_new_1 <- df_new_1 %>% mutate(Groups = ifelse(Treated == 0 & compliance_check_1 == 1,'Not Treated, but had NewsGuard',Groups))
-df_new_1 <- df_new_1 %>% mutate(Groups = ifelse(Treated == 0 & compliance_check_2 == 1,'Not Treated, but had NewsGuard',Groups))
-df_new_1 <- df_new_1 %>% mutate(Groups = ifelse(Treated == 0 & is.na(compliance_check_2),'Not Treated, but missing some compliance check data',Groups))
-df_new_1 <- df_new_1 %>% mutate(Groups = ifelse(Treated == 1 & is.na(compliance_check_2),'Treated, but missing some compliance check data',Groups))
-df_new_1 <- df_new_1 %>% mutate(Groups = ifelse(Treated == 0 & is.na(compliance_check_1),'Not Treated, but missing some compliance check data',Groups))
-df_new_1 <- df_new_1 %>% mutate(Groups = ifelse(Treated == 1 & is.na(compliance_check_1),'Treated, but missing some compliance check data',Groups))
-
 #Create measure that is only assigned a "1" if the respondent passed both compliance checks:
 df_new_1 <- df_new_1 %>% mutate(Complied = ifelse(compliance_check_1 == 1 & compliance_check_2 == 1,1,0))
+df_new_1 <- df_new_1 %>% mutate(Complied = ifelse(is.na(compliance_check_1),NA,Complied))
+df_new_1 <- df_new_1 %>% mutate(Complied = ifelse(is.na(compliance_check_2),NA,Complied))
 
 #Select only a few variables and merge with existing dataset:
 df_new_2 <- df_new_1 %>% select(visa1,compliance_check_1,compliance_check_2,Complied,Groups)

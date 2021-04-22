@@ -444,7 +444,7 @@ dat <- data_frame_1 %>%
 dat <- na.omit(dat)
 
 #Set pre-registred seed
-set.seed(983)
+set.seed(938)
 
 
 #Bootstrap
@@ -542,7 +542,7 @@ dat <- na.omit(dat)
 
 
 #Set pre-registred seed
-set.seed(983)
+set.seed(938)
 #Bootstrap
 res <- dat %>% group_by(var) %>% do(m=ivdesc(X=.$val,D=.$Complied,Z=.$Treated, bootn=2000, boot=TRUE))
 res_1 <- res
@@ -643,12 +643,12 @@ ggsave("./Figures/fig_2.png", width=11)
 #(H2) We test whether it increases trust in mainstream media and reliable sources (H2), and  
 #(H3) mitigate phenomena associated with democratic dysfunction (affective polarization and political cynicism). 
 
-
-
 #Read in survey data with digital trace data:
 Pulse_data <- read_csv('./Data/Clean_NewsGuard_Digital_Trace_Data.csv',
                        col_types = cols(
                          .default= col_character(),
+                         BLM_info_Index_w2 = col_double(),
+                         Covid_info_Index_w2 = col_double(),
                          BLM_Misinfo_Index_w2 = col_double(),
                          Covid_Misinfo_Index_w2 = col_double(),
                          Trust_Media_w2 = col_double(),
@@ -662,6 +662,8 @@ Pulse_data <- read_csv('./Data/Clean_NewsGuard_Digital_Trace_Data.csv',
                          Social_Media_Use =  col_double(),
                          income_score =  col_double(),
                          abs_part =  col_double(),
+                         aff_pol_w2 = col_double(),
+                         aff_pol_w1 = col_double(),
                          mean_cons =  col_double(),
                          Average_domain_NewsG_Score_post= col_double(),
                          Average_domain_NewsG_Score= col_double(),
@@ -682,6 +684,22 @@ Pulse_data <- read_csv('./Data/Clean_NewsGuard_Digital_Trace_Data.csv',
                          educ_score=col_double(),
                          Age=col_double(),
                          Age_Sq=col_double(),
+                         SMP4326_w2=col_double(),
+                         SMP4326=col_double(),
+                         Trust_inst_w2=col_double(),
+                         Trust_inst_w1=col_double(),
+                         Pol_cyn_2=col_double(),
+                         Pol_cyn_1=col_double(),
+                         Fox_Trust_2=col_double(),
+                         Fox_Trust_1=col_double(),
+                         CNN_Trust_2=col_double(),
+                         CNN_Trust_1=col_double(),
+                         ABC_Trust_2=col_double(),
+                         ABC_Trust_1=col_double(),
+                         NBC_Trust_2=col_double(),
+                         NBC_Trust_1=col_double(),
+                         CBS_Trust_2=col_double(),
+                         CBS_Trust_1=col_double(),
                          party_score=col_double(),
                          race_white=col_double(),
                          ideo_score=col_double(),
@@ -696,8 +714,12 @@ Pulse_data <- read_csv('./Data/Clean_NewsGuard_Digital_Trace_Data.csv',
                          cons_desk=col_double(),
                          cons_mobile=col_double(),
                          Safari_dummy=col_double(),
-                         log_news=col_double()
-                       ))
+                         log_news=col_double(),
+                         Safari_dummy=col_double(),
+                         IE_dummy=col_double(),
+                         Chrome_dummy=col_double(),
+                         Firefox_dummy=col_double(),
+                         Social_Media_Use=col_double()))
 
 
 
@@ -759,7 +781,11 @@ data_frame_1 <- read_csv('./Data/Clean_NewsGuard_Survey_Study.csv',
                            cons_talk=col_double(),
                            cons_desk=col_double(),
                            cons_mobile=col_double(),
-                           Safari_dummy=col_double()
+                           Safari_dummy=col_double(),
+                           IE_dummy=col_double(),
+                           Chrome_dummy=col_double(),
+                           Firefox_dummy=col_double(),
+                           Social_Media_Use=col_double()
                          ))
 
 #Set order of dataset:
@@ -783,7 +809,7 @@ Clean <- function(data_for_analysis) {
 
 #Create a function using glmnet lasso that chooses the variables to use:
 Lasso <- function(data_for_analysis) {
-  set.seed(983)
+  set.seed(938)
   lasso_select <- cv.glmnet(x=as.matrix(data_for_analysis[,-1]),
                             y=as.vector(data_for_analysis[,1]),
                             alpha=1)
@@ -794,8 +820,6 @@ Lasso <- function(data_for_analysis) {
   names_of_columns_3 <- names_of_columns[!names_of_columns %in% "(Intercept)"]
   return(names_of_columns_3)
 }
-
-
 
 ################## Behavioral Measures (Covariate-Adjusted Models) ##############################################
 
@@ -819,8 +843,12 @@ list_possible_covariates <- c("gender_dummy_fem",
                               "cons_talk",
                               "cons_desk",
                               "cons_mobile",
+                              "log_news",
                               "Safari_dummy",
-                              "log_news")
+                              "IE_dummy",
+                              "Chrome_dummy",
+                              "Firefox_dummy",
+                              "Social_Media_Use")
 
 
 
@@ -888,7 +916,13 @@ top_attribute_names <- c("gender_dummy_fem",
   'Prop_Reliable_NewsG_Score',
   'Count_Unreliable_NewsG_Score',
   'Count_Reliable_NewsG_Score',
-  'Average_domain_NewsG_Score')
+  'Average_domain_NewsG_Score',
+  'compliance_check_1',
+  'Complied',
+  "IE_dummy",
+  "Chrome_dummy",
+  "Firefox_dummy",
+  "Social_Media_Use")
 
 top_attributes_html <- c('Gender',
                          'Education',
@@ -914,8 +948,13 @@ top_attributes_html <- c('Gender',
                          'Pre-Treatment Value',
                          'Pre-Treatment Value',
                          'Pre-Treatment Value',
-                         'Pre-Treatment Value')
-
+                         'Pre-Treatment Value',
+                         'Treatment',
+                         'Treatment',
+                         "Internet Explorer Browser",
+                         "Chrome Browser",
+                         "Firefox Browser",
+                         "Social Media use")
 
 names(top_attributes_html) <- top_attribute_names
 
@@ -959,11 +998,12 @@ for(i in 1:length(list_variables_to_run_1)){
   #Clean Data:
   data_for_analysis <- Clean(data_for_analysis)
   
-  f <- paste0(list_variables_to_run_1[[i]][1], '~ . - compliance_check_1 | . - Treated')
+  f <- paste0(list_variables_to_run_1[[i]][1], '~ . - Treated | . - compliance_check_1')
   
   #CACE Model 1
   CACE_Model_1 <- iv_robust(as.formula(f), data = data_for_analysis)
   
+  CACE_Model_1$term[which(CACE_Model_1$term == "compliance_check_11")] <- 'Treated'
   
   # #CACE Model 2 - Passed first and second wave compliance check
   names_of_columns_3 <- c(names_of_columns,'Complied')
@@ -971,8 +1011,10 @@ for(i in 1:length(list_variables_to_run_1)){
   data_for_analysis <- Pulse_data[, names_use]
   #Clean Data:
   data_for_analysis <- Clean(data_for_analysis)
-  f <- paste0(list_variables_to_run_1[[i]][1], '~  . - Complied | . - Treated')
+  f <- paste0(list_variables_to_run_1[[i]][1], '~  . - Treated | . - Complied')
   CACE_Model_2 <- iv_robust(as.formula(f), data = data_for_analysis)
+
+  CACE_Model_2$term[which(CACE_Model_2$term == "Complied")] <- 'Treated'
   
   #names of the variables:
   Variable_Names <- names(ITT_Model$coefficients)[-1]
@@ -986,7 +1028,7 @@ texreg(list(ITT_Model,CACE_Model_1,CACE_Model_2),
          caption= Titles[i],
          label = "table",
          include.rmse = FALSE,
-         custom.coef.names = c(Variable_Names),
+         custom.coef.names = Variable_Names,
          custom.model.names= c("Intent-To-Treat (ITT)", "CACE (Model 1)","CACE (Model 2)"),
          file=Tables_title[i],
          float.pos = "!htbp",
@@ -995,11 +1037,6 @@ texreg(list(ITT_Model,CACE_Model_1,CACE_Model_2),
 
 
 ################## Attitudinal Measures (Covariate-Adjusted Models) ##############################################
-
-
-
-
-
 
 list_possible_covariates <- c("gender_dummy_fem",
                               "educ_score",
@@ -1018,7 +1055,11 @@ list_possible_covariates <- c("gender_dummy_fem",
                               "cons_talk",
                               "cons_desk",
                               "cons_mobile",
-                              "Safari_dummy")
+                              "Safari_dummy",
+                              "IE_dummy",
+                              "Chrome_dummy",
+                              "Firefox_dummy",
+                              "Social_Media_Use")
 
 
 
@@ -1074,6 +1115,7 @@ Tables_title <-  c('./Tables/Table_13.txt',
                    './Tables/Table_26.txt')
 
 #Create crosswalk for variables and display names:
+#Create crosswalk for variables and display names:
 top_attribute_names <- c("gender_dummy_fem",
                          "educ_score",
                          'Treated',
@@ -1093,6 +1135,12 @@ top_attribute_names <- c("gender_dummy_fem",
                          "cons_desk",
                          "cons_mobile",
                          "Safari_dummy",
+                         'SMP4310',
+                         'Treatment:Moderator',
+                         "IE_dummy",
+                         "Chrome_dummy",
+                         "Firefox_dummy",
+                         "Social_Media_Use",
                          'aff_pol_w1',
                          'SMP4326',
                          'SMP4310',
@@ -1102,7 +1150,6 @@ top_attribute_names <- c("gender_dummy_fem",
                          'NBC_Trust_1',
                          'CNN_Trust_1',
                          'Fox_Trust_1')
-
 
 top_attributes_html <- c('Gender',
                          'Education',
@@ -1124,6 +1171,12 @@ top_attributes_html <- c('Gender',
                          "News consumption (news on mobile)",
                          "Web Browser (Safari)",
                          'Pre-Treatment Value',
+                         'Treatment*Moderator',
+                         "Internet Explorer Browser",
+                         "Chrome Browser",
+                         "Firefox Browser",
+                         "Social Media use",
+                         'Pre-Treatment Value',
                          'Pre-Treatment Value',
                          'Pre-Treatment Value',
                          'Pre-Treatment Value',
@@ -1133,12 +1186,11 @@ top_attributes_html <- c('Gender',
                          'Pre-Treatment Value',
                          'Pre-Treatment Value')
 
-
 names(top_attributes_html) <- top_attribute_names
 
 
 #Run For loop to produce Tables 13-26:
-
+i=1
 for(i in 1:length(list_variables_to_run_2)){
   list_possible_covariates_for_use <- c(list_variables_to_run_2[[i]],list_possible_covariates)
   
@@ -1167,10 +1219,11 @@ for(i in 1:length(list_variables_to_run_2)){
   data_for_analysis <- data_frame_1[, names_use]
   #Clean Data:
   data_for_analysis <- Clean(data_for_analysis)
-  f <- paste0(list_variables_to_run_2[[i]][1], '~ . - compliance_check_1 | . - Treated')
+  f <- paste0(list_variables_to_run_2[[i]][1], '~ . - Treated | . - compliance_check_1')
   #CACE Model 1
   CACE_Model_1 <- iv_robust(as.formula(f), data = data_for_analysis)
   
+  CACE_Model_1$term[which(CACE_Model_1$term == "compliance_check_11")] <- 'Treated'
   
   # #CACE Model 2 - Passed first and second wave compliance check
   names_of_columns_3 <- c(names_of_columns,'Complied')
@@ -1178,8 +1231,10 @@ for(i in 1:length(list_variables_to_run_2)){
   data_for_analysis <- data_frame_1[, names_use]
   #Clean Data:
   data_for_analysis <- Clean(data_for_analysis)
-  f <- paste0(list_variables_to_run_2[[i]][1], '~  . - Complied | . - Treated')
+  f <- paste0(list_variables_to_run_2[[i]][1], '~  . - Treated | . - Complied')
   CACE_Model_2 <- iv_robust(as.formula(f), data = data_for_analysis)
+  
+  CACE_Model_2$term[which(CACE_Model_2$term == "Complied")] <- 'Treated'
   
   #names of the variables:
   Variable_Names <- names(ITT_Model$coefficients)[-1]
@@ -1194,7 +1249,7 @@ texreg(list(ITT_Model,CACE_Model_1,CACE_Model_2),
                      caption= Titles[i],
                      label = "table",
                      include.rmse = FALSE,
-                     custom.coef.names = c(Variable_Names),
+                     custom.coef.names = Variable_Names,
                      custom.model.names= c("Intent-To-Treat (ITT)", "CACE (Model 1)","CACE (Model 2)"),
                      file=Tables_title[i],
                      float.pos = "!htbp",
@@ -1202,28 +1257,23 @@ texreg(list(ITT_Model,CACE_Model_1,CACE_Model_2),
 }
 
 
-################## Behavioral Measures (Covariate-Unadjusted Models) ##############################################
+################## Behavioral Measures (Covariate-Adjusted Models) ##############################################
 
-#List of possible variables for inclusion:
-list_possible_covariates <- c("gender_dummy_fem",
-                              "educ_score",
-                              "Age",
-                              "Age_Sq",
-                              "party_score",
-                              "race_white",
-                              "ideo_score",
-                              "Trust_Media_w1",
-                              "trust_news",
-                              "trust_news_sm",
-                              "cons_news_n",
-                              "cons_cable",
-                              "cons_print",
-                              "cons_public", 
-                              "cons_talk",
-                              "cons_desk",
-                              "cons_mobile",
-                              "Safari_dummy",
-                              "log_news")
+#Create Sets of variables to use in models:
+list_variables_to_run_1 = list(c('Prop_Unreliable_NewsG_Score_dv'),
+                               c('Prop_Reliable_NewsG_Score_dv'),
+                               c('Count_Unreliable_NewsG_Score_dv'),
+                               c('Count_Reliable_NewsG_Score_dv'),
+                               c('Average_domain_NewsG_Score_dv'),
+                               c('Prop_Unreliable_NewsG_Score_post'),
+                               c('Prop_Reliable_NewsG_Score_post'),
+                               c('Count_Unreliable_NewsG_Score_post'),
+                               c('Count_Reliable_NewsG_Score_post'),
+                               c('Average_domain_NewsG_Score_post'))
+
+
+
+
 
 #Create list of Titles:
 Titles <- c('Testing the Effect of the Intervention on Proportion of News Diet That is Unreliable with Covariate-Unadjusted Models (HC2 Robust standard errors) (Before July 1st) ',
@@ -1252,52 +1302,14 @@ Tables_title <-  c('./Tables/Table_27.txt',
                    './Tables/Table_36.txt')
 
 #Create crosswalk for variables and display names:
-top_attribute_names <- c("gender_dummy_fem",
-                         "educ_score",
-                         'Treated',
-                         "Age",
-                         "Age_Sq",
-                         "party_score",
-                         "race_white",
-                         "ideo_score",
-                         "Trust_Media_w1",
-                         "trust_news",
-                         "trust_news_sm",
-                         "cons_news_n",
-                         "cons_cable",
-                         "cons_print",
-                         "cons_public", 
-                         "cons_talk",
-                         "cons_desk",
-                         "cons_mobile",
-                         "Safari_dummy",
-                         "log_news",
+top_attribute_names <- c('Treated',
                          'Prop_Unreliable_NewsG_Score',
                          'Prop_Reliable_NewsG_Score',
                          'Count_Unreliable_NewsG_Score',
                          'Count_Reliable_NewsG_Score',
                          'Average_domain_NewsG_Score')
 
-top_attributes_html <- c('Gender',
-                         'Education',
-                         'Treatment',
-                         'Age',
-                         'Age-Squared',
-                         "Party ID",
-                         "Race/Ethnicity",
-                         "Ideology ",
-                         "Trust in Media",
-                         "Trust of news in newspapers",
-                         "Trust of news on social media ",
-                         "News consumption (network news)",
-                         "News consumption (cable news)",
-                         "News consumption (print news) ",
-                         "News consumption (public radio)", 
-                         "News consumption (talk radio)",
-                         "News consumption (news on desktop)",
-                         "News consumption (news on mobile)",
-                         "Web Browser (Safari)",
-                         "Log of news viewed",
+top_attributes_html <- c('Treatment',
                          'Pre-Treatment Value',
                          'Pre-Treatment Value',
                          'Pre-Treatment Value',
@@ -1312,7 +1324,7 @@ names(top_attributes_html) <- top_attribute_names
 i=1
 
 for(i in 1:length(list_variables_to_run_1)){
-  list_possible_covariates_for_use <- c('Treated',list_variables_to_run_1[[i]],list_possible_covariates)
+  list_possible_covariates_for_use <- c('Treated',list_variables_to_run_1[[i]])
   
   data_for_analysis <- Pulse_data %>% ungroup() %>% select(`list_possible_covariates_for_use`)
   
@@ -1332,11 +1344,12 @@ for(i in 1:length(list_variables_to_run_1)){
   #Clean Data:
   data_for_analysis <- Clean(data_for_analysis)
   
-  f <- paste0(list_variables_to_run_1[[i]][1], '~ . - compliance_check_1 | . - Treated')
+  f <- paste0(list_variables_to_run_1[[i]][1], '~ . - Treated | . - compliance_check_1')
   
   #CACE Model 1
   CACE_Model_1 <- iv_robust(as.formula(f), data = data_for_analysis)
   
+  CACE_Model_1$term[which(CACE_Model_1$term == "compliance_check_11")] <- 'Treated'
   
   # #CACE Model 2 - Passed first and second wave compliance check
   
@@ -1349,9 +1362,12 @@ for(i in 1:length(list_variables_to_run_1)){
   #Clean Data:
   data_for_analysis <- Clean(data_for_analysis)
   
-  f <- paste0(list_variables_to_run_1[[i]][1], '~  . - Complied | . - Treated')
+  f <- paste0(list_variables_to_run_1[[i]][1], '~  . - Treated | . - Complied')
   
   CACE_Model_2 <- iv_robust(as.formula(f), data = data_for_analysis)
+  
+  CACE_Model_2$term[which(CACE_Model_2$term == "Complied")] <- 'Treated'
+  
   
   #names of the variables:
   
@@ -1366,7 +1382,7 @@ texreg(list(ITT_Model,CACE_Model_1,CACE_Model_2),
                      caption= Titles[i],
                      label = "table",
                      include.rmse = FALSE,
-                     custom.coef.names = c(Variable_Names),
+                     custom.coef.names = Variable_Names,
                      custom.model.names= c("Intent-To-Treat (ITT)", "CACE (Model 1)","CACE (Model 2)"),
                      file=Tables_title[i],
                      float.pos = "!htbp",
@@ -1375,25 +1391,6 @@ texreg(list(ITT_Model,CACE_Model_1,CACE_Model_2),
 
 
 ################## Attitudinal Measures (Covariate-Unadjusted Models) ##############################################
-
-list_possible_covariates <- c("gender_dummy_fem",
-                              "educ_score",
-                              "Age",
-                              "Age_Sq",
-                              "party_score",
-                              "race_white",
-                              "ideo_score",
-                              "Trust_Media_w1",
-                              "trust_news",
-                              "trust_news_sm",
-                              "cons_news_n",
-                              "cons_cable",
-                              "cons_print",
-                              "cons_public", 
-                              "cons_talk",
-                              "cons_desk",
-                              "cons_mobile",
-                              "Safari_dummy")
 
 #Create list of Titles:
 Titles <- c('Testing Effect of Intervention on Belief in Misinformation about the Black Lives Matter Movement with Covariate-Unadjusted Models (HC2 Robust standard errors)',
@@ -1411,6 +1408,22 @@ Titles <- c('Testing Effect of Intervention on Belief in Misinformation about th
             'Testing Effect of Intervention on Trust in CNN with Covariate-Unadjusted Models (HC2 Robust standard errors)',
             'Testing Effect of Intervention on Trust in Fox News with Covariate-Unadjusted Models (HC2 Robust standard errors)')
 
+
+#Create Sets of variables to use in models:
+list_variables_to_run_2 = list(c('BLM_Misinfo_Index_w2'),
+                               c('BLM_info_Index_w2'),
+                               c('Covid_Misinfo_Index_w2'),
+                               c('Covid_info_Index_w2'),
+                               c('Trust_Media_w2'),
+                               c('aff_pol_w2'),
+                               c('SMP4326_w2'),
+                               c('SMP4310_w2'),
+                               c('Trust_inst_w2'),
+                               c('CBS_Trust_2'),
+                               c('ABC_Trust_2'),
+                               c('NBC_Trust_2'),
+                               c('CNN_Trust_2'),
+                               c('Fox_Trust_2'))
 
 
 #Create list of filenames:
@@ -1495,8 +1508,7 @@ names(top_attributes_html) <- top_attribute_names
 #Run For loop to produce Tables 37-50:
 
 for(i in 1:length(list_variables_to_run_2)){
-  list_possible_covariates_for_use <- c('Treated',list_variables_to_run_2[[i]],list_possible_covariates)
-  
+  list_possible_covariates_for_use <- c('Treated',list_variables_to_run_2[[i]])
   data_for_analysis <- data_frame_1 %>% ungroup() %>% select(`list_possible_covariates_for_use`)
   
   #Clean Data:
@@ -1518,11 +1530,12 @@ for(i in 1:length(list_variables_to_run_2)){
   #Clean Data:
   data_for_analysis <- Clean(data_for_analysis)
   
-  f <- paste0(list_variables_to_run_2[[i]][1], '~ . - compliance_check_1 | . - Treated')
+  f <- paste0(list_variables_to_run_2[[i]][1], '~ . - Treated | . - compliance_check_1')
   
   #CACE Model 1
   CACE_Model_1 <- iv_robust(as.formula(f), data = data_for_analysis)
   
+  CACE_Model_1$term[which(CACE_Model_1$term == "compliance_check_11")] <- 'Treated'
   
   # #CACE Model 2 - Passed first and second wave compliance check
   
@@ -1535,10 +1548,12 @@ for(i in 1:length(list_variables_to_run_2)){
   #Clean Data:
   data_for_analysis <- Clean(data_for_analysis)
   
-  f <- paste0(list_variables_to_run_2[[i]][1], '~  . - Complied | . - Treated')
+  f <- paste0(list_variables_to_run_2[[i]][1], '~  . - Treated | . - Complied')
   
   CACE_Model_2 <- iv_robust(as.formula(f), data = data_for_analysis)
   
+  CACE_Model_2$term[which(CACE_Model_2$term == "Complied")] <- 'Treated'
+
   #names of the variables:
   
   Variable_Names <- names(ITT_Model$coefficients)[-1]
@@ -1553,7 +1568,7 @@ texreg(list(ITT_Model,CACE_Model_1,CACE_Model_2),
                      caption= Titles[i],
                      label = "table",
                      include.rmse = FALSE,
-                     custom.coef.names = c(Variable_Names),
+                     custom.coef.names = Variable_Names,
                      custom.model.names= c("Intent-To-Treat (ITT)", "CACE (Model 1)","CACE (Model 2)"),
                      file=Tables_title[i],
                      float.pos = "!htbp",
@@ -1562,9 +1577,19 @@ texreg(list(ITT_Model,CACE_Model_1,CACE_Model_2),
 
 
 
-###########################################   Effect of Moderators on Behavioral Measures - Adjusted Covariate Models   ###############################################
 
 
+
+
+
+
+
+#Create Inverse of trust in media:
+data_frame_1$Inv_Trust_Media_w1 <- data_frame_1$Trust_Media_w1
+data_frame_1$Inv_Trust_Media_w1 <- data_frame_1$Inv_Trust_Media_w1 - 3
+data_frame_1$Inv_Trust_Media_w1 <- data_frame_1$Inv_Trust_Media_w1*-1
+
+###########################################   Effect of Moderators on Affective Polarization - Adjusted Covariate Models   ###############################################
 
 list_possible_covariates <- c("gender_dummy_fem",
                               "educ_score",
@@ -1584,22 +1609,603 @@ list_possible_covariates <- c("gender_dummy_fem",
                               "cons_desk",
                               "cons_mobile",
                               "Safari_dummy",
-                              'log_news')
+                              "IE_dummy",
+                              "Chrome_dummy",
+                              "Firefox_dummy",
+                              "Social_Media_Use")
+
+
 
 
 #Create Sets of variables to use in models:
-list_variables_to_run_3 <- list(c('Prop_Unreliable_NewsG_Score_post','Prop_Unreliable_NewsG_Score'),
-                              c('Average_domain_NewsG_Score_post','Average_domain_NewsG_Score'))
+list_variables_to_run_4 <- list(c('aff_pol_w2'))
+
 
 #Create list of Titles:
-Titles <- c('Testing Effect of Intervention Using Different Moderators on Average Reliability Score of Online News Viewed (Covariate-Adjusted)',
-            'Testing Effect of Intervention Using Different Moderators on Proportion of Unreliable Online News Viewed (Covariate-Adjusted)')
+Titles <- c('Testing Effect of Intervention Initial level of Affective Polarization Moderator on Effect on Affective Polarization (Covariate-Adjusted)')
+
+#Create list of filenames:
+Tables_title <-  c('./Tables/Table_51.txt')
+
+#Create crosswalk for variables and display names:
+top_attribute_names <- c("gender_dummy_fem",
+                         "educ_score",
+                         'Treated',
+                         "Age",
+                         "Age_Sq",
+                         "party_score",
+                         "race_white",
+                         "ideo_score",
+                         "Trust_Media_w1",
+                         "trust_news",
+                         "trust_news_sm",
+                         "cons_news_n",
+                         "cons_cable",
+                         "cons_print",
+                         "cons_public", 
+                         "cons_talk",
+                         "cons_desk",
+                         "cons_mobile",
+                         "Safari_dummy",
+                         'SMP4310',
+                         'Treatment:Moderator',
+                         "IE_dummy",
+                         "Chrome_dummy",
+                         "Firefox_dummy",
+                         "Social_Media_Use")
+
+
+top_attributes_html <- c('Gender',
+                         'Education',
+                         'Treatment',
+                         'Age',
+                         'Age-Squared',
+                         "Party ID",
+                         "Race/Ethnicity",
+                         "Ideology ",
+                         "Trust in Media",
+                         "Trust of news in newspapers",
+                         "Trust of news on social media ",
+                         "News consumption (network news)",
+                         "News consumption (cable news)",
+                         "News consumption (print news) ",
+                         "News consumption (public radio)", 
+                         "News consumption (talk radio)",
+                         "News consumption (news on desktop)",
+                         "News consumption (news on mobile)",
+                         "Web Browser (Safari)",
+                         'Pre-Treatment Value',
+                         'Treatment*Moderator',
+                         "Internet Explorer Browser",
+                         "Chrome Browser",
+                         "Firefox Browser",
+                         "Social Media use")
+
+
+names(top_attributes_html) <- top_attribute_names
+
+i=1
+#Run For loop to produce Tables 53-55:
+for(i in 1:length(list_variables_to_run_4)){
+  list_possible_covariates_for_use <- c(list_variables_to_run_4[[i]],list_possible_covariates)
+  
+  data_for_analysis <- data_frame_1 %>% ungroup() %>% select(`list_possible_covariates_for_use`)
+  
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
+  
+  #Use glmnet lasso to choose covariates to be a part of model:
+  names_of_columns <- Lasso(data_for_analysis)
+  
+  #names_of_columns
+  
+  #Reporting unadjusted (differences in means) and covariate-adjusted 
+  #(OLS) estimates of treatment effects. We will use HC2 robust standard errors in all analyses and report 
+  #$p$-values from two-tailed $t$-tests.
+  
+  
+  #Reporting unadjusted (differences in means) and covariate-adjusted 
+  #(OLS) estimates of treatment effects. We will use HC2 robust standard errors in all analyses and report 
+  #$p$-values from two-tailed $t$-tests.
+  
+  names_of_columns <- c('Treated',names_of_columns)
+  
+
+#Affective Polarization  
+  
+  names_of_columns_M2 <- c('aff_pol_w1',names_of_columns)
+  
+  names_use <- names(data_frame_1)[(names(data_frame_1) %in% names_of_columns_M2)]
+  
+  data_for_analysis <- data_frame_1[, names_use]
+  
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
+  
+  colnames(data_for_analysis)[which(names(data_for_analysis) == "aff_pol_w1")] <- "Moderator"
+  
+  f <- paste0(list_variables_to_run_4[[i]][1], " ~ Treated*Moderator + .")
+  
+  lm_adj_MT_AP <- lm_robust(as.formula(f), data = data_for_analysis)
+  
+  ####MATCHING WITH VARIABLES####
+  #Match names_of_columns_3 with actual names
+  Variable_Names <- names(lm_adj_MT_AP$coefficients)[-1]
+  Variable_Names <- str_replace_all(Variable_Names, top_attributes_html)
+  
+  #Write Table
+  texreg(list(lm_adj_MT_AP),
+         include.ci = FALSE,
+         digits=4,
+         omit.coef = '(Intercept)',
+         caption= Titles[i],
+         label = "table",
+         include.rmse = FALSE,
+         custom.coef.names = Variable_Names,
+         custom.model.names= c("Affective Polarization"),
+         file=Tables_title[i],
+         float.pos = "!htbp",
+         caption.above = TRUE)
+}
+
+###########################################   Effect of Moderators on Trust In Media - Adjusted Covariate Models   ###############################################
+
+list_possible_covariates <- c("gender_dummy_fem",
+                              "educ_score",
+                              "Age",
+                              "Age_Sq",
+                              "party_score",
+                              "race_white",
+                              "ideo_score",
+                              "Inv_Trust_Media_w1",
+                              "trust_news",
+                              "trust_news_sm",
+                              "cons_news_n",
+                              "cons_cable",
+                              "cons_print",
+                              "cons_public", 
+                              "cons_talk",
+                              "cons_desk",
+                              "cons_mobile",
+                              "Safari_dummy",
+                              "IE_dummy",
+                              "Chrome_dummy",
+                              "Firefox_dummy",
+                              "Social_Media_Use")
+
+
+#Create Sets of variables to use in models:
+list_variables_to_run_4 <- list(c('Trust_Media_w2'))
+
+
+#Create list of Titles:
+Titles <- c('Testing Effect of Intervention Initial level of Trust In Media (Inverse) Moderator on Effect on Trust In Media (Covariate-Adjusted)')
+
+#Create list of filenames:
+Tables_title <-  c('./Tables/Table_52.txt')
+
+#Create crosswalk for variables and display names:
+top_attribute_names <- c("gender_dummy_fem",
+                         "educ_score",
+                         'Treated',
+                         "Age",
+                         "Age_Sq",
+                         "party_score",
+                         "race_white",
+                         "ideo_score",
+                         "Inv_Trust_Media_w1",
+                         "trust_news",
+                         "trust_news_sm",
+                         "cons_news_n",
+                         "cons_cable",
+                         "cons_print",
+                         "cons_public", 
+                         "cons_talk",
+                         "cons_desk",
+                         "cons_mobile",
+                         "Safari_dummy",
+                         'SMP4310',
+                         'Treatment:Moderator',
+                         "IE_dummy",
+                         "Chrome_dummy",
+                         "Firefox_dummy",
+                         "Social_Media_Use")
+
+
+top_attributes_html <- c('Gender',
+                         'Education',
+                         'Treatment',
+                         'Age',
+                         'Age-Squared',
+                         "Party ID",
+                         "Race/Ethnicity",
+                         "Ideology ",
+                         "Trust in Media (Inverse)",
+                         "Trust of news in newspapers",
+                         "Trust of news on social media ",
+                         "News consumption (network news)",
+                         "News consumption (cable news)",
+                         "News consumption (print news) ",
+                         "News consumption (public radio)", 
+                         "News consumption (talk radio)",
+                         "News consumption (news on desktop)",
+                         "News consumption (news on mobile)",
+                         "Web Browser (Safari)",
+                         'Pre-Treatment Value',
+                         'Treatment*Moderator',
+                         "Internet Explorer Browser",
+                         "Chrome Browser",
+                         "Firefox Browser",
+                         "Social Media use")
+
+names(top_attributes_html) <- top_attribute_names
+
+i=1
+#Run For loop to produce Tables 53-55:
+for(i in 1:length(list_variables_to_run_4)){
+  list_possible_covariates_for_use <- c(list_variables_to_run_4[[i]],list_possible_covariates)
+  
+  data_for_analysis <- data_frame_1 %>% ungroup() %>% select(`list_possible_covariates_for_use`)
+  
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
+  
+  #Use glmnet lasso to choose covariates to be a part of model:
+  names_of_columns <- Lasso(data_for_analysis)
+  
+  #names_of_columns
+  
+  #Reporting unadjusted (differences in means) and covariate-adjusted 
+  #(OLS) estimates of treatment effects. We will use HC2 robust standard errors in all analyses and report 
+  #$p$-values from two-tailed $t$-tests.
+  
+  
+  #Reporting unadjusted (differences in means) and covariate-adjusted 
+  #(OLS) estimates of treatment effects. We will use HC2 robust standard errors in all analyses and report 
+  #$p$-values from two-tailed $t$-tests.
+  
+  names_of_columns <- c('Treated',names_of_columns)
+  
+  
+  #Affective Polarization  
+  
+  names_of_columns_M2 <- c('Inv_Trust_Media_w1',names_of_columns)
+  
+  names_use <- names(data_frame_1)[(names(data_frame_1) %in% names_of_columns_M2)]
+  
+  data_for_analysis <- data_frame_1[, names_use]
+  
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
+  
+  colnames(data_for_analysis)[which(names(data_for_analysis) == "Inv_Trust_Media_w1")] <- "Moderator"
+  
+  f <- paste0(list_variables_to_run_4[[i]][1], " ~ Treated*Moderator + .")
+  
+  lm_adj_MT_AP <- lm_robust(as.formula(f), data = data_for_analysis)
+  
+  ####MATCHING WITH VARIABLES####
+  #Match names_of_columns_3 with actual names
+  Variable_Names <- names(lm_adj_MT_AP$coefficients)[-1]
+  Variable_Names <- str_replace_all(Variable_Names, top_attributes_html)
+  
+  #Write Table
+  texreg(list(lm_adj_MT_AP),
+         include.ci = FALSE,
+         digits=4,
+         omit.coef = '(Intercept)',
+         caption= Titles[i],
+         label = "table",
+         include.rmse = FALSE,
+         custom.coef.names = Variable_Names,
+         custom.model.names= c("Trust in Media"),
+         file=Tables_title[i],
+         float.pos = "!htbp",
+         caption.above = TRUE)
+}
+
+
+
+
+###########################################   Effect of Moderators on Affective Polarization - Unadjusted-Covariate Models   ###############################################
+
+#Create Sets of variables to use in models:
+#Create Sets of variables to use in models:
+list_variables_to_run_4 <- list(c('aff_pol_w2'))
+
+
+#Create list of Titles:
+Titles <- c('Testing Effect of Intervention Initial level of Affective Polarization Moderator on Effect on Affective Polarization (Covariate-Adjusted)')
+
+#Create list of filenames:
+Tables_title <-  c('./Tables/Table_53.txt')
+
+#Create crosswalk for variables and display names:
+top_attribute_names <- c("gender_dummy_fem",
+                         "educ_score",
+                         'Treated',
+                         "Age",
+                         "Age_Sq",
+                         "party_score",
+                         "race_white",
+                         "ideo_score",
+                         "Trust_Media_w1",
+                         "trust_news",
+                         "trust_news_sm",
+                         "cons_news_n",
+                         "cons_cable",
+                         "cons_print",
+                         "cons_public", 
+                         "cons_talk",
+                         "cons_desk",
+                         "cons_mobile",
+                         "Safari_dummy",
+                         'SMP4310',
+                         'Treatment:Moderator')
+
+
+top_attributes_html <- c('Gender',
+                         'Education',
+                         'Treatment',
+                         'Age',
+                         'Age-Squared',
+                         "Party ID",
+                         "Race/Ethnicity",
+                         "Ideology ",
+                         "Trust in Media",
+                         "Trust of news in newspapers",
+                         "Trust of news on social media ",
+                         "News consumption (network news)",
+                         "News consumption (cable news)",
+                         "News consumption (print news) ",
+                         "News consumption (public radio)", 
+                         "News consumption (talk radio)",
+                         "News consumption (news on desktop)",
+                         "News consumption (news on mobile)",
+                         "Web Browser (Safari)",
+                         'Pre-Treatment Value',
+                         'Treatment*Moderator')
+
+names(top_attributes_html) <- top_attribute_names
+
+i=1
+#Run For loop to produce Tables 53-55:
+for(i in 1:length(list_variables_to_run_4)){
+  names_of_columns <- c(list_variables_to_run_4[[i]])
+  
+  
+  #names_of_columns
+  
+  #Reporting unadjusted (differences in means) and covariate-adjusted 
+  #(OLS) estimates of treatment effects. We will use HC2 robust standard errors in all analyses and report 
+  #$p$-values from two-tailed $t$-tests.
+  
+  
+  #Reporting unadjusted (differences in means) and covariate-adjusted 
+  #(OLS) estimates of treatment effects. We will use HC2 robust standard errors in all analyses and report 
+  #$p$-values from two-tailed $t$-tests.
+  
+  names_of_columns <- c('Treated',names_of_columns)
+  
+  
+  #Affective Polarization  
+  
+  names_of_columns_M2 <- c('aff_pol_w1',names_of_columns)
+  
+  names_use <- names(data_frame_1)[(names(data_frame_1) %in% names_of_columns_M2)]
+  
+  data_for_analysis <- data_frame_1[, names_use]
+  
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
+  
+  colnames(data_for_analysis)[which(names(data_for_analysis) == "aff_pol_w1")] <- "Moderator"
+  
+  f <- paste0(list_variables_to_run_4[[i]][1], " ~ Treated*Moderator + .")
+  
+  lm_adj_MT_AP <- lm_robust(as.formula(f), data = data_for_analysis)
+  
+  ####MATCHING WITH VARIABLES####
+  #Match names_of_columns_3 with actual names
+  Variable_Names <- names(lm_adj_MT_AP$coefficients)[-1]
+  Variable_Names <- str_replace_all(Variable_Names, top_attributes_html)
+  
+  #Write Table
+  texreg(list(lm_adj_MT_AP),
+         include.ci = FALSE,
+         digits=4,
+         omit.coef = '(Intercept)',
+         caption= Titles[i],
+         label = "table",
+         include.rmse = FALSE,
+         custom.coef.names = Variable_Names,
+         custom.model.names= c("Affective Polarization"),
+         file=Tables_title[i],
+         float.pos = "!htbp",
+         caption.above = TRUE)
+}
+
+###########################################   Effect of Moderators on Trust In Media - Unadjusted-Covariate Models   ###############################################
+
+#Create Sets of variables to use in models:
+#Create Sets of variables to use in models:
+list_variables_to_run_4 <- list(c('Trust_Media_w2'))
+
+
+#Create list of Titles:
+Titles <- c('Testing Effect of Intervention Initial level of Trust In Media (Inverse) Moderator on Effect on Trust In Media (Covariate-Adjusted)')
+
+#Create list of filenames:
+Tables_title <-  c('./Tables/Table_54.txt')
+
+#Create crosswalk for variables and display names:
+top_attribute_names <- c("gender_dummy_fem",
+                         "educ_score",
+                         'Treated',
+                         "Age",
+                         "Age_Sq",
+                         "party_score",
+                         "race_white",
+                         "ideo_score",
+                         "Inv_Trust_Media_w1",
+                         "trust_news",
+                         "trust_news_sm",
+                         "cons_news_n",
+                         "cons_cable",
+                         "cons_print",
+                         "cons_public", 
+                         "cons_talk",
+                         "cons_desk",
+                         "cons_mobile",
+                         "Safari_dummy",
+                         'SMP4310',
+                         'Treatment:Moderator')
+
+
+top_attributes_html <- c('Gender',
+                         'Education',
+                         'Treatment',
+                         'Age',
+                         'Age-Squared',
+                         "Party ID",
+                         "Race/Ethnicity",
+                         "Ideology ",
+                         "Trust in Media (Inverse)",
+                         "Trust of news in newspapers",
+                         "Trust of news on social media ",
+                         "News consumption (network news)",
+                         "News consumption (cable news)",
+                         "News consumption (print news) ",
+                         "News consumption (public radio)", 
+                         "News consumption (talk radio)",
+                         "News consumption (news on desktop)",
+                         "News consumption (news on mobile)",
+                         "Web Browser (Safari)",
+                         'Pre-Treatment Value',
+                         'Treatment*Moderator')
+
+names(top_attributes_html) <- top_attribute_names
+
+i=1
+#Run For loop to produce Tables 53-55:
+for(i in 1:length(list_variables_to_run_4)){
+  names_of_columns <- c(list_variables_to_run_4[[i]])
+  #names_of_columns
+  
+  #Reporting unadjusted (differences in means) and covariate-adjusted 
+  #(OLS) estimates of treatment effects. We will use HC2 robust standard errors in all analyses and report 
+  #$p$-values from two-tailed $t$-tests.
+  
+  
+  #Reporting unadjusted (differences in means) and covariate-adjusted 
+  #(OLS) estimates of treatment effects. We will use HC2 robust standard errors in all analyses and report 
+  #$p$-values from two-tailed $t$-tests.
+  
+  names_of_columns <- c('Treated',names_of_columns)
+  
+  
+  #Affective Polarization  
+  
+  names_of_columns_M2 <- c('Inv_Trust_Media_w1',names_of_columns)
+  
+  names_use <- names(data_frame_1)[(names(data_frame_1) %in% names_of_columns_M2)]
+  
+  data_for_analysis <- data_frame_1[, names_use]
+  
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
+  
+  colnames(data_for_analysis)[which(names(data_for_analysis) == "Inv_Trust_Media_w1")] <- "Moderator"
+  
+  f <- paste0(list_variables_to_run_4[[i]][1], " ~ Treated*Moderator + .")
+  
+  lm_adj_MT_AP <- lm_robust(as.formula(f), data = data_for_analysis)
+  
+  ####MATCHING WITH VARIABLES####
+  #Match names_of_columns_3 with actual names
+  Variable_Names <- names(lm_adj_MT_AP$coefficients)[-1]
+  Variable_Names <- str_replace_all(Variable_Names, top_attributes_html)
+  
+  #Write Table
+  texreg(list(lm_adj_MT_AP),
+         include.ci = FALSE,
+         digits=4,
+         omit.coef = '(Intercept)',
+         caption= Titles[i],
+         label = "table",
+         include.rmse = FALSE,
+         custom.coef.names = Variable_Names,
+         custom.model.names= c("Trust in Media"),
+         file=Tables_title[i],
+         float.pos = "!htbp",
+         caption.above = TRUE)
+}
+
+
+###########################################   Effect of Moderators on Behavioral Measures - Adjusted Covariate Models   ###############################################
+
+list_possible_covariates <- c("gender_dummy_fem",
+                              "educ_score",
+                              "Age",
+                              "Age_Sq",
+                              "party_score",
+                              "race_white",
+                              "ideo_score",
+                              "Trust_Media_w1",
+                              "trust_news",
+                              "trust_news_sm",
+                              "cons_news_n",
+                              "cons_cable",
+                              "cons_print",
+                              "cons_public", 
+                              "cons_talk",
+                              "cons_desk",
+                              "cons_mobile",
+                              "Safari_dummy",
+                              'log_news',
+                              "IE_dummy",
+                              "Chrome_dummy",
+                              "Firefox_dummy",
+                              "Social_Media_Use")
+
+
+#Create Sets of variables to use in models:
+list_variables_to_run_3 = list(c('Prop_Unreliable_NewsG_Score_dv','Prop_Unreliable_NewsG_Score'),
+                               c('Prop_Reliable_NewsG_Score_dv','Prop_Reliable_NewsG_Score'),
+                               c('Count_Unreliable_NewsG_Score_dv','Count_Unreliable_NewsG_Score'),
+                               c('Count_Reliable_NewsG_Score_dv','Count_Reliable_NewsG_Score'),
+                               c('Average_domain_NewsG_Score_dv','Average_domain_NewsG_Score'),
+                               c('Prop_Unreliable_NewsG_Score_post','Prop_Unreliable_NewsG_Score'),
+                               c('Prop_Reliable_NewsG_Score_post','Prop_Reliable_NewsG_Score'),
+                               c('Count_Unreliable_NewsG_Score_post','Count_Unreliable_NewsG_Score'),
+                               c('Count_Reliable_NewsG_Score_post','Count_Reliable_NewsG_Score'),
+                               c('Average_domain_NewsG_Score_post','Average_domain_NewsG_Score'))
+
+#Create list of Titles:
+Titles <- c('Testing the Effect of Moderators on the Intervention on Proportion of News Diet That is Unreliable with Covariate-Adjusted Models (HC2 Robust standard errors) (Before July 1st)',
+            'Testing the Effect of Moderators on the Intervention on Proportion of News Diet That is Reliable with Covariate-Adjusted Models (HC2 Robust standard errors) (Before July 1st)',
+            'Testing the Effect of Moderators on the Intervention on Count of Unreliable News Consumed with Covariate-Adjusted Models (HC2 Robust standard errors) (Before July 1st)',
+            'Testing the Effect of Moderators on the Intervention on Count of Reliable News Consumed with Covariate-Adjusted Models (HC2 Robust standard errors) (Before July 1st)',
+            'Testing the Effect of Moderators on the Intervention on Reliability Score of News Diet with Covariate-Adjusted Models (HC2 Robust standard errors) (Before July 1st)',
+            'Testing the Effect of Moderators on the Intervention on Proportion of News Diet That is Unreliable with Covariate-Adjusted Models (HC2 Robust standard errors) (After July 1st)',
+            'Testing the Effect of Moderators on the Intervention on Proportion of News Diet That is Reliable with Covariate-Adjusted Models (HC2 Robust standard errors) (After July 1st)',
+            'Testing the Effect of Moderators on the Intervention on Count of Unreliable News Consumed with Covariate-Adjusted Models (HC2 Robust standard errors) (After July 1st)',
+            'Testing the Effect of Moderators on the Intervention on Count of Reliable News Consumed with Covariate-Adjusted Models (HC2 Robust standard errors) (After July 1st)',
+            'Testing the Effect of Moderators on the Intervention on Reliability Score of News Diet with Covariate-Adjusted Models (HC2 Robust standard errors) (After July 1st)')
 
 
 
 #Create list of filenames:
-Tables_title <-  c('./Tables/Table_51.txt',
-                   './Tables/Table_52.txt')
+Tables_title <-  c('./Tables/Table_55.txt',
+                   './Tables/Table_56.txt',
+                   './Tables/Table_57.txt',
+                   './Tables/Table_58.txt',
+                   './Tables/Table_59.txt',
+                   './Tables/Table_60.txt',
+                   './Tables/Table_61.txt',
+                   './Tables/Table_62.txt',
+                   './Tables/Table_63.txt',
+                   './Tables/Table_64.txt')
 
 #Create crosswalk for variables and display names:
 top_attribute_names <- c("gender_dummy_fem",
@@ -1624,8 +2230,14 @@ top_attribute_names <- c("gender_dummy_fem",
                          "log_news",
                          'Prop_Unreliable_NewsG_Score',
                          'Average_domain_NewsG_Score',
-                         'Treatment:Moderator')
-
+                         'Treatment:Moderator',
+                         "IE_dummy",
+                         "Chrome_dummy",
+                         "Firefox_dummy",
+                         "Social_Media_Use",
+                         'Prop_Reliable_NewsG_Score',
+                         'Count_Unreliable_NewsG_Score',
+                         'Count_Reliable_NewsG_Score')
 
 top_attributes_html <- c('Gender',
                          'Education',
@@ -1649,7 +2261,14 @@ top_attributes_html <- c('Gender',
                          "Log of news viewed",
                          'Pre-Treatment Value',
                          'Pre-Treatment Value',
-                         'Treatment*Moderator')
+                         'Treatment*Moderator',
+                         "Internet Explorer Browser",
+                         "Chrome Browser",
+                         "Firefox Browser",
+                         "Social Media use",
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value')
 
 names(top_attributes_html) <- top_attribute_names
 
@@ -1819,25 +2438,65 @@ list_possible_covariates <- c("gender_dummy_fem",
                               "cons_talk",
                               "cons_desk",
                               "cons_mobile",
-                              "Safari_dummy")
+                              "Safari_dummy",
+                              "IE_dummy",
+                              "Chrome_dummy",
+                              "Firefox_dummy",
+                              "Social_Media_Use")
+
+
 
 #Create Sets of variables to use in models:
 #Create Sets of variables to use in models:
-list_variables_to_run_4 <- list(c('BLM_Misinfo_Index_w2'),
-                              c('Covid_Misinfo_Index_w2'),
-                              c('Trust_Media_w2'))
+
+list_variables_to_run_4 = list(c('BLM_Misinfo_Index_w2'),
+                               c('BLM_info_Index_w2'),
+                               c('Covid_Misinfo_Index_w2'),
+                               c('Covid_info_Index_w2'),
+                               c('Trust_Media_w2'),
+                               c('aff_pol_w2','aff_pol_w1'),
+                               c('SMP4326_w2','SMP4326'),
+                               c('SMP4310_w2','SMP4310'),
+                               c('Trust_inst_w2','Trust_inst_w1'),
+                               c('CBS_Trust_2','CBS_Trust_1'),
+                               c('ABC_Trust_2','ABC_Trust_1'),
+                               c('NBC_Trust_2','NBC_Trust_1'),
+                               c('CNN_Trust_2','CNN_Trust_1'),
+                               c('Fox_Trust_2','Fox_Trust_1'))
 
 #Create list of Titles:
-Titles <- c('Testing Effect of Intervention Using Different Moderators on Belief in BLM Misinformation (Covariate-Adjusted)',
-            'Testing Effect of Intervention Using Different Moderators on Belief in Covid Misinformation (Covariate-Adjusted)',
-            'Testing Effect of Intervention Using Different Moderators on Trust in Media (Covariate-Adjusted)')
+Titles <- c('Testing Effect of Intervention Using Different Moderators on Belief in Misinformation about the Black Lives Matter Movement with Covariate-adjusted Models (HC2 Robust standard errors)',
+            'Testing Effect of Intervention Using Different Moderators on Belief in True Information about the Black Lives Matter Movement with Covariate-adjusted Models (HC2 Robust standard errors)',
+            'Testing Effect of Intervention Using Different Moderators on Belief in Misinformation about Covid-19 with Covariate-adjusted Models (HC2 Robust standard errors)',
+            'Testing Effect of Intervention Using Different Moderators on Belief in True Information about Covid-19 with Covariate-adjusted Models (HC2 Robust standard errors)',
+            'Testing Effect of Intervention Using Different Moderators on Trust in Media with Covariate-adjusted Models (HC2 Robust standard errors)',
+            'Testing Effect of Intervention Using Different Moderators on Affective Polarization with Covariate-adjusted Models (HC2 Robust standard errors)',
+            'Testing Effect of Intervention Using Different Moderators on Whether They Believe “Fake News is a Problem” with Covariate-adjusted Models (HC2 Robust standard errors)',
+            'Testing Effect of Intervention Using Different Moderators on Whether They Believe “Fake News is a Problem in the Mainstream Media” with Covariate-adjusted Models (HC2 Robust standard errors)',
+            'Testing Effect of Intervention Using Different Moderators on Trust in Institutions with Covariate-adjusted Models (HC2 Robust standard errors)',
+            'Testing Effect of Intervention Using Different Moderators on Trust in CBS with Covariate-adjusted Models (HC2 Robust standard errors)',
+            'Testing Effect of Intervention Using Different Moderators on Trust in ABC with Covariate-adjusted Models (HC2 Robust standard errors)',
+            'Testing Effect of Intervention Using Different Moderators on Trust in NBC with Covariate-adjusted Models (HC2 Robust standard errors)',
+            'Testing Effect of Intervention Using Different Moderators on Trust in CNN with Covariate-adjusted Models (HC2 Robust standard errors)',
+            'Testing Effect of Intervention Using Different Moderators on Trust in Fox News with Covariate-adjusted Models (HC2 Robust standard errors)')
 
 
 
 #Create list of filenames:
-Tables_title <-  c('./Tables/Table_53.txt',
-                   './Tables/Table_54.txt',
-                   './Tables/Table_55.txt')
+Tables_title <-  c('./Tables/Table_65.txt',
+                   './Tables/Table_66.txt',
+                   './Tables/Table_67.txt',
+                   './Tables/Table_68.txt',
+                   './Tables/Table_69.txt',
+                   './Tables/Table_70.txt',
+                   './Tables/Table_71.txt',
+                   './Tables/Table_72.txt',
+                   './Tables/Table_73.txt',
+                   './Tables/Table_74.txt',
+                   './Tables/Table_75.txt',
+                   './Tables/Table_76.txt',
+                   './Tables/Table_77.txt',
+                   './Tables/Table_78.txt')
 
 #Create crosswalk for variables and display names:
 top_attribute_names <- c("gender_dummy_fem",
@@ -1860,8 +2519,20 @@ top_attribute_names <- c("gender_dummy_fem",
                          "cons_mobile",
                          "Safari_dummy",
                          'SMP4310',
-                         'Treatment:Moderator')
-
+                         'Treatment:Moderator',
+                         "IE_dummy",
+                         "Chrome_dummy",
+                         "Firefox_dummy",
+                         "Social_Media_Use",
+                         'aff_pol_w1',
+                         'SMP4326',
+                         'SMP4310',
+                         'Trust_inst_w1',
+                         'CBS_Trust_1',
+                         'ABC_Trust_1',
+                         'NBC_Trust_1',
+                         'CNN_Trust_1',
+                         'Fox_Trust_1')
 
 top_attributes_html <- c('Gender',
                          'Education',
@@ -1883,7 +2554,20 @@ top_attributes_html <- c('Gender',
                          "News consumption (news on mobile)",
                          "Web Browser (Safari)",
                          'Pre-Treatment Value',
-                         'Treatment*Moderator')
+                         'Treatment*Moderator',
+                         "Internet Explorer Browser",
+                         "Chrome Browser",
+                         "Firefox Browser",
+                         "Social Media use",
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value')
 
 names(top_attributes_html) <- top_attribute_names
 
@@ -2003,7 +2687,6 @@ for(i in 1:length(list_variables_to_run_4)){
   
   #Pulse (Pre-unreliable)
   
-  
   names_of_columns_M2 <- c('Prop_Unreliable_NewsG_Score',names_of_columns)
   
   names_use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_M2)]
@@ -2043,39 +2726,6 @@ texreg(list(lm_adj_MT_DL,lm_adj_MT_S_Misinfo,lm_adj_MT_SM_use,lm_adj_MT_consump,
 
 ###########################################   Effect of Moderators on Behavioral Measures - Unadjusted Covariate Models   ###############################################
 
-
-list_possible_covariates <- c("gender_dummy_fem",
-                              "educ_score",
-                              "Age",
-                              "Age_Sq",
-                              "party_score",
-                              "race_white",
-                              "ideo_score",
-                              "Trust_Media_w1",
-                              "trust_news",
-                              "trust_news_sm",
-                              "cons_news_n",
-                              "cons_cable",
-                              "cons_print",
-                              "cons_public", 
-                              "cons_talk",
-                              "cons_desk",
-                              "cons_mobile",
-                              "Safari_dummy",
-                              'log_news')
-
-
-#Create list of Titles:
-Titles <- c('Testing Effect of Intervention Using Different Moderators on Average Reliability Score of Online News Viewed (Covariate-Unadjusted)',
-            'Testing Effect of Intervention Using Different Moderators on Proportion of Unreliable Online News Viewed (Covariate-Unadjusted)')
-
-
-
-#Create list of filenames:
-Tables_title <-  c('./Tables/Table_56.txt',
-                   './Tables/Table_57.txt')
-
-
 #Create crosswalk for variables and display names:
 top_attribute_names <- c("gender_dummy_fem",
                          "educ_score",
@@ -2099,6 +2749,9 @@ top_attribute_names <- c("gender_dummy_fem",
                          "log_news",
                          'Prop_Unreliable_NewsG_Score',
                          'Average_domain_NewsG_Score',
+                         'Prop_Reliable_NewsG_Score',
+                         'Count_Unreliable_NewsG_Score',
+                         'Count_Reliable_NewsG_Score',
                          'Treatment:Moderator')
 
 
@@ -2124,15 +2777,57 @@ top_attributes_html <- c('Gender',
                          "Log of news viewed",
                          'Pre-Treatment Value',
                          'Pre-Treatment Value',
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value',
                          'Treatment*Moderator')
 
 names(top_attributes_html) <- top_attribute_names
 
+#Create Sets of variables to use in models:
+list_variables_to_run_3 = list(c('Prop_Unreliable_NewsG_Score_dv'),
+                               c('Prop_Reliable_NewsG_Score_dv'),
+                               c('Count_Unreliable_NewsG_Score_dv'),
+                               c('Count_Reliable_NewsG_Score_dv'),
+                               c('Average_domain_NewsG_Score_dv'),
+                               c('Prop_Unreliable_NewsG_Score_post'),
+                               c('Prop_Reliable_NewsG_Score_post'),
+                               c('Count_Unreliable_NewsG_Score_post'),
+                               c('Count_Reliable_NewsG_Score_post'),
+                               c('Average_domain_NewsG_Score_post'))
+
+
+
+#Create list of Titles:
+Titles <- c('Testing the Effect of Moderators on the Intervention on Proportion of News Diet That is Unreliable with Covariate-Unadjusted Models (HC2 Robust standard errors) (Before July 1st)',
+            'Testing the Effect of Moderators on the Intervention on Proportion of News Diet That is Reliable with Covariate-Unadjusted Models (HC2 Robust standard errors) (Before July 1st)',
+            'Testing the Effect of Moderators on the Intervention on Count of Unreliable News Consumed with Covariate-Unadjusted Models (HC2 Robust standard errors) (Before July 1st)',
+            'Testing the Effect of Moderators on the Intervention on Count of Reliable News Consumed with Covariate-Unadjusted Models (HC2 Robust standard errors) (Before July 1st)',
+            'Testing the Effect of Moderators on the Intervention on Reliability Score of News Diet with Covariate-Unadjusted Models (HC2 Robust standard errors) (Before July 1st)',
+            'Testing the Effect of Moderators on the Intervention on Proportion of News Diet That is Unreliable with Covariate-Unadjusted Models (HC2 Robust standard errors) (After July 1st)',
+            'Testing the Effect of Moderators on the Intervention on Proportion of News Diet That is Reliable with Covariate-Unadjusted Models (HC2 Robust standard errors) (After July 1st)',
+            'Testing the Effect of Moderators on the Intervention on Count of Unreliable News Consumed with Covariate-Unadjusted Models (HC2 Robust standard errors) (After July 1st)',
+            'Testing the Effect of Moderators on the Intervention on Count of Reliable News Consumed with Covariate-Unadjusted Models (HC2 Robust standard errors) (After July 1st)',
+            'Testing the Effect of Moderators on the Intervention on Reliability Score of News Diet with Covariate-Unadjusted Models (HC2 Robust standard errors) (After July 1st)')
+
+
+
+#Create list of filenames:
+Tables_title <-  c('./Tables/Table_79.txt',
+                   './Tables/Table_80.txt',
+                   './Tables/Table_81.txt',
+                   './Tables/Table_82.txt',
+                   './Tables/Table_83.txt',
+                   './Tables/Table_84.txt',
+                   './Tables/Table_85.txt',
+                   './Tables/Table_86.txt',
+                   './Tables/Table_87.txt',
+                   './Tables/Table_88.txt')
 
 #Run For loop to produce Tables 57-58:
 for(i in 1:length(list_variables_to_run_3)){
   #names_of_columns
-  names_of_columns <- c(list_variables_to_run_3[[i]],list_possible_covariates)
+  names_of_columns <- c(list_variables_to_run_3[[i]])
   
   #Reporting unadjusted (differences in means) and covariate-adjusted 
   #(OLS) estimates of treatment effects. We will use HC2 robust standard errors in all analyses and report 
@@ -2276,39 +2971,57 @@ texreg(list(lm_adj_MT_DL,lm_adj_MT_S_Misinfo,lm_adj_MT_SM_use,lm_adj_MT_consump,
 ###########################################   Effect of Moderators on Attitudinal Measures - Unadjusted Covariate Models   ###############################################
 
 
-list_possible_covariates <- c("gender_dummy_fem",
-                              "educ_score",
-                              "Age",
-                              "Age_Sq",
-                              "party_score",
-                              "race_white",
-                              "ideo_score",
-                              "Trust_Media_w1",
-                              "trust_news",
-                              "trust_news_sm",
-                              "cons_news_n",
-                              "cons_cable",
-                              "cons_print",
-                              "cons_public", 
-                              "cons_talk",
-                              "cons_desk",
-                              "cons_mobile",
-                              "Safari_dummy")
+list_variables_to_run_4 = list(c('BLM_Misinfo_Index_w2'),
+                               c('BLM_info_Index_w2'),
+                               c('Covid_Misinfo_Index_w2'),
+                               c('Covid_info_Index_w2'),
+                               c('Trust_Media_w2'),
+                               c('aff_pol_w2'),
+                               c('SMP4326_w2'),
+                               c('SMP4310_w2'),
+                               c('Trust_inst_w2'),
+                               c('CBS_Trust_2'),
+                               c('ABC_Trust_2'),
+                               c('NBC_Trust_2'),
+                               c('CNN_Trust_2'),
+                               c('Fox_Trust_2'))
 
 #Create list of Titles:
-Titles <- c('Testing Effect of Intervention Using Different Moderators on Belief in BLM Misinformation  (Covariate-Unadjusted)',
-            'Testing Effect of Intervention Using Different Moderators on Belief in Covid Misinformation  (Covariate-Unadjusted)',
-            'Testing Effect of Intervention Using Different Moderators on Trust in Media  (Covariate-Unadjusted)',
-            'Testing Effect of Intervention Using Different Moderators on Belief that \'\'fake news is a problem in the mainstream media\'\'  (Covariate-Unadjusted)')
+Titles <- c('Testing Effect of Intervention Using Different Moderators on Belief in Misinformation about the Black Lives Matter Movement with Covariate-Unadjusted Models (HC2 Robust standard errors)',
+            'Testing Effect of Intervention Using Different Moderators on Belief in True Information about the Black Lives Matter Movement with Covariate-Unadjusted Models (HC2 Robust standard errors)',
+            'Testing Effect of Intervention Using Different Moderators on Belief in Misinformation about Covid-19 with Covariate-Unadjusted Models (HC2 Robust standard errors)',
+            'Testing Effect of Intervention Using Different Moderators on Belief in True Information about Covid-19 with Covariate-Unadjusted Models (HC2 Robust standard errors)',
+            'Testing Effect of Intervention Using Different Moderators on Trust in Media with Covariate-Unadjusted Models (HC2 Robust standard errors)',
+            'Testing Effect of Intervention Using Different Moderators on Affective Polarization with Covariate-Unadjusted Models (HC2 Robust standard errors)',
+            'Testing Effect of Intervention Using Different Moderators on Whether They Believe “Fake News is a Problem” with Covariate-Unadjusted Models (HC2 Robust standard errors)',
+            'Testing Effect of Intervention Using Different Moderators on Whether They Believe “Fake News is a Problem in the Mainstream Media” with Covariate-Unadjusted Models (HC2 Robust standard errors)',
+            'Testing Effect of Intervention Using Different Moderators on Trust in Institutions with Covariate-Unadjusted Models (HC2 Robust standard errors)',
+            'Testing Effect of Intervention Using Different Moderators on Trust in CBS with Covariate-Unadjusted Models (HC2 Robust standard errors)',
+            'Testing Effect of Intervention Using Different Moderators on Trust in ABC with Covariate-Unadjusted Models (HC2 Robust standard errors)',
+            'Testing Effect of Intervention Using Different Moderators on Trust in NBC with Covariate-Unadjusted Models (HC2 Robust standard errors)',
+            'Testing Effect of Intervention Using Different Moderators on Trust in CNN with Covariate-Unadjusted Models (HC2 Robust standard errors)',
+            'Testing Effect of Intervention Using Different Moderators on Trust in Fox News with Covariate-Unadjusted Models (HC2 Robust standard errors)')
 
 
 
 #Create list of filenames:
-Tables_title <-  c('./Tables/Table_58.txt',
-                   './Tables/Table_59.txt',
-                   './Tables/Table_60.txt')
+Tables_title <-  c('./Tables/Table_89.txt',
+                   './Tables/Table_90.txt',
+                   './Tables/Table_91.txt',
+                   './Tables/Table_92.txt',
+                   './Tables/Table_93.txt',
+                   './Tables/Table_94.txt',
+                   './Tables/Table_95.txt',
+                   './Tables/Table_96.txt',
+                   './Tables/Table_97.txt',
+                   './Tables/Table_98.txt',
+                   './Tables/Table_99.txt',
+                   './Tables/Table_100.txt',
+                   './Tables/Table_101.txt',
+                   './Tables/Table_102.txt')
 
 
+#Create crosswalk for variables and display names:
 #Create crosswalk for variables and display names:
 top_attribute_names <- c("gender_dummy_fem",
                          "educ_score",
@@ -2330,8 +3043,20 @@ top_attribute_names <- c("gender_dummy_fem",
                          "cons_mobile",
                          "Safari_dummy",
                          'SMP4310',
-                         'Treatment:Moderator')
-
+                         'Treatment:Moderator',
+                         "IE_dummy",
+                         "Chrome_dummy",
+                         "Firefox_dummy",
+                         "Social_Media_Use",
+                         'aff_pol_w1',
+                         'SMP4326',
+                         'SMP4310',
+                         'Trust_inst_w1',
+                         'CBS_Trust_1',
+                         'ABC_Trust_1',
+                         'NBC_Trust_1',
+                         'CNN_Trust_1',
+                         'Fox_Trust_1')
 
 top_attributes_html <- c('Gender',
                          'Education',
@@ -2353,15 +3078,27 @@ top_attributes_html <- c('Gender',
                          "News consumption (news on mobile)",
                          "Web Browser (Safari)",
                          'Pre-Treatment Value',
-                         'Treatment*Moderator')
+                         'Treatment*Moderator',
+                         "Internet Explorer Browser",
+                         "Chrome Browser",
+                         "Firefox Browser",
+                         "Social Media use",
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value')
 
 names(top_attributes_html) <- top_attribute_names
-
 
 #Run For loop to produce Tables 59-62:
 for(i in 1:length(list_variables_to_run_4)){
   #names_of_columns
-  names_of_columns <- c(list_variables_to_run_4[[i]],list_possible_covariates)
+  names_of_columns <- c(list_variables_to_run_4[[i]])
   
   #Reporting unadjusted (differences in means) and covariate-adjusted 
   #(OLS) estimates of treatment effects. We will use HC2 robust standard errors in all analyses and report 

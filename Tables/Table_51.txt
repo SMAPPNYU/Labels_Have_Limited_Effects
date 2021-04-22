@@ -1,25 +1,41 @@
 
 \begin{table}[!htbp]
-\caption{Testing Effect of Intervention Using Different Moderators on Average Reliability Score of Online News Viewed (Covariate-Adjusted)}
+\caption{Testing Effect of Intervention Initial level of Affective Polarization Moderator on Effect on Affective Polarization (Covariate-Adjusted)}
 \begin{center}
-\begin{tabular}{l c c c c c c}
+\begin{tabular}{l c}
 \hline
- & Dig. Lit. & Sci. Misinf. & S.M. Use & News Consump. & Partisan. of News Diet & Unreliable News Consumed \\
+ & Affective Polarization \\
 \hline
-Treatment           & $-0.0056$      & $-0.0087$      & $0.0018$       & $-0.0078$      & $0.0042$       & $-0.0021$      \\
-                    & $(0.0075)$     & $(0.0072)$     & $(0.0074)$     & $(0.0100)$     & $(0.0053)$     & $(0.0030)$     \\
-Moderator           & $0.0001$       & $0.0026$       & $0.0005$       & $-0.0003$      & $0.0188^{*}$   & $0.8406^{***}$ \\
-                    & $(0.0003)$     & $(0.0025)$     & $(0.0013)$     & $(0.0017)$     & $(0.0081)$     & $(0.0556)$     \\
-Pre-Treatment Value & $0.7987^{***}$ & $0.7956^{***}$ & $0.7990^{***}$ & $0.7978^{***}$ & $0.7917^{***}$ &                \\
-                    & $(0.0616)$     & $(0.0618)$     & $(0.0621)$     & $(0.0620)$     & $(0.0647)$     &                \\
-Treatment*Moderator & $0.0001$       & $0.0021$       & $-0.0019$      & $0.0011$       & $-0.0118$      & $-0.0690$      \\
-                    & $(0.0004)$     & $(0.0030)$     & $(0.0019)$     & $(0.0027)$     & $(0.0098)$     & $(0.1113)$     \\
+Treatment                          & $-0.6305$      \\
+                                   & $(1.4245)$     \\
+Moderator                          & $0.8388^{***}$ \\
+                                   & $(0.0159)$     \\
+Party ID                           & $-0.2634$      \\
+                                   & $(0.1764)$     \\
+Race/Ethnicity                     & $1.1935$       \\
+                                   & $(0.7890)$     \\
+Gender                             & $0.2779$       \\
+                                   & $(0.5622)$     \\
+Age                                & $0.1347^{***}$ \\
+                                   & $(0.0213)$     \\
+Trust in Media                     & $-0.4657$      \\
+                                   & $(0.4451)$     \\
+News consumption (cable news)      & $0.3519$       \\
+                                   & $(0.1871)$     \\
+News consumption (print news)      & $-0.6449^{**}$ \\
+                                   & $(0.2290)$     \\
+News consumption (talk radio)      & $0.0024$       \\
+                                   & $(0.2337)$     \\
+News consumption (news on desktop) & $0.5342^{*}$   \\
+                                   & $(0.2249)$     \\
+Treatment*Moderator                & $0.0130$       \\
+                                   & $(0.0193)$     \\
 \hline
-R$^2$               & $0.7472$       & $0.7487$       & $0.7475$       & $0.7471$       & $0.7673$       & $0.7484$       \\
-Adj. R$^2$          & $0.7459$       & $0.7473$       & $0.7461$       & $0.7458$       & $0.7657$       & $0.7474$       \\
-Num. obs.           & $760$          & $760$          & $760$          & $760$          & $597$          & $760$          \\
+R$^2$                              & $0.7224$       \\
+Adj. R$^2$                         & $0.7214$       \\
+Num. obs.                          & $3192$         \\
 \hline
-\multicolumn{7}{l}{\scriptsize{$^{***}p<0.001$; $^{**}p<0.01$; $^{*}p<0.05$}}
+\multicolumn{2}{l}{\scriptsize{$^{***}p<0.001$; $^{**}p<0.01$; $^{*}p<0.05$}}
 \end{tabular}
 \label{table}
 \end{center}

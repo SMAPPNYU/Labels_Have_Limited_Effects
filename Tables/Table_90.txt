@@ -1,0 +1,24 @@
+
+\begin{table}[!htbp]
+\caption{Testing Effect of Intervention Using Different Moderators on Belief in True Information about the Black Lives Matter Movement with Covariate-Unadjusted Models (HC2 Robust standard errors)}
+\begin{center}
+\begin{tabular}{l c c c c c c}
+\hline
+ & Dig. Lit. & Sci. Misinf. & S.M. Use & News Consump. & Partisan. of News Diet & Unreliable News Consumed \\
+\hline
+Treatment           & $-0.0455$       & $-0.0270$       & $-0.0023$  & $-0.0675$      & $0.0655$       & $0.0190$   \\
+                    & $(0.0549)$      & $(0.0676)$      & $(0.0569)$ & $(0.0857)$     & $(0.1123)$     & $(0.0636)$ \\
+Moderator           & $-0.0071^{***}$ & $-0.1112^{***}$ & $0.0067$   & $0.0744^{***}$ & $-0.3523^{**}$ & $-0.2269$  \\
+                    & $(0.0020)$      & $(0.0205)$      & $(0.0107)$ & $(0.0177)$     & $(0.1082)$     & $(0.2341)$ \\
+Treatment*Moderator & $0.0023$        & $0.0090$        & $0.0007$   & $0.0180$       & $-0.0327$      & $0.2386$   \\
+                    & $(0.0026)$      & $(0.0273)$      & $(0.0144)$ & $(0.0235)$     & $(0.1314)$     & $(0.4010)$ \\
+\hline
+R$^2$               & $0.0064$        & $0.0200$        & $0.0003$   & $0.0174$       & $0.0555$       & $0.0006$   \\
+Adj. R$^2$          & $0.0055$        & $0.0190$        & $-0.0007$  & $0.0165$       & $0.0508$       & $-0.0033$  \\
+Num. obs.           & $3191$          & $3195$          & $3195$     & $3195$         & $600$          & $770$      \\
+\hline
+\multicolumn{7}{l}{\scriptsize{$^{***}p<0.001$; $^{**}p<0.01$; $^{*}p<0.05$}}
+\end{tabular}
+\label{table}
+\end{center}
+\end{table}
