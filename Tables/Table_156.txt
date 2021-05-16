@@ -1,0 +1,20 @@
+
+\begin{table}[!htbp]
+\caption{Testing the Effect of the Intervention on Count of Reliable News Referred From Search Engines and Social Media (Google, Twitter, and Facebook) with Covariate-Adjusted Models (HC2 Robust standard errors) (Before July 1st)}
+\begin{center}
+\begin{tabular}{l c c c}
+\hline
+ & Intent-To-Treat (ITT) & CACE (Model 1) & CACE (Model 2) \\
+\hline
+Treated    & $-0.0481$  & $-0.0447$  & $-0.0604$  \\
+           & $(0.0497)$ & $(0.0516)$ & $(0.0595)$ \\
+\hline
+R$^2$      & $0.0012$   & $0.0010$   & $0.0029$   \\
+Adj. R$^2$ & $-0.0001$  & $-0.0003$  & $0.0015$   \\
+Num. obs.  & $770$      & $757$      & $735$      \\
+\hline
+\multicolumn{4}{l}{\scriptsize{$^{***}p<0.001$; $^{**}p<0.01$; $^{*}p<0.05$}}
+\end{tabular}
+\label{table}
+\end{center}
+\end{table}

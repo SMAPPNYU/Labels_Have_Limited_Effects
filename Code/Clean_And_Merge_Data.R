@@ -790,11 +790,11 @@ Pulse_Pre <- read.csv('./Data/pulse_vars_pre.csv')
 ######Read in post-treatment Pulse Data:
 Pulse_Post <- read.csv('./Data/pulse_vars_post.csv')
 #Merge Survey Data with digital
-Pulse_data <- merge(dataframe_1,Pulse_Pre,by='caseid')
-Pulse_data <- merge(Pulse_data,Pulse_Post,by='caseid')
+Pulse_data <- Pulse_Pre
+Pulse_data <- merge(Pulse_data,Pulse_Post,by='caseid',all=T)
 ####### Pull in DV Data ##############
 Pulse_DV <- read.csv('./Data/pulse_vars_DV.csv')
-Pulse_data <- merge(Pulse_data,Pulse_DV,by='caseid')
+Pulse_data <- merge(Pulse_data,Pulse_DV,by='caseid',all=T)
 Pulse_data$Pulse_Dummy <- 1
 Pulse_data <- Pulse_data %>% select(caseid,Pulse_Dummy)
 dataframe_1<- merge(dataframe_1,Pulse_data,by='caseid',all=T)
@@ -809,19 +809,111 @@ Pulse_Pre <- read.csv('./Data/pulse_vars_pre.csv')
 ######Read in post-treatment Pulse Data:
 Pulse_Post <- read.csv('./Data/pulse_vars_post.csv')
 #Merge Survey Data with digital
-Pulse_data <- merge(dataframe_1,Pulse_Pre,by='caseid')
-Pulse_data <- merge(Pulse_data,Pulse_Post,by='caseid')
+Pulse_data <- merge(dataframe_1,Pulse_Pre,by='caseid',all=T)
+Pulse_data <- merge(Pulse_data,Pulse_Post,by='caseid',all=T)
 ####### Pull in DV Data ##############
 Pulse_DV <- read.csv('./Data/pulse_vars_DV.csv')
-Pulse_data <- merge(Pulse_data,Pulse_DV,by='caseid')
+Pulse_data <- merge(Pulse_data,Pulse_DV,by='caseid',all=T)
+Pulse_data <- Pulse_data %>% filter(Pulse_Dummy == 1)
 Pulse_data <- Pulse_data %>% mutate(Prop_Unreliable_NewsG_Score_dv = ifelse(is.na(Average_domain_NewsG_Score_dv),NA,Prop_Unreliable_NewsG_Score_dv))
 Pulse_data <- Pulse_data %>% mutate(Prop_Reliable_NewsG_Score_dv = ifelse(is.na(Average_domain_NewsG_Score_dv),NA,Prop_Reliable_NewsG_Score_dv))
 Pulse_data <- Pulse_data %>% mutate(Prop_Unreliable_NewsG_Score_post = ifelse(is.na(Average_domain_NewsG_Score_post),NA,Prop_Unreliable_NewsG_Score_post))
 Pulse_data <- Pulse_data %>% mutate(Prop_Reliable_NewsG_Score_post = ifelse(is.na(Average_domain_NewsG_Score_post),NA,Prop_Reliable_NewsG_Score_post))
 Pulse_data <- Pulse_data %>% mutate(Prop_Unreliable_NewsG_Score = ifelse(is.na(Average_domain_NewsG_Score),NA,Prop_Unreliable_NewsG_Score))
 Pulse_data <- Pulse_data %>% mutate(Prop_Reliable_NewsG_Score = ifelse(is.na(Average_domain_NewsG_Score),NA,Prop_Reliable_NewsG_Score))
+
+Pulse_data <- Pulse_data %>% mutate(Prop_Unreliable_NewsG_Score_dv_dur = ifelse(is.na(Average_domain_NewsG_Score_dv_dur),NA,Prop_Unreliable_NewsG_Score_dv_dur))
+Pulse_data <- Pulse_data %>% mutate(Prop_Reliable_NewsG_Score_dv_dur = ifelse(is.na(Average_domain_NewsG_Score_dv_dur),NA,Prop_Reliable_NewsG_Score_dv_dur))
+Pulse_data <- Pulse_data %>% mutate(Prop_Unreliable_NewsG_Score_post_dur = ifelse(is.na(Average_domain_NewsG_Score_post_dur),NA,Prop_Unreliable_NewsG_Score_post_dur))
+Pulse_data <- Pulse_data %>% mutate(Prop_Reliable_NewsG_Score_post_dur = ifelse(is.na(Average_domain_NewsG_Score_post_dur),NA,Prop_Reliable_NewsG_Score_post_dur))
+Pulse_data <- Pulse_data %>% mutate(Prop_Unreliable_NewsG_Score_dur = ifelse(is.na(Average_domain_NewsG_Score_dur),NA,Prop_Unreliable_NewsG_Score_dur))
+Pulse_data <- Pulse_data %>% mutate(Prop_Reliable_NewsG_Score_dur = ifelse(is.na(Average_domain_NewsG_Score_dur),NA,Prop_Reliable_NewsG_Score_dur))
+
 Pulse_data$partisanship_news_diet <- as.numeric(Pulse_data$partisanship_news_diet)
 Pulse_data$abs_part <- abs(Pulse_data$partisanship_news_diet)
+
+
+
+
+######Read in pre-treatment Pulse Data:
+Pulse_Pre <- read.csv('./Data/pulse_vars_pre_ref_All.csv')
+######Read in post-treatment Pulse Data:
+Pulse_Post <- read.csv('./Data/pulse_vars_post_ref_All.csv')
+#Merge Survey Data with digital
+Pulse_data_All <- Pulse_Pre
+Pulse_data_All <- merge(Pulse_data_All,Pulse_Post,by='caseid',all=T)
+####### Pull in DV Data ##############
+Pulse_DV <- read.csv('./Data/pulse_vars_dv_ref_All.csv')
+Pulse_data_All <- merge(Pulse_data_All,Pulse_DV,by='caseid',all=T)
+Pulse_data_All <- Pulse_data_All %>% mutate(Prop_Unreliable_NewsG_Score_dv_All_ref = ifelse(is.na(Average_domain_NewsG_Score_dv_All_ref),NA,Prop_Unreliable_NewsG_Score_dv_All_ref))
+Pulse_data_All <- Pulse_data_All %>% mutate(Prop_Reliable_NewsG_Score_dv_All_ref = ifelse(is.na(Average_domain_NewsG_Score_dv_All_ref),NA,Prop_Reliable_NewsG_Score_dv_All_ref))
+Pulse_data_All <- Pulse_data_All %>% mutate(Prop_Unreliable_NewsG_Score_post_All_ref = ifelse(is.na(Average_domain_NewsG_Score_post_All_ref),NA,Prop_Unreliable_NewsG_Score_post_All_ref))
+Pulse_data_All <- Pulse_data_All %>% mutate(Prop_Reliable_NewsG_Score_post_All_ref = ifelse(is.na(Average_domain_NewsG_Score_post_All_ref),NA,Prop_Reliable_NewsG_Score_post_All_ref))
+Pulse_data_All <- Pulse_data_All %>% mutate(Prop_Unreliable_NewsG_Score_All_ref = ifelse(is.na(Average_domain_NewsG_Score_All_ref),NA,Prop_Unreliable_NewsG_Score_All_ref))
+Pulse_data_All <- Pulse_data_All %>% mutate(Prop_Reliable_NewsG_Score_All_ref = ifelse(is.na(Average_domain_NewsG_Score_All_ref),NA,Prop_Reliable_NewsG_Score_All_ref))
+
+
+
+
+
+######Read in pre-treatment Pulse Data:
+Pulse_Pre <- read.csv('./Data/pulse_vars_pre_ref_SM.csv')
+######Read in post-treatment Pulse Data:
+Pulse_Post <- read.csv('./Data/pulse_vars_post_ref_SM.csv')
+#Merge Survey Data with digital
+Pulse_data_SM <- Pulse_Pre
+Pulse_data_SM <- merge(Pulse_data_SM,Pulse_Post,by='caseid',all=T)
+####### Pull in DV Data ##############
+Pulse_DV <- read.csv('./Data/pulse_vars_dv_ref_SM.csv')
+Pulse_data_SM <- merge(Pulse_data_SM,Pulse_DV,by='caseid',all=T)
+Pulse_data_SM <- Pulse_data_SM %>% mutate(Prop_Unreliable_NewsG_Score_dv_SM_ref = ifelse(is.na(Average_domain_NewsG_Score_dv_SM_ref),NA,Prop_Unreliable_NewsG_Score_dv_SM_ref))
+Pulse_data_SM <- Pulse_data_SM %>% mutate(Prop_Reliable_NewsG_Score_dv_SM_ref = ifelse(is.na(Average_domain_NewsG_Score_dv_SM_ref),NA,Prop_Reliable_NewsG_Score_dv_SM_ref))
+Pulse_data_SM <- Pulse_data_SM %>% mutate(Prop_Unreliable_NewsG_Score_post_SM_ref = ifelse(is.na(Average_domain_NewsG_Score_post_SM_ref),NA,Prop_Unreliable_NewsG_Score_post_SM_ref))
+Pulse_data_SM <- Pulse_data_SM %>% mutate(Prop_Reliable_NewsG_Score_post_SM_ref = ifelse(is.na(Average_domain_NewsG_Score_post_SM_ref),NA,Prop_Reliable_NewsG_Score_post_SM_ref))
+Pulse_data_SM <- Pulse_data_SM %>% mutate(Prop_Unreliable_NewsG_Score_SM_ref = ifelse(is.na(Average_domain_NewsG_Score_SM_ref),NA,Prop_Unreliable_NewsG_Score_SM_ref))
+Pulse_data_SM <- Pulse_data_SM %>% mutate(Prop_Reliable_NewsG_Score_SM_ref = ifelse(is.na(Average_domain_NewsG_Score_SM_ref),NA,Prop_Reliable_NewsG_Score_SM_ref))
+
+
+
+Pulse_data_All <- Pulse_data_All %>% select(caseid,
+                                            Average_domain_NewsG_Score_All_ref,
+                                            Prop_Reliable_NewsG_Score_All_ref,
+                                            Prop_Unreliable_NewsG_Score_All_ref,
+                                            Count_Reliable_NewsG_Score_All_ref,
+                                            Count_Unreliable_NewsG_Score_All_ref,
+                                            Average_domain_NewsG_Score_post_All_ref,
+                                            Prop_Reliable_NewsG_Score_post_All_ref,
+                                            Prop_Unreliable_NewsG_Score_post_All_ref,
+                                            Count_Reliable_NewsG_Score_post_All_ref,
+                                            Count_Unreliable_NewsG_Score_post_All_ref,
+                                            Average_domain_NewsG_Score_dv_All_ref,
+                                            Prop_Reliable_NewsG_Score_dv_All_ref,
+                                            Prop_Unreliable_NewsG_Score_dv_All_ref,
+                                            Count_Reliable_NewsG_Score_dv_All_ref,
+                                            Count_Unreliable_NewsG_Score_dv_All_ref)
+
+
+Pulse_data_SM <- Pulse_data_SM %>% select(caseid,
+                                          Average_domain_NewsG_Score_SM_ref,
+                                          Prop_Reliable_NewsG_Score_SM_ref,
+                                          Prop_Unreliable_NewsG_Score_SM_ref,
+                                          Count_Reliable_NewsG_Score_SM_ref,
+                                          Count_Unreliable_NewsG_Score_SM_ref,
+                                          Average_domain_NewsG_Score_post_SM_ref,
+                                          Prop_Reliable_NewsG_Score_post_SM_ref,
+                                          Prop_Unreliable_NewsG_Score_post_SM_ref,
+                                          Count_Reliable_NewsG_Score_post_SM_ref,
+                                          Count_Unreliable_NewsG_Score_post_SM_ref,
+                                          Average_domain_NewsG_Score_dv_SM_ref,
+                                          Prop_Reliable_NewsG_Score_dv_SM_ref,
+                                          Prop_Unreliable_NewsG_Score_dv_SM_ref,
+                                          Count_Reliable_NewsG_Score_dv_SM_ref,
+                                          Count_Unreliable_NewsG_Score_dv_SM_ref)
+
+Pulse_data <- merge(Pulse_data,Pulse_data_All,by='caseid',all=T)
+
+Pulse_data <- merge(Pulse_data,Pulse_data_SM,by='caseid',all=T)
+
 
 write.csv(Pulse_data,'./Data/Clean_NewsGuard_Digital_Trace_Data.csv')
 

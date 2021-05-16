@@ -18,7 +18,7 @@ ng_domains <- unique(newsguard$Domain)
 
 # Desktop ------------------------------------------------------------------
 
-pulse_raw <- read_csv("~/Downloads/pulse_output/realityMine_web_2020-05-17_2020-07-14.csv")
+pulse_raw <- read_csv("Data/pulse_output/realityMine_web_2020-05-17_2020-07-14.csv")
 
 # select only visits on desktop devices
 desktop <- pulse_raw %>% filter(device_type == "Laptop/Desktop") %>%
@@ -87,13 +87,20 @@ library(data.table)
 
 # grab raw NewsGuard domain scores
 newsguard <- newsguard[which(!duplicated(newsguard$Domain)),]
-desktop <- lazy_dt(desktop)
-newsguard <- lazy_dt(newsguard)
-desktop <- left_join(desktop, select(newsguard, domain = Domain, domain_credibility_score = Score))
-desktop <- as_tibble(desktop)
-newsguard <- as_tibble(newsguard)
+desktop_2 <- as.data.frame(desktop)
 
-save(desktop, file = "Data/pulse_desktop_clean.RData")
+str(newsguard)
+
+
+
+desktop_2 <- left_join(desktop_2, select(newsguard, domain = Domain, domain_credibility_score = Score))
+
+
+
+desktop_3 <- as_tibble(desktop_2)
+newsguard_2 <- as_tibble(newsguard)
+
+save(desktop_3, file = "Data/pulse_desktop_clean.RData")
 
 
 
@@ -165,12 +172,10 @@ mobile <- mobile %>% filter(!is.na(domain))
 mobile <- mobile %>% select(-os_version, -predecessor_url_anonymized, -succesor_url_anonymized)
 
 # grab raw NewsGuard domain scores
-mobile <- lazy_dt(mobile)
-newsguard <- lazy_dt(newsguard)
-mobile <- left_join(mobile, select(newsguard, domain = Domain, domain_credibility_score = Score))
-mobile <- as_tibble(mobile)
-newsguard <- as_tibble(newsguard)
+mobile_2 <- as.data.frame(mobile)
+mobile_2 <- left_join(mobile_2, select(newsguard, domain = Domain, domain_credibility_score = Score))
+mobile_2 <- as_tibble(mobile_2)
 
-save(mobile, file = "Data/pulse_mobile_clean.RData")
+save(mobile_2, file = "Data/pulse_mobile_clean.RData")
 
 
