@@ -60,6 +60,7 @@ Pulse_data <- read_csv('./Data/Clean_NewsGuard_Digital_Trace_Data.csv',
                race_white=col_double(),
                ideo_score=col_double(),
                Trust_Media_w1=col_double(),
+               Trust_Media_w2=col_double(),
                trust_news=col_double(),
                trust_news_sm=col_double(),
                cons_news_n=col_double(),
@@ -145,7 +146,7 @@ Lasso <- function(data_for_analysis) {
   
   coef.out <- coef(lasso_select, exact = TRUE)
   indices <- which(coef.out != 0)
-  names_of_columns_3 <- c(rownames(coef.out)[indices],'Complied','Treated',colnames(data_for_analysis)[1])
+  names_of_columns_3 <- c(rownames(coef.out)[indices],colnames(data_for_analysis)[1])
   names_of_columns_3 <- names_of_columns_3[!names_of_columns_3 %in% "(Intercept)"]
   return(names_of_columns_3)
     }
@@ -208,13 +209,17 @@ data_for_analysis <- Clean(data_for_analysis)
 #Use glmnet lasso to choose covariates to be a part of model:
 names_of_columns_3 <- Lasso(data_for_analysis)
 
+names_of_columns_3 <- c('Treated',names_of_columns_3)
+
 names.use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_3)]
 
 data_for_analysis <- Pulse_data[, names.use]
 
+data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
+                             lapply(data_for_analysis,
+                                    function(x) replace(x, is.infinite(x), NA)))
 
-ivreg_Unrel_Post_compl_2 <- iv_robust(Prop_Unreliable_NewsG_Score_post ~  . - Treated | . - Complied, data = data_for_analysis)
-
+ivreg_news_Post_compl_2 <- lm_robust(Average_domain_NewsG_Score_post ~ ., data = data_for_analysis)
 
 
 ################## Domain Score (After July 1st)   ##############################################
@@ -247,18 +252,17 @@ data_for_analysis <- Clean(data_for_analysis)
 #Use glmnet lasso to choose covariates to be a part of model:
 names_of_columns_3 <- Lasso(data_for_analysis)
 
+names_of_columns_3 <- c('Treated',names_of_columns_3)
+
 names.use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_3)]
 
 data_for_analysis <- Pulse_data[, names.use]
-
 
 data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
                              lapply(data_for_analysis,
                                     function(x) replace(x, is.infinite(x), NA)))
 
-
-
-ivreg_news_Post_compl_2 <- iv_robust(Average_domain_NewsG_Score_post ~  . - Treated | . - Complied, data = data_for_analysis)
+ivreg_news_Post_compl_2 <- lm_robust(Average_domain_NewsG_Score_post ~ ., data = data_for_analysis)
 
 ################## Proportion Reliable (After July 1st)   ##############################################
 data_for_analysis <- Pulse_data %>% ungroup() %>%  select(Prop_Reliable_NewsG_Score_post,
@@ -293,13 +297,17 @@ data_for_analysis <- Clean(data_for_analysis)
 #Create list of covariates that should be included:
 names_of_columns_3 <- Lasso(data_for_analysis)
 
+names_of_columns_3 <- c('Treated',names_of_columns_3)
+
 names.use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_3)]
 
 data_for_analysis <- Pulse_data[, names.use]
 
+data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
+                             lapply(data_for_analysis,
+                                    function(x) replace(x, is.infinite(x), NA)))
 
-ivreg_Rel_Post_compl_2 <- iv_robust(Prop_Reliable_NewsG_Score_post ~  . - Treated | . - Complied, data = data_for_analysis)
-
+ivreg_Rel_Post_compl_2 <- lm_robust(Prop_Reliable_NewsG_Score_post ~ ., data = data_for_analysis)
 
 
 ################## Count of Unreliable (After July 1st)   ##############################################
@@ -335,6 +343,8 @@ data_for_analysis <- Clean(data_for_analysis)
 #Use glmnet lasso to choose covariates to be a part of model:
 names_of_columns_3 <- Lasso(data_for_analysis)
 
+names_of_columns_3 <- c('Treated',names_of_columns_3)
+
 names.use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_3)]
 
 data_for_analysis <- Pulse_data[, names.use]
@@ -343,9 +353,7 @@ data_for_analysis <- do.call(data.frame,                      # Replace Inf in d
                              lapply(data_for_analysis,
                                     function(x) replace(x, is.infinite(x), NA)))
 
-
-
-ivreg_Unrel_c_Post_compl_2 <- iv_robust(Count_Unreliable_NewsG_Score_post ~  . - Treated | . - Complied, data = data_for_analysis)
+ivreg_Unrel_c_Post_compl_2 <- lm_robust(Count_Unreliable_NewsG_Score_post ~ ., data = data_for_analysis)
 
 
 ################## Count of Reliable (After July 1st)  ##############################################
@@ -381,6 +389,8 @@ data_for_analysis <- Clean(data_for_analysis)
 #Use glmnet lasso to choose covariates to be a part of model:
 names_of_columns_3 <- Lasso(data_for_analysis)
 
+names_of_columns_3 <- c('Treated',names_of_columns_3)
+
 names.use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_3)]
 
 data_for_analysis <- Pulse_data[, names.use]
@@ -389,9 +399,7 @@ data_for_analysis <- do.call(data.frame,                      # Replace Inf in d
                              lapply(data_for_analysis,
                                     function(x) replace(x, is.infinite(x), NA)))
 
-ivreg_rel_c_Post_compl_2 <- iv_robust(Count_Reliable_NewsG_Score_post ~  . - Treated | . - Complied, data = data_for_analysis)
-
-
+ivreg_rel_c_Post_compl_2 <- lm_robust(Count_Reliable_NewsG_Score_post ~ ., data = data_for_analysis)
 
 ###############Comparing pre-treatment period to the period between Wave 1 survey and July 1st (Treatment Period): 
 
@@ -429,12 +437,17 @@ data_for_analysis <- Clean(data_for_analysis)
 #Use glmnet lasso to choose covariates to be a part of model:
 names_of_columns_3 <- Lasso(data_for_analysis)
 
+names_of_columns_3 <- c('Treated',names_of_columns_3)
+
 names.use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_3)]
 
 data_for_analysis <- Pulse_data[, names.use]
 
+data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
+                             lapply(data_for_analysis,
+                                    function(x) replace(x, is.infinite(x), NA)))
 
-ivreg_Unrel_dv_compl_2 <- iv_robust(Prop_Unreliable_NewsG_Score_dv ~  . - Treated | . - Complied, data = data_for_analysis)
+ivreg_Unrel_dv_compl_2 <- lm_robust(Prop_Unreliable_NewsG_Score_dv ~ ., data = data_for_analysis)
 
 ################## Domain Score (Treatment Period)  ##############################################
 data_for_analysis <- Pulse_data %>%  ungroup() %>%  select(Average_domain_NewsG_Score_dv,
@@ -469,20 +482,17 @@ data_for_analysis <- Clean(data_for_analysis)
 #Use glmnet lasso to choose covariates to be a part of model:
 names_of_columns_3 <- Lasso(data_for_analysis)
 
+names_of_columns_3 <- c('Treated',names_of_columns_3)
+
 names.use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_3)]
 
 data_for_analysis <- Pulse_data[, names.use]
-
 
 data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
                              lapply(data_for_analysis,
                                     function(x) replace(x, is.infinite(x), NA)))
 
-
-
-ivreg_news_dv_compl_2 <- iv_robust(Average_domain_NewsG_Score_dv ~  . - Treated | . - Complied, data = data_for_analysis)
-
-
+ivreg_news_dv_compl_2 <- lm_robust(Average_domain_NewsG_Score_dv ~ ., data = data_for_analysis)
 
 ################## Proportion Reliable (Treatment Period)  ##############################################
 
@@ -518,12 +528,18 @@ data_for_analysis <- Clean(data_for_analysis)
 #Use glmnet lasso to choose covariates to be a part of model:
 names_of_columns_3 <- Lasso(data_for_analysis)
 
+names_of_columns_3 <- c('Treated',names_of_columns_3)
+
 names.use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_3)]
 
 data_for_analysis <- Pulse_data[, names.use]
 
+data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
+                             lapply(data_for_analysis,
+                                    function(x) replace(x, is.infinite(x), NA)))
 
-ivreg_Rel_dv_compl_2 <- iv_robust(Prop_Reliable_NewsG_Score_dv ~  . - Treated | . - Complied, data = data_for_analysis)
+ivreg_Rel_dv_compl_2 <- lm_robust(Prop_Reliable_NewsG_Score_dv ~ ., data = data_for_analysis)
+
 
 ################## Count of Unreliable (Treatment Period)  ##############################################
 
@@ -559,6 +575,8 @@ data_for_analysis <- Clean(data_for_analysis)
 #Use glmnet lasso to choose covariates to be a part of model:
 names_of_columns_3 <- Lasso(data_for_analysis)
 
+names_of_columns_3 <- c('Treated',names_of_columns_3)
+
 names.use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_3)]
 
 data_for_analysis <- Pulse_data[, names.use]
@@ -567,7 +585,8 @@ data_for_analysis <- do.call(data.frame,                      # Replace Inf in d
                              lapply(data_for_analysis,
                                     function(x) replace(x, is.infinite(x), NA)))
 
-ivreg_Unrel_c_dv_compl_2 <- iv_robust(Count_Unreliable_NewsG_Score_dv ~  . - Treated | . - Complied, data = data_for_analysis)
+ivreg_Unrel_c_dv_compl_2 <- lm_robust(Count_Unreliable_NewsG_Score_dv ~ ., data = data_for_analysis)
+
 
 ################## Count of Reliable (Treatment Period) ##############################################
 
@@ -603,6 +622,7 @@ data_for_analysis <- Clean(data_for_analysis)
 #Use glmnet lasso to choose covariates to be a part of model:
 names_of_columns_3 <- Lasso(data_for_analysis)
 
+names_of_columns_3 <- c('Treated',names_of_columns_3)
 
 names.use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_3)]
 
@@ -612,11 +632,7 @@ data_for_analysis <- do.call(data.frame,                      # Replace Inf in d
                              lapply(data_for_analysis,
                                     function(x) replace(x, is.infinite(x), NA)))
 
-
-
-ivreg_rel_c_dv_compl_2 <- iv_robust(Count_Reliable_NewsG_Score_dv ~  . - Treated | . - Complied, data = data_for_analysis)
-
-
+ivreg_rel_c_dv_compl_2 <- lm_robust(Count_Reliable_NewsG_Score_dv ~ ., data = data_for_analysis)
 
 
 ################################# Hypothesis 2a: Trust in General Media ################################
@@ -646,21 +662,23 @@ data_for_analysis <- data_frame_1 %>% ungroup() %>% select(Trust_Media_w2,
                                                           Firefox_dummy,
                                                           Social_Media_Use)
 
-str(data_for_analysis)
-
 #Remove NA values:
 data_for_analysis <- Clean(data_for_analysis)
 
 #Use glmnet lasso to choose covariates to be a part of model:
 names_of_columns_3 <- Lasso(data_for_analysis)
 
+names_of_columns_3 <- c('Treated',names_of_columns_3)
+
 names.use <- names(data_frame_1)[(names(data_frame_1) %in% names_of_columns_3)]
 
-#Create dataset using the covariates that are specified that should be included:
 data_for_analysis <- data_frame_1[, names.use]
 
-#Report estimates from covariate-adjusted CACE. We use HC2 robust standard errors in all analyses and report p-values from two-tailed t-tests.
-ivreg_media_trust_compl_2 <- iv_robust(Trust_Media_w2 ~  . - Treated | . - Complied, data = data_for_analysis)
+data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
+                             lapply(data_for_analysis,
+                                    function(x) replace(x, is.infinite(x), NA)))
+
+ivreg_media_trust_compl_2 <- lm_robust(Trust_Media_w2 ~ ., data = data_for_analysis)
 
 
 ################################# Hypothesis 2b: Trust in Reliable Source (CBS) ################################
@@ -696,14 +714,17 @@ data_for_analysis <- Clean(data_for_analysis)
 #Use glmnet lasso to choose covariates to be a part of model:
 names_of_columns_3 <- Lasso(data_for_analysis)
 
+names_of_columns_3 <- c('Treated',names_of_columns_3)
+
 names.use <- names(data_frame_1)[(names(data_frame_1) %in% names_of_columns_3)]
 
 data_for_analysis <- data_frame_1[, names.use]
 
-data_for_analysis <- data_for_analysis %>%
-  select(Treated, everything())
+data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
+                             lapply(data_for_analysis,
+                                    function(x) replace(x, is.infinite(x), NA)))
 
-ivreg_CBS_compl_2 <- iv_robust(CBS_Trust_2 ~  . - Treated | . - Complied, data = data_for_analysis)
+ivreg_CBS_compl_2 <- lm_robust(CBS_Trust_2 ~ ., data = data_for_analysis)
 
 ################################# Hypothesis 2c: Trust in Reliable Source (ABC) ################################
 
@@ -739,14 +760,18 @@ data_for_analysis <- Clean(data_for_analysis)
 #Use glmnet lasso to choose covariates to be a part of model:
 names_of_columns_3 <- Lasso(data_for_analysis)
 
+names_of_columns_3 <- c('Treated',names_of_columns_3)
+
 names.use <- names(data_frame_1)[(names(data_frame_1) %in% names_of_columns_3)]
 
 data_for_analysis <- data_frame_1[, names.use]
 
-data_for_analysis <- data_for_analysis %>%
-  select(Treated, everything())
+data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
+                             lapply(data_for_analysis,
+                                    function(x) replace(x, is.infinite(x), NA)))
 
-ivreg_ABC_compl_2 <- iv_robust(ABC_Trust_2 ~  . - Treated | . - Complied, data = data_for_analysis)
+ivreg_ABC_compl_2 <- lm_robust(ABC_Trust_2 ~ ., data = data_for_analysis)
+
 
 ################################# Hypothesis 2d: Trust in Reliable Source (NBC) ################################
 data_for_analysis <- data_frame_1 %>% ungroup() %>% select(NBC_Trust_2,
@@ -781,14 +806,17 @@ data_for_analysis <- Clean(data_for_analysis)
 #Use glmnet lasso to choose covariates to be a part of model:
 names_of_columns_3 <- Lasso(data_for_analysis)
 
+names_of_columns_3 <- c('Treated',names_of_columns_3)
+
 names.use <- names(data_frame_1)[(names(data_frame_1) %in% names_of_columns_3)]
 
 data_for_analysis <- data_frame_1[, names.use]
 
-data_for_analysis <- data_for_analysis %>%
-  select(Treated, everything())
+data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
+                             lapply(data_for_analysis,
+                                    function(x) replace(x, is.infinite(x), NA)))
 
-ivreg_NBC_compl_2 <- iv_robust(NBC_Trust_2 ~  . - Treated | . - Complied, data = data_for_analysis)
+ivreg_NBC_compl_2 <- lm_robust(NBC_Trust_2 ~ ., data = data_for_analysis)
 
 ################################# Hypothesis 2e: Trust in Reliable Source (CNN) ################################
 
@@ -824,14 +852,18 @@ data_for_analysis <- Clean(data_for_analysis)
 #Use glmnet lasso to choose covariates to be a part of model:
 names_of_columns_3 <- Lasso(data_for_analysis)
 
+names_of_columns_3 <- c('Treated',names_of_columns_3)
+
 names.use <- names(data_frame_1)[(names(data_frame_1) %in% names_of_columns_3)]
 
 data_for_analysis <- data_frame_1[, names.use]
 
-data_for_analysis <- data_for_analysis %>%
-  select(Treated, everything())
+data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
+                             lapply(data_for_analysis,
+                                    function(x) replace(x, is.infinite(x), NA)))
 
-ivreg_CNN_compl_2 <- iv_robust(CNN_Trust_2 ~  . - Treated | . - Complied, data = data_for_analysis)
+ivreg_CNN_compl_2 <- lm_robust(CNN_Trust_2 ~ ., data = data_for_analysis)
+
 
 ################################# Hypothesis 2f: Trust in Reliable Source (Fox News) ################################
 
@@ -868,14 +900,17 @@ data_for_analysis <- Clean(data_for_analysis)
 #Use glmnet lasso to choose covariates to be a part of model:
 names_of_columns_3 <- Lasso(data_for_analysis)
 
+names_of_columns_3 <- c('Treated',names_of_columns_3)
+
 names.use <- names(data_frame_1)[(names(data_frame_1) %in% names_of_columns_3)]
 
 data_for_analysis <- data_frame_1[, names.use]
 
-data_for_analysis <- data_for_analysis %>%
-  select(Treated, everything())
+data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
+                             lapply(data_for_analysis,
+                                    function(x) replace(x, is.infinite(x), NA)))
 
-ivreg_Fox_compl_2 <- iv_robust(Fox_Trust_2 ~  . - Treated | . - Complied, data = data_for_analysis)
+ivreg_Fox_compl_2 <- lm_robust(Fox_Trust_2 ~ ., data = data_for_analysis)
 
 ################################# Hypothesis 3a: Affective Polarization ################################
 data_for_analysis <- data_frame_1 %>% ungroup() %>% select(aff_pol_w2,
@@ -909,12 +944,17 @@ data_for_analysis <- Clean(data_for_analysis)
 #Use glmnet lasso to choose covariates to be a part of model:
 names_of_columns_3 <- Lasso(data_for_analysis)
 
+names_of_columns_3 <- c('Treated',names_of_columns_3)
+
 names.use <- names(data_frame_1)[(names(data_frame_1) %in% names_of_columns_3)]
 
-#Create dataset using the covariates that are specified that should be included:
 data_for_analysis <- data_frame_1[, names.use]
 
-ivreg_aff_pol_compl_2 <- iv_robust(aff_pol_w2 ~  . - Treated | . - Complied, data = data_for_analysis)
+data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
+                             lapply(data_for_analysis,
+                                    function(x) replace(x, is.infinite(x), NA)))
+
+ivreg_aff_pol_compl_2 <- lm_robust(aff_pol_w2 ~ ., data = data_for_analysis)
 
 ################################# Hypothesis 3b: Political Cynicism ################################
 
@@ -949,14 +989,17 @@ data_for_analysis <- Clean(data_for_analysis)
 #Use glmnet lasso to choose covariates to be a part of model:
 names_of_columns_3 <- Lasso(data_for_analysis)
 
+names_of_columns_3 <- c('Treated',names_of_columns_3)
+
 names.use <- names(data_frame_1)[(names(data_frame_1) %in% names_of_columns_3)]
 
-#Create dataset using the covariates that are specified that should be included:
 data_for_analysis <- data_frame_1[, names.use]
 
-ivreg_Pol_cyn_compl_2 <- iv_robust(Pol_cyn_2 ~  . - Treated | . - Complied, data = data_for_analysis)
+data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
+                             lapply(data_for_analysis,
+                                    function(x) replace(x, is.infinite(x), NA)))
 
-
+ivreg_Pol_cyn_compl_2 <- lm_robust(Pol_cyn_2 ~ ., data = data_for_analysis)
 
 ########################## Testing Research Question 1 and 2 ###########################
 
@@ -998,12 +1041,17 @@ data_for_analysis <- Clean(data_for_analysis)
 #Use glmnet lasso to choose covariates to be a part of model:
 names_of_columns_3 <- Lasso(data_for_analysis)
 
+names_of_columns_3 <- c('Treated',names_of_columns_3)
+
 names.use <- names(data_frame_1)[(names(data_frame_1) %in% names_of_columns_3)]
 
 data_for_analysis <- data_frame_1[, names.use]
 
+data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
+                             lapply(data_for_analysis,
+                                    function(x) replace(x, is.infinite(x), NA)))
 
-ivreg_BLM_Misinfo_compl_2 <- iv_robust(BLM_Misinfo_Index_w2 ~  . - Treated | . - Complied, data = data_for_analysis)
+ivreg_BLM_Misinfo_compl_2 <- lm_robust(BLM_Misinfo_Index_w2 ~ ., data = data_for_analysis)
 
 ################################# Covid Misinformation Index ################################
 data_for_analysis <- data_frame_1 %>% ungroup() %>% select(Covid_Misinfo_Index_w2,
@@ -1039,13 +1087,17 @@ data_for_analysis <- Clean(data_for_analysis)
 #Use glmnet lasso to choose covariates to be a part of model:
 names_of_columns_3 <- Lasso(data_for_analysis)
 
+names_of_columns_3 <- c('Treated',names_of_columns_3)
+
 names.use <- names(data_frame_1)[(names(data_frame_1) %in% names_of_columns_3)]
 
 data_for_analysis <- data_frame_1[, names.use]
 
+data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
+                             lapply(data_for_analysis,
+                                    function(x) replace(x, is.infinite(x), NA)))
 
-ivreg_Covid_Misinfo_compl_2 <- iv_robust(Covid_Misinfo_Index_w2 ~  . - Treated | . - Complied, data = data_for_analysis)
-
+ivreg_Covid_Misinfo_compl_2 <- lm_robust(Covid_Misinfo_Index_w2 ~ ., data = data_for_analysis)
 
 ################################# BLM Information Index ################################
 data_for_analysis <- data_frame_1 %>% ungroup() %>% select(BLM_info_Index_w2,
@@ -1078,12 +1130,18 @@ data_for_analysis <- Clean(data_for_analysis)
 #Use glmnet lasso to choose covariates to be a part of model:
 names_of_columns_3 <- Lasso(data_for_analysis)
 
+names_of_columns_3 <- c('Treated',names_of_columns_3)
+
 names.use <- names(data_frame_1)[(names(data_frame_1) %in% names_of_columns_3)]
 
 data_for_analysis <- data_frame_1[, names.use]
 
+data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
+                             lapply(data_for_analysis,
+                                    function(x) replace(x, is.infinite(x), NA)))
 
-ivreg_BLM_info_compl_2 <- iv_robust(BLM_info_Index_w2 ~  . - Treated | . - Complied, data = data_for_analysis)
+ivreg_BLM_info_compl_2 <- lm_robust(BLM_info_Index_w2 ~ ., data = data_for_analysis)
+
 
 ################################# Covid-19 Information Index ################################
 data_for_analysis <- data_frame_1 %>% ungroup() %>% select(Covid_info_Index_w2,
@@ -1117,12 +1175,17 @@ data_for_analysis <- Clean(data_for_analysis)
 #Use glmnet lasso to choose covariates to be a part of model:
 names_of_columns_3 <- Lasso(data_for_analysis)
 
+names_of_columns_3 <- c('Treated',names_of_columns_3)
+
 names.use <- names(data_frame_1)[(names(data_frame_1) %in% names_of_columns_3)]
 
 data_for_analysis <- data_frame_1[, names.use]
 
-ivreg_Covid_info_compl_2 <- iv_robust(Covid_info_Index_w2 ~  . - Treated | . - Complied, data = data_for_analysis)
+data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
+                             lapply(data_for_analysis,
+                                    function(x) replace(x, is.infinite(x), NA)))
 
+ivreg_Covid_info_compl_2 <- lm_robust(Covid_info_Index_w2 ~ ., data = data_for_analysis)
 
 ###### Research Question 2: We explore whether downstream effects occur on other outcomes such as trust in institutions, belief that ``fake news'' is a problem in general, and belief that ``fake news'' is a problem in the mainstream media ######
 
@@ -1158,14 +1221,17 @@ data_for_analysis <- Clean(data_for_analysis)
 #Use glmnet lasso to choose covariates to be a part of model:
 names_of_columns_3 <- Lasso(data_for_analysis)
 
+names_of_columns_3 <- c('Treated',names_of_columns_3)
+
 names.use <- names(data_frame_1)[(names(data_frame_1) %in% names_of_columns_3)]
 
 data_for_analysis <- data_frame_1[, names.use]
 
-data_for_analysis <- data_for_analysis %>%
-  select(Treated, everything())
+data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
+                             lapply(data_for_analysis,
+                                    function(x) replace(x, is.infinite(x), NA)))
 
-ivreg_FN_prob_main_compl_2 <- iv_robust(SMP4310_w2 ~  . - Treated | . - Complied, data = data_for_analysis)
+ivreg_FN_prob_main_compl_2 <- lm_robust(SMP4310_w2 ~ ., data = data_for_analysis)
 
 
 ################################# Fake News is a Problem  ################################
@@ -1201,15 +1267,18 @@ data_for_analysis <- Clean(data_for_analysis)
 #Use glmnet lasso to choose covariates to be a part of model:
 names_of_columns_3 <- Lasso(data_for_analysis)
 
+names_of_columns_3 <- c('Treated',names_of_columns_3)
+
 names.use <- names(data_frame_1)[(names(data_frame_1) %in% names_of_columns_3)]
 
 data_for_analysis <- data_frame_1[, names.use]
 
-data_for_analysis <- data_for_analysis %>%
-  select(Treated, everything())
+data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
+                             lapply(data_for_analysis,
+                                    function(x) replace(x, is.infinite(x), NA)))
 
-ivreg_FN_prob_compl_2 <- iv_robust(SMP4326_w2 ~  . - Treated | . - Complied, data = data_for_analysis)
 
+ivreg_FN_prob_compl_2 <- lm_robust(SMP4326_w2 ~ ., data = data_for_analysis)
 
 ################################# Hypothesis: Trust in Institutions  ################################
 
@@ -1245,13 +1314,18 @@ data_for_analysis <- Clean(data_for_analysis)
 names_of_columns_3 <- Lasso(data_for_analysis)
 
 
+names_of_columns_3 <- c('Treated',names_of_columns_3)
+
 names.use <- names(data_frame_1)[(names(data_frame_1) %in% names_of_columns_3)]
 
 data_for_analysis <- data_frame_1[, names.use]
 
+data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
+                             lapply(data_for_analysis,
+                                    function(x) replace(x, is.infinite(x), NA)))
 
-ivreg_Trust_inst_compl_2 <- iv_robust(Trust_inst_w2 ~  . - Treated | . - Complied, data = data_for_analysis)
 
+ivreg_Trust_inst_compl_2 <- lm_robust(Trust_inst_w2 ~ ., data = data_for_analysis)
 
 
 
@@ -1286,11 +1360,11 @@ Coef_names <- c('Proportion of Online News Consumed that is Unreliable',
 
 Coefficients <- c(ivreg_Unrel_dv_compl_2$coefficients[2]/sd(Pulse_data$Prop_Unreliable_NewsG_Score,na.rm=T),
                   ivreg_Unrel_Post_compl_2$coefficients[2]/sd(Pulse_data$Prop_Unreliable_NewsG_Score,na.rm=T),
-                  ivreg_Unrel_c_dv_compl_2$coefficients[3]/sd(Pulse_data$Count_Unreliable_NewsG_Score,na.rm=T),
+                  ivreg_Unrel_c_dv_compl_2$coefficients[2]/sd(Pulse_data$Count_Unreliable_NewsG_Score,na.rm=T),
                   ivreg_Unrel_c_Post_compl_2$coefficients[2]/sd(Pulse_data$Count_Unreliable_NewsG_Score,na.rm=T),
                   ivreg_Rel_dv_compl_2$coefficients[2]/sd(Pulse_data$Prop_Reliable_NewsG_Score,na.rm=T),
                   ivreg_Rel_Post_compl_2$coefficients[2]/sd(Pulse_data$Prop_Reliable_NewsG_Score,na.rm=T),
-                  ivreg_rel_c_dv_compl_2$coefficients[3]/sd(Pulse_data$Count_Reliable_NewsG_Score,na.rm=T),
+                  ivreg_rel_c_dv_compl_2$coefficients[2]/sd(Pulse_data$Count_Reliable_NewsG_Score,na.rm=T),
                   ivreg_rel_c_Post_compl_2$coefficients[2]/sd(Pulse_data$Count_Reliable_NewsG_Score,na.rm=T),
                   ivreg_news_dv_compl_2$coefficients[2]/sd(Pulse_data$Average_domain_NewsG_Score,na.rm=T),
                   ivreg_news_Post_compl_2$coefficients[2]/sd(Pulse_data$Average_domain_NewsG_Score,na.rm=T))                 
@@ -1298,11 +1372,11 @@ Coefficients <- c(ivreg_Unrel_dv_compl_2$coefficients[2]/sd(Pulse_data$Prop_Unre
 
 CI_Upper <- c(ivreg_Unrel_dv_compl_2$conf.high[2]/sd(Pulse_data$Prop_Unreliable_NewsG_Score,na.rm=T),
               ivreg_Unrel_Post_compl_2$conf.high[2]/sd(Pulse_data$Prop_Unreliable_NewsG_Score,na.rm=T),
-              ivreg_Unrel_c_dv_compl_2$conf.high[3]/sd(Pulse_data$Count_Unreliable_NewsG_Score,na.rm=T),
+              ivreg_Unrel_c_dv_compl_2$conf.high[2]/sd(Pulse_data$Count_Unreliable_NewsG_Score,na.rm=T),
               ivreg_Unrel_c_Post_compl_2$conf.high[2]/sd(Pulse_data$Count_Unreliable_NewsG_Score,na.rm=T),
               ivreg_Rel_dv_compl_2$conf.high[2]/sd(Pulse_data$Prop_Reliable_NewsG_Score,na.rm=T),
               ivreg_Rel_Post_compl_2$conf.high[2]/sd(Pulse_data$Prop_Reliable_NewsG_Score,na.rm=T),
-              ivreg_rel_c_dv_compl_2$conf.high[3]/sd(Pulse_data$Count_Reliable_NewsG_Score,na.rm=T),
+              ivreg_rel_c_dv_compl_2$conf.high[2]/sd(Pulse_data$Count_Reliable_NewsG_Score,na.rm=T),
               ivreg_rel_c_Post_compl_2$conf.high[2]/sd(Pulse_data$Count_Reliable_NewsG_Score,na.rm=T),
               ivreg_news_dv_compl_2$conf.high[2]/sd(Pulse_data$Average_domain_NewsG_Score,na.rm=T),
               ivreg_news_Post_compl_2$conf.high[2]/sd(Pulse_data$Average_domain_NewsG_Score,na.rm=T))                 
@@ -1311,11 +1385,11 @@ CI_Upper <- c(ivreg_Unrel_dv_compl_2$conf.high[2]/sd(Pulse_data$Prop_Unreliable_
 
 CI_Lower <- c(ivreg_Unrel_dv_compl_2$conf.low[2]/sd(Pulse_data$Prop_Unreliable_NewsG_Score,na.rm=T),
               ivreg_Unrel_Post_compl_2$conf.low[2]/sd(Pulse_data$Prop_Unreliable_NewsG_Score,na.rm=T),
-              ivreg_Unrel_c_dv_compl_2$conf.low[3]/sd(Pulse_data$Count_Unreliable_NewsG_Score,na.rm=T),
+              ivreg_Unrel_c_dv_compl_2$conf.low[2]/sd(Pulse_data$Count_Unreliable_NewsG_Score,na.rm=T),
               ivreg_Unrel_c_Post_compl_2$conf.low[2]/sd(Pulse_data$Count_Unreliable_NewsG_Score,na.rm=T),
               ivreg_Rel_dv_compl_2$conf.low[2]/sd(Pulse_data$Prop_Reliable_NewsG_Score,na.rm=T),
               ivreg_Rel_Post_compl_2$conf.low[2]/sd(Pulse_data$Prop_Reliable_NewsG_Score,na.rm=T),
-              ivreg_rel_c_dv_compl_2$conf.low[3]/sd(Pulse_data$Count_Reliable_NewsG_Score,na.rm=T),
+              ivreg_rel_c_dv_compl_2$conf.low[2]/sd(Pulse_data$Count_Reliable_NewsG_Score,na.rm=T),
               ivreg_rel_c_Post_compl_2$conf.low[2]/sd(Pulse_data$Count_Reliable_NewsG_Score,na.rm=T),
               ivreg_news_dv_compl_2$conf.low[2]/sd(Pulse_data$Average_domain_NewsG_Score,na.rm=T),
               ivreg_news_Post_compl_2$conf.low[2]/sd(Pulse_data$Average_domain_NewsG_Score,na.rm=T))                 
@@ -1373,141 +1447,6 @@ ggplot(data = d_matrix, aes(x = x, y = Coefficients)) +
 
 ggsave('./Figures/Behavioral_Coefficients.png',height=12,width=10)
 
-
-
-
-#Figure 3a in Paper:
-
-CP_data <- Pulse_data %>% filter(Treated == 0)
-CP_data <- CP_data %>% ungroup() %>% select(caseid,Prop_Unreliable_NewsG_Score,Prop_Unreliable_NewsG_Score_post)
-CP_data <- na.omit(CP_data)
-data_T_Pre <- cbind(CP_data$caseid,CP_data$Prop_Unreliable_NewsG_Score,'Pre-Treatment')
-data_T_Post <- cbind(CP_data$caseid,CP_data$Prop_Unreliable_NewsG_Score_post,'Post-Treatment')
-colnames(data_T_Pre) <- c('caseid','Pre','Group')
-colnames(data_T_Post) <- c('caseid','Post','Group')
-scatter_data_Control <- merge(data_T_Pre,data_T_Post,by='caseid')
-scatter_data_Control$Pre <- as.character(scatter_data_Control$Pre)
-scatter_data_Control$Pre <- as.numeric(scatter_data_Control$Pre)
-scatter_data_Control$Post <- as.character(scatter_data_Control$Post)
-scatter_data_Control$Post <- as.numeric(scatter_data_Control$Post)
-scatter_data_Control$L_G <- 'Control'
-
-TP_data <- Pulse_data %>% filter(Treated == 1)
-TP_data <- TP_data %>% ungroup() %>% select(caseid,Prop_Unreliable_NewsG_Score,Prop_Unreliable_NewsG_Score_post)
-TP_data <- na.omit(TP_data)
-data_T_Pre <- cbind(TP_data$caseid,TP_data$Prop_Unreliable_NewsG_Score,'Pre-Treatment')
-data_T_Post <- cbind(TP_data$caseid,TP_data$Prop_Unreliable_NewsG_Score_post,'Post-Treatment')
-colnames(data_T_Pre) <- c('caseid','Prop_unrel','Group')
-colnames(data_T_Post) <- c('caseid','Prop_unrel','Group')
-data_T <- rbind(data_T_Pre,data_T_Post)
-colnames(data_T_Pre) <- c('caseid','Pre','Group')
-colnames(data_T_Post) <- c('caseid','Post','Group')
-scatter_data_Treat <- merge(data_T_Pre,data_T_Post,by='caseid')
-scatter_data_Treat$Pre <- as.character(scatter_data_Treat$Pre)
-scatter_data_Treat$Pre <- as.numeric(scatter_data_Treat$Pre)
-scatter_data_Treat$Post <- as.character(scatter_data_Treat$Post)
-scatter_data_Treat$Post <- as.numeric(scatter_data_Treat$Post)
-scatter_data_Treat$L_G <- 'Treatment'
-scatter_full <- rbind(scatter_data_Control,scatter_data_Treat)
-
-tmp_1 <-  data.frame(x=c(0.25,1,1), y=c(0.0,0.0,0.75))
-tmp_2 <-  data.frame(x=c(0,0,0.75), y=c(0.25,1,1))
-
-ggplot() +
-  theme_classic() +
-  coord_cartesian(ylim=c(0,1),xlim=c(0,1)) +
-  geom_smooth(data=scatter_full, aes(x=Pre,y=Post,colour=L_G), method=lm, se=T) +
-  geom_smooth(data=scatter_full, aes(x=Pre,y=Post,colour=L_G), method=lm, se=T) +
-  geom_point(data=scatter_full, aes(x=Pre,y=Post,color=L_G,shape=L_G),alpha=0.9,size=3) +
-  scale_colour_manual(values=c("blue","red")) +
-  scale_x_continuous(expand = c(0.01, 0)) +
-  scale_y_continuous(expand = c(0.01, 0)) +
-  theme(axis.title.x = element_text(size=18),
-        axis.text.x  = element_text(size=18),
-        axis.title.y = element_text(size=18),
-        axis.text.y  = element_text(size=18),
-        plot.title = element_text(size = 18),
-        legend.title = element_text(size=18),
-        legend.text = element_text(size=16),
-        panel.grid = element_blank(),
-        panel.border = element_blank()) +
-  xlab('\nProportion of online news diet that is from unreliable news sources (Pre-Treatment)') +
-  ylab('Proportion of online news diet that is from unreliable news sources (July 1st-July 13th)\n') +
-  guides(shape=guide_legend(title="Group"),color=guide_legend(title="Group"))
-
-ggsave('./Figures/Scatter_Full.png',width =9,height=9)
-
-
-#Figure 3b in Paper:
-CP_data <- Pulse_data %>% filter(Treated == 0)
-CP_data <- CP_data %>% ungroup() %>% select(caseid,Average_domain_NewsG_Score,Average_domain_NewsG_Score_post)
-CP_data <- na.omit(CP_data)
-data_T_Pre <- cbind(CP_data$caseid,CP_data$Average_domain_NewsG_Score,'Pre-Treatment')
-data_T_Post <- cbind(CP_data$caseid,CP_data$Average_domain_NewsG_Score_post,'Post-Treatment')
-colnames(data_T_Pre) <- c('caseid','Score','Group')
-colnames(data_T_Post) <- c('caseid','Score','Group')
-data_T <- rbind(data_T_Pre,data_T_Post)
-data_T <- as.data.frame(data_T)
-data_T$Score <- as.character(data_T$Score)
-data_T$Score <- as.numeric(data_T$Score)
-data_T$Group <- factor(data_T$Group,levels=c('Pre-Treatment',
-                                             'Post-Treatment'))
-colnames(data_T_Pre) <- c('caseid','Pre','Group')
-colnames(data_T_Post) <- c('caseid','Post','Group')
-scatter_data_Control <- merge(data_T_Pre,data_T_Post,by='caseid')
-scatter_data_Control$Pre <- as.character(scatter_data_Control$Pre)
-scatter_data_Control$Pre <- as.numeric(scatter_data_Control$Pre)
-scatter_data_Control$Post <- as.character(scatter_data_Control$Post)
-scatter_data_Control$Post <- as.numeric(scatter_data_Control$Post)
-scatter_data_Control$L_G <- 'Control'
-
-
-TP_data <- Pulse_data %>% filter(Treated == 1)
-TP_data <- TP_data %>% ungroup() %>% select(caseid,Average_domain_NewsG_Score,Average_domain_NewsG_Score_post)
-TP_data <- na.omit(TP_data)
-data_T_Pre <- cbind(TP_data$caseid,TP_data$Average_domain_NewsG_Score,'Pre-Treatment')
-data_T_Post <- cbind(TP_data$caseid,TP_data$Average_domain_NewsG_Score_post,'Post-Treatment')
-colnames(data_T_Pre) <- c('caseid','Prop_unrel','Group')
-colnames(data_T_Post) <- c('caseid','Prop_unrel','Group')
-data_T <- rbind(data_T_Pre,data_T_Post)
-colnames(data_T_Pre) <- c('caseid','Pre','Group')
-colnames(data_T_Post) <- c('caseid','Post','Group')
-scatter_data_Treat <- merge(data_T_Pre,data_T_Post,by='caseid')
-scatter_data_Treat$Pre <- as.character(scatter_data_Treat$Pre)
-scatter_data_Treat$Pre <- as.numeric(scatter_data_Treat$Pre)
-scatter_data_Treat$Post <- as.character(scatter_data_Treat$Post)
-scatter_data_Treat$Post <- as.numeric(scatter_data_Treat$Post)
-scatter_data_Treat$L_G <- 'Treatment'
-scatter_full <- rbind(scatter_data_Control,scatter_data_Treat)
-tmp_1 <-  data.frame(x=c(25,100,100), y=c(0.0,0.0,75))
-tmp_2 <-  data.frame(x=c(0,0,75), y=c(25,100,100))
-
-ggplot() +
-  theme_classic() +
-  coord_cartesian(ylim=c(0,100),xlim=c(0,100)) +
-  geom_point(data=scatter_full, aes(x=Pre,y=Post,color=L_G,shape=L_G),alpha=0.9,size=3) +
-  geom_smooth(data=scatter_full, aes(x=Pre,y=Post,colour=L_G), method=lm, se=T) +
-  geom_smooth(data=scatter_full, aes(x=Pre,y=Post,colour=L_G), method=lm, se=T) +
-  scale_colour_manual(values=c("blue","red")) +
-  scale_x_continuous(expand = c(0.01, 0)) +
-  scale_y_continuous(expand = c(0.01, 0)) +
-  theme(axis.title.x = element_text(size=18),
-        axis.text.x  = element_text(size=18),
-        axis.title.y = element_text(size=18),
-        axis.text.y  = element_text(size=18),
-        plot.title = element_text(size = 18),
-        legend.title = element_text(size=18),
-        legend.text = element_text(size=16),
-        panel.grid = element_blank(),
-        panel.border = element_blank()) +
-  xlab('\nAverage Reliability Score of Online News Diet (Pre-Treatment)') +
-  ylab('Average Reliability Score of Online News Diet (July 1st-July 13th)\n') +
-  guides(shape=guide_legend(title="Group"),color=guide_legend(title="Group"))
-
-ggsave('./Figures/Scatter_Full_2.png',width =9,height=9)
-
-
-
 #Figure 4 in Paper:
 Coef_names <- c('Trust in Media',
                 'Trust in CBS',
@@ -1525,54 +1464,54 @@ Coef_names <- c('Trust in Media',
                 'Belief that \"fake news is \n a problem\"',
                 'Belief that \"fake news is \n a problem in the mainstream media\"')
 
-Coefficients <- c(ivreg_media_trust_compl_2$coefficients[4]/sd(data_frame_1$Trust_Media_w1,na.rm=T),
-                  ivreg_CBS_compl_2$coefficients[5]/sd(data_frame_1$CBS_Trust_1,na.rm=T),
-                  ivreg_ABC_compl_2$coefficients[5]/sd(data_frame_1$ABC_Trust_1,na.rm=T),
-                  ivreg_NBC_compl_2$coefficients[5]/sd(data_frame_1$NBC_Trust_1,na.rm=T),
-                  ivreg_CNN_compl_2$coefficients[5]/sd(data_frame_1$CNN_Trust_1,na.rm=T),
-                  ivreg_Fox_compl_2$coefficients[4]/sd(data_frame_1$Fox_Trust_1,na.rm=T),
-                  ivreg_aff_pol_compl_2$coefficients[3]/sd(data_frame_1$aff_pol_w1,na.rm=T),
-                  ivreg_Pol_cyn_compl_2$coefficients[3]/sd(data_frame_1$Pol_cyn_1,na.rm=T),
-                  ivreg_BLM_Misinfo_compl_2$coefficients[8]/sd(data_frame_1$BLM_Misinfo_Index_w2,na.rm=T),
-                  ivreg_Covid_Misinfo_compl_2$coefficients[6]/sd(data_frame_1$Covid_Misinfo_Index_w2,na.rm=T),
-                  ivreg_BLM_info_compl_2$coefficients[4]/sd(data_frame_1$BLM_info_Index_w2,na.rm=T),
-                  ivreg_Covid_info_compl_2$coefficients[3]/sd(data_frame_1$Covid_info_Index_w2,na.rm=T),
+Coefficients <- c(ivreg_media_trust_compl_2$coefficients[2]/sd(data_frame_1$Trust_Media_w1,na.rm=T),
+                  ivreg_CBS_compl_2$coefficients[2]/sd(data_frame_1$CBS_Trust_1,na.rm=T),
+                  ivreg_ABC_compl_2$coefficients[2]/sd(data_frame_1$ABC_Trust_1,na.rm=T),
+                  ivreg_NBC_compl_2$coefficients[2]/sd(data_frame_1$NBC_Trust_1,na.rm=T),
+                  ivreg_CNN_compl_2$coefficients[2]/sd(data_frame_1$CNN_Trust_1,na.rm=T),
+                  ivreg_Fox_compl_2$coefficients[2]/sd(data_frame_1$Fox_Trust_1,na.rm=T),
+                  ivreg_aff_pol_compl_2$coefficients[2]/sd(data_frame_1$aff_pol_w1,na.rm=T),
+                  ivreg_Pol_cyn_compl_2$coefficients[2]/sd(data_frame_1$Pol_cyn_1,na.rm=T),
+                  ivreg_BLM_Misinfo_compl_2$coefficients[2]/sd(data_frame_1$BLM_Misinfo_Index_w2,na.rm=T),
+                  ivreg_Covid_Misinfo_compl_2$coefficients[2]/sd(data_frame_1$Covid_Misinfo_Index_w2,na.rm=T),
+                  ivreg_BLM_info_compl_2$coefficients[2]/sd(data_frame_1$BLM_info_Index_w2,na.rm=T),
+                  ivreg_Covid_info_compl_2$coefficients[2]/sd(data_frame_1$Covid_info_Index_w2,na.rm=T),
                   ivreg_Trust_inst_compl_2$coefficients[2]/sd(data_frame_1$Trust_inst_w1,na.rm=T),
-                  ivreg_FN_prob_compl_2$coefficients[5]/sd(data_frame_1$SMP4326,na.rm=T),
-                  ivreg_FN_prob_main_compl_2$coefficients[5]/sd(data_frame_1$SMP4310,na.rm=T))
+                  ivreg_FN_prob_compl_2$coefficients[3]/sd(data_frame_1$SMP4326,na.rm=T),
+                  ivreg_FN_prob_main_compl_2$coefficients[3]/sd(data_frame_1$SMP4310,na.rm=T))
 
 
-CI_Upper <- c(ivreg_media_trust_compl_2$conf.high[4]/sd(data_frame_1$Trust_Media_w1,na.rm=T),
-              ivreg_CBS_compl_2$conf.high[5]/sd(data_frame_1$CBS_Trust_1,na.rm=T),
-              ivreg_ABC_compl_2$conf.high[5]/sd(data_frame_1$ABC_Trust_1,na.rm=T),
-              ivreg_NBC_compl_2$conf.high[5]/sd(data_frame_1$NBC_Trust_1,na.rm=T),
-              ivreg_CNN_compl_2$conf.high[5]/sd(data_frame_1$CNN_Trust_1,na.rm=T),
-              ivreg_Fox_compl_2$conf.high[4]/sd(data_frame_1$Fox_Trust_1,na.rm=T),
-              ivreg_aff_pol_compl_2$conf.high[3]/sd(data_frame_1$aff_pol_w1,na.rm=T),
-              ivreg_Pol_cyn_compl_2$conf.high[3]/sd(data_frame_1$Pol_cyn_1,na.rm=T),
-              ivreg_BLM_Misinfo_compl_2$conf.high[8]/sd(data_frame_1$BLM_Misinfo_Index_w2,na.rm=T),
-              ivreg_Covid_Misinfo_compl_2$conf.high[6]/sd(data_frame_1$Covid_Misinfo_Index_w2,na.rm=T),
-              ivreg_BLM_info_compl_2$conf.high[4]/sd(data_frame_1$BLM_info_Index_w2,na.rm=T),
-              ivreg_Covid_info_compl_2$conf.high[3]/sd(data_frame_1$Covid_info_Index_w2,na.rm=T),
+CI_Upper <- c(ivreg_media_trust_compl_2$conf.high[2]/sd(data_frame_1$Trust_Media_w1,na.rm=T),
+              ivreg_CBS_compl_2$conf.high[2]/sd(data_frame_1$CBS_Trust_1,na.rm=T),
+              ivreg_ABC_compl_2$conf.high[2]/sd(data_frame_1$ABC_Trust_1,na.rm=T),
+              ivreg_NBC_compl_2$conf.high[2]/sd(data_frame_1$NBC_Trust_1,na.rm=T),
+              ivreg_CNN_compl_2$conf.high[2]/sd(data_frame_1$CNN_Trust_1,na.rm=T),
+              ivreg_Fox_compl_2$conf.high[2]/sd(data_frame_1$Fox_Trust_1,na.rm=T),
+              ivreg_aff_pol_compl_2$conf.high[2]/sd(data_frame_1$aff_pol_w1,na.rm=T),
+              ivreg_Pol_cyn_compl_2$conf.high[2]/sd(data_frame_1$Pol_cyn_1,na.rm=T),
+              ivreg_BLM_Misinfo_compl_2$conf.high[2]/sd(data_frame_1$BLM_Misinfo_Index_w2,na.rm=T),
+              ivreg_Covid_Misinfo_compl_2$conf.high[2]/sd(data_frame_1$Covid_Misinfo_Index_w2,na.rm=T),
+              ivreg_BLM_info_compl_2$conf.high[2]/sd(data_frame_1$BLM_info_Index_w2,na.rm=T),
+              ivreg_Covid_info_compl_2$conf.high[2]/sd(data_frame_1$Covid_info_Index_w2,na.rm=T),
               ivreg_Trust_inst_compl_2$conf.high[2]/sd(data_frame_1$Trust_inst_w1,na.rm=T),
-              ivreg_FN_prob_compl_2$conf.high[5]/sd(data_frame_1$SMP4326,na.rm=T),
-              ivreg_FN_prob_main_compl_2$conf.high[5]/sd(data_frame_1$SMP4310,na.rm=T))              
+              ivreg_FN_prob_compl_2$conf.high[3]/sd(data_frame_1$SMP4326,na.rm=T),
+              ivreg_FN_prob_main_compl_2$conf.high[3]/sd(data_frame_1$SMP4310,na.rm=T))              
 
-CI_Lower <- c(ivreg_media_trust_compl_2$conf.low[4]/sd(data_frame_1$Trust_Media_w1,na.rm=T),
-              ivreg_CBS_compl_2$conf.low[5]/sd(data_frame_1$CBS_Trust_1,na.rm=T),
-              ivreg_ABC_compl_2$conf.low[5]/sd(data_frame_1$ABC_Trust_1,na.rm=T),
-              ivreg_NBC_compl_2$conf.low[5]/sd(data_frame_1$NBC_Trust_1,na.rm=T),
-              ivreg_CNN_compl_2$conf.low[5]/sd(data_frame_1$CNN_Trust_1,na.rm=T),
-              ivreg_Fox_compl_2$conf.low[4]/sd(data_frame_1$Fox_Trust_1,na.rm=T),
-              ivreg_aff_pol_compl_2$conf.low[3]/sd(data_frame_1$aff_pol_w1,na.rm=T),
-              ivreg_Pol_cyn_compl_2$conf.low[3]/sd(data_frame_1$Pol_cyn_1,na.rm=T),
-              ivreg_BLM_Misinfo_compl_2$conf.low[8]/sd(data_frame_1$BLM_Misinfo_Index_w2,na.rm=T),
-              ivreg_Covid_Misinfo_compl_2$conf.low[6]/sd(data_frame_1$Covid_Misinfo_Index_w2,na.rm=T),
-              ivreg_BLM_info_compl_2$conf.low[4]/sd(data_frame_1$BLM_info_Index_w2,na.rm=T),
-              ivreg_Covid_info_compl_2$conf.low[3]/sd(data_frame_1$Covid_info_Index_w2,na.rm=T),
+CI_Lower <- c(ivreg_media_trust_compl_2$conf.low[2]/sd(data_frame_1$Trust_Media_w1,na.rm=T),
+              ivreg_CBS_compl_2$conf.low[2]/sd(data_frame_1$CBS_Trust_1,na.rm=T),
+              ivreg_ABC_compl_2$conf.low[2]/sd(data_frame_1$ABC_Trust_1,na.rm=T),
+              ivreg_NBC_compl_2$conf.low[2]/sd(data_frame_1$NBC_Trust_1,na.rm=T),
+              ivreg_CNN_compl_2$conf.low[2]/sd(data_frame_1$CNN_Trust_1,na.rm=T),
+              ivreg_Fox_compl_2$conf.low[2]/sd(data_frame_1$Fox_Trust_1,na.rm=T),
+              ivreg_aff_pol_compl_2$conf.low[2]/sd(data_frame_1$aff_pol_w1,na.rm=T),
+              ivreg_Pol_cyn_compl_2$conf.low[2]/sd(data_frame_1$Pol_cyn_1,na.rm=T),
+              ivreg_BLM_Misinfo_compl_2$conf.low[2]/sd(data_frame_1$BLM_Misinfo_Index_w2,na.rm=T),
+              ivreg_Covid_Misinfo_compl_2$conf.low[2]/sd(data_frame_1$Covid_Misinfo_Index_w2,na.rm=T),
+              ivreg_BLM_info_compl_2$conf.low[2]/sd(data_frame_1$BLM_info_Index_w2,na.rm=T),
+              ivreg_Covid_info_compl_2$conf.low[2]/sd(data_frame_1$Covid_info_Index_w2,na.rm=T),
               ivreg_Trust_inst_compl_2$conf.low[2]/sd(data_frame_1$Trust_inst_w1,na.rm=T),
-              ivreg_FN_prob_compl_2$conf.low[5]/sd(data_frame_1$SMP4326,na.rm=T),
-              ivreg_FN_prob_main_compl_2$conf.low[5]/sd(data_frame_1$SMP4310,na.rm=T))                
+              ivreg_FN_prob_compl_2$conf.low[3]/sd(data_frame_1$SMP4326,na.rm=T),
+              ivreg_FN_prob_main_compl_2$conf.low[3]/sd(data_frame_1$SMP4310,na.rm=T))                
 
 
 

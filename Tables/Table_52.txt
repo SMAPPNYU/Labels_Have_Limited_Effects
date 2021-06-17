@@ -1,14 +1,14 @@
 
 \begin{table}[!htbp]
-\caption{Testing Effect of Intervention Initial level of Trust In Media (Inverse) Moderator on Effect on Trust In Media (Covariate-Adjusted)}
+\caption{Testing Effect of Intervention Initial level of Trust In Media Moderator on Effect on Trust In Media (Covariate-Adjusted)}
 \begin{center}
 \begin{tabular}{l c}
 \hline
  & Trust in Media \\
 \hline
-Treatment                   & $0.0104$        \\
-                            & $(0.0356)$      \\
-Moderator                   & $-0.5641^{***}$ \\
+Treatment                   & $0.0540$        \\
+                            & $(0.0426)$      \\
+Moderator                   & $0.5641^{***}$  \\
                             & $(0.0206)$      \\
 Party ID                    & $-0.0550^{***}$ \\
                             & $(0.0076)$      \\
@@ -16,7 +16,7 @@ Ideology                    & $-0.0564^{***}$ \\
                             & $(0.0075)$      \\
 Trust of news in newspapers & $0.0768^{***}$  \\
                             & $(0.0115)$      \\
-Treatment*Moderator         & $0.0145$        \\
+Treatment*Moderator         & $-0.0145$       \\
                             & $(0.0223)$      \\
 \hline
 R$^2$                       & $0.6003$        \\
