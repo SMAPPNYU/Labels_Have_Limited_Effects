@@ -219,7 +219,7 @@ data_for_analysis <- do.call(data.frame,                      # Replace Inf in d
                              lapply(data_for_analysis,
                                     function(x) replace(x, is.infinite(x), NA)))
 
-ivreg_news_Post_compl_2 <- lm_robust(Average_domain_NewsG_Score_post ~ ., data = data_for_analysis)
+ivreg_Unrel_Post_compl_2 <- lm_robust(Prop_Unreliable_NewsG_Score_post ~ ., data = data_for_analysis)
 
 
 ################## Domain Score (After July 1st)   ##############################################

@@ -1,0 +1,22 @@
+% latex table generated in R 3.6.1 by xtable 1.8-4 package
+% Fri Jun 25 17:59:11 2021
+\begin{table}[ht]
+\centering
+\caption{Testing the Effect of the Intervention on Proportion of News Diet That is Unreliable with Covariate-Adjusted Models (HC2 Robust standard errors) (Before July 1st) on Different Samples of Respondents by Decile of their Quality of News Consumption Pre-Treatment (Average Reliability Score of News)} 
+\begin{tabular}{|p{3.5cm}|p{1.5cm}|p{3cm}|p{3cm}|p{3cm}|p{2cm}|}
+  \hline
+Decile & Threshold & ITT Model & CACE Model (Weak Compliance Measure) & CACE Model (Strong Compliance Measure) & Sample Size \\ 
+  \hline
+Bottom 10 Percent & 78.255 & -0.021 (0.023) & -0.025 (0.025) & -0.03 (0.029) & 78 \\ 
+  Bottom 20 Percent & 85.347 & -0.011 (0.013) & -0.013 (0.014) & -0.015 (0.016) & 157 \\ 
+  Bottom 30 Percent & 87.482 & -0.007 (0.009) & -0.008 (0.009) & -0.009 (0.01) & 237 \\ 
+  Bottom 40 Percent & 88.383 & -0.006 (0.007) & -0.006 (0.007) & -0.007 (0.008) & 315 \\ 
+  Bottom 50 Percent & 89.167 & -0.004 (0.005) & -0.005 (0.005) & -0.005 (0.006) & 396 \\ 
+  Bottom 60 Percent & 90 & -0.003 (0.004) & -0.004 (0.004) & -0.004 (0.005) & 493 \\ 
+  Bottom 70 Percent & 90.773 & -0.003 (0.004) & -0.004 (0.004) & -0.004 (0.005) & 549 \\ 
+  Bottom 80 Percent & 92.462 & -0.003 (0.003) & -0.003 (0.003) & -0.004 (0.004) & 629 \\ 
+  Bottom 90 Percent & 95 & -0.003 (0.003) & -0.003 (0.003) & -0.004 (0.004) & 712 \\ 
+   \hline \multicolumn{5}{l}{\scriptsize{$^{***}p<0.001$; $^{**}p<0.01$; $^{*}p<0.05$}} \\  \hline
+\end{tabular}
+\end{table}
+
