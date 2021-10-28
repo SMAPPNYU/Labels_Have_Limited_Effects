@@ -1,14 +1,16 @@
 
-# Title: News credibility labels improve news diets, reduce misperceptions, and increase media trust
+# Title: News credibility labels have limited but uneven effects on news diet quality and fail to reduce misperceptions
 # Authors: Kevin Aslett, Andrew Guess, Jonathan Nagler, Richard Bonneau, and Joshua A. Tucker
 
 # Abstract: 
-As the primary arena for viral misinformation shifts toward transnational threats such as the Covid-19 pandemic, the search continues for scalable, lasting countermeasures compatible with principles of transparency and free expression. To inform future interventions, we conducted a randomized controlled trial of simple source credibility labels embedded in users' social feeds and search results pages. Combining surveys and digital trace data from a subset of respondents, we find that after three weeks of embedded source contextual information, real-world exposure to low-quality news sources decreased by nearly 36\%, and the perceived accuracy of popular misinformation spread about the Black Lives Matter movement and Covid-19 also measurably declined. Unlike some other strategies to counteract misperceptions, our intervention seemed to achieve these effects without reducing the perceived accuracy of true information. Finally, the intervention led to increased trust in the mainstream media, raising the possibility of a self-sustaining cycle of improved news diets and more positive attitudes toward credible news outlets.
+
+As the primary arena for viral misinformation shifts toward transnational threats such as the Covid-19 pandemic, the search continues for scalable, lasting countermeasures compatible with principles of transparency and free expression. To advance scientific understanding and inform future interventions, we conducted a randomized field experiment evaluating the impact of source credibility labels embedded in users' social feeds and search results pages. By combining representative surveys (N = 3,337) and digital trace data ($N = 946$) from a subset of respondents, we provide a rare ecologically valid test of such an intervention on both attitudes and behavior. On average across the sample, we are unable to detect changes in real-world consumption of news from low-quality sources after three weeks, and we can rule out even small effects on perceived accuracy of popular misinformation spread about the Black Lives Matter movement and Covid-19. However, we present suggestive evidence of a substantively meaningful increase in news diet quality among the heaviest consumers of misinformation in our sample. We discuss the implications of our findings for practical questions about designing interventions to counteract online misinformation.
+
 
 # Bibtex Citation:
 
 @article{2021AslettGuessCredibilityLabels,
-  title={News credibility labels improve news diets, reduce misperceptions, and increase media trust},
+  title={News credibility labels have limited but uneven effects on news diet quality and fail to reduce misperceptions},
   author={Aslett, Kevin and Guess, Andrew and Bonneau, Richard and Nagler, Jonathan and Tucker, Joshua},
   journal={Unpublished Manuscript},
   year={2021}
