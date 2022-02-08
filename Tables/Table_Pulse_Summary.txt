@@ -1,0 +1,15 @@
+% latex table generated in R 3.6.1 by xtable 1.8-4 package
+% Mon Oct  4 11:13:49 2021
+\begin{table}[ht]
+\centering
+\caption{This table presents the number and percentage of the Pulse sample for which we collected only web tracking data from their desktop/laptop, only from their mobile device, or from both} 
+\begin{tabular}{p{2.25cm}p{3.5cm}p{3.5cm}p{5.5cm}}
+  \hline
+ & Desktop/Laptop Only & Mobile Only & Both Desktop/Laptop and Mobile \\ 
+  \hline
+Percentage of Pulse Sample & 79.14 & 18.24 & 2.62 \\ 
+  Number of Respondents & 937 & 216 & 31 \\ 
+   \hline
+\end{tabular}
+\end{table}
+

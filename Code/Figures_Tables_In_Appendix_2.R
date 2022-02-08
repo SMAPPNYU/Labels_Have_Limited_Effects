@@ -4573,7 +4573,8 @@ Decile_Names <- c('Bottom 10 Percent',
                   'Bottom 60 Percent',
                   'Bottom 70 Percent',
                   'Bottom 80 Percent',
-                  'Bottom 90 Percent')
+                  'Bottom 90 Percent',
+                  'Whole Sample')
 
 
 Table_File <- c('./Tables/Table_Deciles_1.txt',
@@ -4588,12 +4589,12 @@ Table_File <- c('./Tables/Table_Deciles_1.txt',
                 './Tables/Table_Deciles_10.txt')
 
 
-Deciles <- quantile(Pulse_data$Average_domain_NewsG_Score, prob = c(0.1,0.2,0.3,0.4,0.5,0.60,0.70,0.80,0.90),na.rm=T)
+Deciles <- quantile(Pulse_data$Average_domain_NewsG_Score, prob = c(0.1,0.2,0.3,0.4,0.5,0.60,0.70,0.80,0.90,1.0),na.rm=T)
 #Deciles <- quantile(Pulse_data$Average_domain_NewsG_Score, prob = c(0.05,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9),na.rm=T)
 
 
 #i=5
-#i=1
+#i=10
 for(i in 1:length(list_variables_to_run_1)){
   list_possible_covariates_for_use <- c(list_variables_to_run_1[[i]],list_possible_covariates)
   data_for_analysis <- Pulse_data %>% ungroup() %>% select(`list_possible_covariates_for_use`)
@@ -4608,6 +4609,12 @@ for(i in 1:length(list_variables_to_run_1)){
   names_of_columns <- c('Treated',names_of_columns)
   
   new_matr <- matrix(ncol=6)
+  if(i == 5){
+  ci_matr <- matrix(ncol=4)
+  }
+  if(i == 10){
+  ci_matr_2 <- matrix(ncol=4)
+  }
   #x=1
   #x=2
   for(x in 1:length(Deciles)){
@@ -4657,11 +4664,13 @@ for(i in 1:length(list_variables_to_run_1)){
         ITT_coef = round(coef(ITT_Model)[z],3)
         ITT_SD = round(coef(summary(ITT_Model))[, "Std. Error"][z],3)
         ITT_P = coef(summary(ITT_Model))[, "Pr(>|t|)"][z]
+        ITT_ci_upper = round(confint(ITT_Model)[z,2],3)
+        ITT_ci_lower = round(confint(ITT_Model)[z,1],3)
       }
     }
     
     for(z in 1:length(names(coef(CACE_Model_1)))){
-      if(names(coef(CACE_Model_1))[z] == 'compliance_check_11'){
+      if(names(coef(CACE_Model_1))[z] == 'compliance_check_11' | names(coef(CACE_Model_1))[z] == 'compliance_check_1'){
         C_1_coef = round(coef(CACE_Model_1)[z],3)
         C_1_SD = round(coef(summary(CACE_Model_1))[, "Std. Error"][z],3)
         C_1_P = coef(summary(CACE_Model_1))[, "Pr(>|t|)"][z]
@@ -4715,6 +4724,14 @@ for(i in 1:length(list_variables_to_run_1)){
     Num_Obs <- nrow(data_for_analysis)
     new_matr <- rbind(new_matr,c(Decile_Names[x],Prop_F,ITT_1,CACE_1,CACE_2,Num_Obs))
     
+    if(i == 5){
+    ci_matr <- rbind(ci_matr,
+                     c(Decile_Names[x],ITT_ci_lower,ITT_coef,ITT_ci_upper))
+    }
+    if(i == 10){
+      ci_matr_2 <- rbind(ci_matr_2,
+                       c(Decile_Names[x],ITT_ci_lower,ITT_coef,ITT_ci_upper))
+    }
   }
   colnames(new_matr) <- c('Decile','Threshold','ITT Model','CACE Model (Weak Compliance Measure)','CACE Model (Strong Compliance Measure)','Sample Size')
   new_matr <- new_matr[-1,]
@@ -4733,7 +4750,113 @@ for(i in 1:length(list_variables_to_run_1)){
               caption.placement='top',
               add.to.row = list(list(nrow(new_matr)),"\\hline \\multicolumn{5}{l}{\\scriptsize{$^{***}p<0.001$; $^{**}p<0.01$; $^{*}p<0.05$}} \\\\ ")),
         file=Table_File[i])
+  
+  
+
 }
+
+
+
+
+colnames(ci_matr) <- c('Decile','L_CI','Coef','U_CI')
+ci_matr <- ci_matr[-1,]
+ci_matr <- as.data.frame(ci_matr)
+
+ci_matr$L_CI <- as.character(ci_matr$L_CI)
+ci_matr$Coef <- as.character(ci_matr$Coef)
+ci_matr$U_CI <- as.character(ci_matr$U_CI)
+ci_matr$L_CI <- as.numeric(ci_matr$L_CI)
+ci_matr$Coef <- as.numeric(ci_matr$Coef)
+ci_matr$U_CI <- as.numeric(ci_matr$U_CI)
+
+colnames(ci_matr_2) <- c('Decile','L_CI','Coef','U_CI')
+ci_matr_2 <- ci_matr_2[-1,]
+ci_matr_2 <- as.data.frame(ci_matr_2)
+
+ci_matr_2$L_CI <- as.character(ci_matr_2$L_CI)
+ci_matr_2$Coef <- as.character(ci_matr_2$Coef)
+ci_matr_2$U_CI <- as.character(ci_matr_2$U_CI)
+ci_matr_2$L_CI <- as.numeric(ci_matr_2$L_CI)
+ci_matr_2$Coef <- as.numeric(ci_matr_2$Coef)
+ci_matr_2$U_CI <- as.numeric(ci_matr_2$U_CI)
+
+
+ci_matr_2$Period <- 'July 1st - July 13th'
+ci_matr$Period <- 'Before July 1st'
+
+Decile_ci <- rbind(ci_matr,ci_matr_2)
+
+Decile_ci$Decile <- gsub('Whole Sample','Bottom 100 Percent',Decile_ci$Decile)
+Decile_ci$Decile <- gsub('Bottom ','',Decile_ci$Decile)
+Decile_ci$Decile <- gsub(' Percent','%',Decile_ci$Decile)
+
+
+Decile_ci$Decile <- factor(Decile_ci$Decile,levels=c('100%',
+                                                     '90%',
+                                                     '80%',
+  '70%',
+  '60%',
+  '50%',
+  '40%',
+  '30%',
+  '20%',
+  '10%'))
+
+Decile_ci <- Decile_ci %>% arrange(Decile,Period)
+
+
+#Decile Figure
+
+
+Decile_ci$x <-c(0.2,0.3,0.5,0.6,0.8,0.9,1.1,1.2,1.4,1.5,1.7,1.8,2.0,2.1,2.3,2.4,2.6,2.7,2.9,3.0)
+
+ggplot(data = Decile_ci, aes(x = x, y = Coef)) +
+  geom_hline(aes(yintercept = 0), color = "gray",
+             linetype = 2, size = 1.2) +
+  geom_point(aes(color = Period, shape=Period),size=4) +
+  geom_linerange(aes(min = L_CI, 
+                     max = U_CI, 
+                     color = Period),
+                 size=1.5) +
+  scale_color_manual(values=c('red','blue','purple'), name = "Period") +
+  ylab("Effect of NewsGuard Intervention on Average \n Reliability Score of News Diet (0-100) \n") +
+  theme_classic() +
+  theme(axis.title.x = element_text(size=16),
+        axis.text.x  = element_text(size=12),
+        axis.title.y = element_text(size=16),
+        axis.text.y  = element_text(size=14),
+        plot.title = element_text(size = 14),
+        legend.title = element_text(size=14),
+        legend.text = element_text(size=12)) +
+  ylim(-0.75,10) +
+  scale_x_continuous("\n Percentage of Respondents Included in Subsample\n(The Pre-Treatment Average News Reliability Score Decile Cutpoint is Listed in Parentheses)",
+                     breaks=c(0.25,0.55,0.85,1.15,1.45,1.75,2.05,2.35,2.65,2.95),labels=c('100%\n(<100.0)',
+                                                                                     '90%\n(<95)',
+                                                                                           '80%\n(<92.5)',
+                                                                                           '70%\n(<90.8)',
+                                                                                           '60%\n(<90.0)',
+                                                                                           '50%\n(<89.2)',
+                                                                                           '40%\n(<88.4)',
+                                                                                           '30%\n(<87.5)',
+                                                                                           '20%\n(<85.3)',
+                                                                                           '10%\n(<78.3)'),limits=c(0.15,3.05))
+
+ggsave('./Figures/Decile_Figure.png',height=10,width=12)
+
+
+''
+
+This is estimated for subsets of the sample with pre-treatment reliability scores below successive decile cutpoints.
+
+
+
+
+
+
+
+
+
+
 
 
 Pulse_data_2 <- Pulse_data %>% filter(Average_domain_NewsG_Score <= Deciles[1])
@@ -4784,6 +4907,4228 @@ ggsave('./Figures/NewsG_Unreliable_Dist.png',height=12,width=10)
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#Figure 4: This figure presents the proportion of the average daily proportion of unreliable news viewed of the treatment and control groups across this study
+
+#Read in Wave 1 Data
+Wave_1_Data <- read.csv('./Data/NYUU0017_w1_OUTPUT.csv')
+
+#Read in Wave 2 Data
+Wave_2_Data <- read.csv('./Data/NYUU0017_w2_OUTPUT.csv')
+
+
+#Change the columnnames that were the same in wave 1 and wave 2
+colnames(Wave_2_Data)[89:114] <- c('operating_system_w2',
+                                   'web_browser_w2',
+                                   'device_w2',
+                                   'birthyr_w2',
+                                   'gender_w2',
+                                   'race_w2',
+                                   'educ_w2',
+                                   'marstat_w2',
+                                   'employ_w2',
+                                   'faminc_new_w2',
+                                   'pid3_w2',
+                                   'pid7_w2',
+                                   'presvote16post_w2',
+                                   'inputzip_w2',
+                                   'inputstate_w2',
+                                   'region_w2',
+                                   'votereg_w2',
+                                   'ideo5_w2',
+                                   'newsint_w2',
+                                   'religpew_w2',
+                                   'pew_churatd_w2',
+                                   'pew_bornagain_w2',
+                                   'pew_religimp_w2',
+                                   'pew_prayer_w2',
+                                   'startime_w2',
+                                   'endtime_w2')
+
+colnames(Wave_2_Data)[1:2] <- c('caseid_w2',
+                                'weight_w2')  
+colnames(Wave_2_Data)[5] <- c('visa1_w2')                           
+
+#Merge based on caseid in Wave 1 survey and caseid_w1 in Wave 2 Survey
+dataframe_1 <- merge(Wave_1_Data,Wave_2_Data,by.x='caseid',by.y='caseid_w1')
+dataframe_1$plugin_treat <- as.character(dataframe_1$plugin_treat)
+dataframe_1$Treated <- ifelse(dataframe_1$plugin_treat == 'Offered plug-in',1,0)
+
+crosswalk_1 <- dataframe_1 %>% select(caseid,visa1)
+
+
+dataframe_1 <- dataframe_1 %>% select(caseid,endtime,endtime_w2,Treated)
+
+dataframe_1$endtime <- as.character(dataframe_1$endtime)
+dataframe_1$endtime_w2 <- as.character(dataframe_1$endtime_w2)
+
+dataframe_1$endtime <- substr(dataframe_1$endtime,1,10)
+dataframe_1$endtime_w2 <- substr(dataframe_1$endtime_w2,1,10)
+
+#Read in Wave 1 Data
+Pulse_Data <- read.csv('./Data/pulsebyday.csv')
+
+colnames(Pulse_Data)
+
+Pulse_Data <- merge(Pulse_Data,dataframe_1,by='caseid')
+
+Pulse_Data$endtime <- as.Date(Pulse_Data$endtime)
+Pulse_Data$endtime_w2 <- as.Date(Pulse_Data$endtime_w2)
+Pulse_Data$date <- as.Date(Pulse_Data$date)
+
+Pulse_Data$Around_Treatment <- -1*(Pulse_Data$endtime-Pulse_Data$date)
+Pulse_Data$After_Treatment <- (Pulse_Data$date-as.Date('2020-07-01'))
+Pulse_Data$Day_of_Study <- (Pulse_Data$date-as.Date('2020-05-16'))
+Pulse_Data$Around_Treatment <- as.numeric(Pulse_Data$Around_Treatment)
+Pulse_Data$After_Treatment <- as.numeric(Pulse_Data$After_Treatment)
+Pulse_Data$Dummy_Before <- ifelse(Pulse_Data$Around_Treatment < 1,'Pre-Treatment','Treatment')
+Pulse_Data$Dummy_Before <- ifelse(Pulse_Data$After_Treatment > -1,'After Treatment',Pulse_Data$Dummy_Before)
+
+Pulse_Data$date_2 <- as.Date(as.character(Pulse_Data$date),origin = '1970-01-01')  
+
+Analysis_D <- Pulse_Data %>% group_by(date_2,Treated) %>% mutate(AVG_Score = mean(Average_domain_NewsG_Score_day,na.rm=T))
+Analysis_D <- Analysis_D %>% group_by(date_2,Treated) %>% mutate(AVG_Unrel_Prop = mean(Prop_Unreliable_NewsG_Score_day,na.rm=T))
+
+
+Count_D <- Analysis_D %>% group_by(date_2,Treated,Dummy_Before) %>% count()
+
+Analysis_D <- merge(Analysis_D,Count_D,by=c('date_2','Treated','Dummy_Before'))
+
+Analysis_D <- Analysis_D %>% select(date_2,AVG_Score,AVG_Unrel_Prop,Treated,n)
+
+Analysis_D <- unique(Analysis_D)
+
+Analysis_D <- Analysis_D %>% filter(n > 99)
+
+T_Analysis_D <- Analysis_D %>% filter(Group == 'Treatment')
+
+#Figure 4: This figure presents the proportion of the average daily proportion of unreliable news viewed of the treatment and control groups across this study
+
+ggplot(T_Analysis_D, aes(x=date_2,y=AVG_Unrel_Prop,color=Group)) +
+  annotate("rect", xmin=as.Date('2020-06-02'), xmax=as.Date('2020-06-09'), ymin=-0.01, ymax=0.06,
+           alpha = .5,fill='gray46') +
+  stat_smooth(method='loess',se=T,span=0.5, method.args = list(degree = 1),aes(fill=Group)) +
+  scale_color_manual(values=c("red"),
+                     aesthetics = c("colour", "fill")) +
+  geom_vline(xintercept=as.Date('2020-06-02'), linetype="dashed", 
+             color = "black", size=1, show.legend=T) +
+  geom_vline(xintercept=as.Date('2020-06-09'), linetype="dashed", 
+             color = "black", size=1,) +
+  geom_vline(xintercept=as.Date('2020-07-01'), linetype="dashed", 
+             color = "black", size=1, show.legend=T) +
+  ylab('Proportion of News Viewed that is Unreliable\n') +
+  coord_cartesian(xlim=c(as.Date('2020-06-03'),as.Date('2020-07-14')),ylim=c(0.03,0.045)) +
+  xlab('\n  First Wave                                                                    Treatment Ends                                    ') +
+  theme_classic() +
+  theme(axis.title.x = element_text(size=16),
+        axis.text.x  = element_text(size=14),
+        axis.title.y = element_text(size=16),
+        axis.text.y  = element_text(size=14),
+        plot.title = element_text(size = 16),
+        legend.title = element_text(size=14),
+        legend.text = element_text(size=12)) +
+  theme(legend.position = "none")
+
+ggsave('./Figures/fig_4.png',width=11)
+
+
+
+############################################################## Subset:
+
+
+
+#Read in survey data with digital trace data:
+Pulse_data <- read_csv('./Data/Clean_NewsGuard_Digital_Trace_Data.csv',
+                       col_types = cols(
+                         .default= col_character(),
+                         Treated = col_double(),
+                         Complied=col_double(),
+                         Total_DL =  col_double(),
+                         Inverse_DL = col_double(),
+                         Total_Science_Misinfo  =  col_double(),
+                         Social_Media_Use =  col_double(),
+                         income_score =  col_double(),
+                         abs_part =  col_double(),
+                         mean_cons =  col_double(),
+                         Average_domain_NewsG_Score_post= col_double(),
+                         Average_domain_NewsG_Score= col_double(),
+                         Prop_Unreliable_NewsG_Score_post= col_double(),
+                         Prop_Unreliable_NewsG_Score= col_double(),
+                         Prop_Reliable_NewsG_Score_post = col_double(),
+                         Prop_Reliable_NewsG_Score = col_double(),
+                         Count_Unreliable_NewsG_Score_post = col_double(),
+                         Count_Unreliable_NewsG_Score = col_double(),
+                         Count_Reliable_NewsG_Score_post = col_double(),
+                         Count_Reliable_NewsG_Score = col_double(),
+                         Prop_Unreliable_NewsG_Score_dv = col_double(),
+                         Average_domain_NewsG_Score_dv = col_double(),
+                         Prop_Reliable_NewsG_Score_dv = col_double(),
+                         Count_Unreliable_NewsG_Score_dv = col_double(),
+                         Count_Reliable_NewsG_Score_dv = col_double(),
+                         gender_dummy_fem=col_double(),
+                         educ_score=col_double(),
+                         Age=col_double(),
+                         Age_Sq=col_double(),
+                         party_score=col_double(),
+                         race_white=col_double(),
+                         ideo_score=col_double(),
+                         Trust_Media_w1=col_double(),
+                         trust_news=col_double(),
+                         trust_news_sm=col_double(),
+                         cons_news_n=col_double(),
+                         cons_cable=col_double(),
+                         cons_print=col_double(),
+                         cons_public=col_double(), 
+                         cons_talk=col_double(),
+                         cons_desk=col_double(),
+                         cons_mobile=col_double(),
+                         Safari_dummy=col_double(),
+                         log_news=col_double()
+                       ))
+
+
+
+
+
+
+
+#Create a function using glmnet lasso that chooses the variables to use:
+Lasso <- function(data_for_analysis) {
+  set.seed(938)
+  lasso_select <- cv.glmnet(x=data.matrix(data_for_analysis[,-1]),
+                            y=as.vector(data_for_analysis[,1]),
+                            alpha=1)
+  
+  coef.out <- coef(lasso_select, exact = TRUE)
+  indices <- which(coef.out != 0)
+  names_of_columns <- c(rownames(coef.out)[indices],colnames(data_for_analysis)[1])
+  names_of_columns_3 <- names_of_columns[!names_of_columns %in% "(Intercept)"]
+  return(names_of_columns_3)
+}
+
+#Clean Data Function:
+
+Clean <- function(data_for_analysis) {
+  #Replace Infinite values in data with NA
+  data_for_analysis <- do.call(data.frame,                      
+                               lapply(data_for_analysis,
+                                      function(x) replace(x, is.infinite(x), NA)))
+  #Remove NA values:
+  data_for_analysis <- na.omit(data_for_analysis)
+  
+  return(data_for_analysis)
+}
+
+
+
+
+
+
+
+#################################### Behavioral Measures -- Subset by Older Respondents (55 plus) ######################
+
+subset_data <- Pulse_data %>% filter(Age >= 55)
+subset_name <- '55_older'
+
+#List of possible variables for inclusion:
+list_possible_covariates <- c("gender_dummy_fem",
+                              "educ_score",
+                              "Age",
+                              "Age_Sq",
+                              "party_score",
+                              "race_white",
+                              "ideo_score",
+                              "Trust_Media_w1",
+                              "trust_news",
+                              "trust_news_sm",
+                              "cons_news_n",
+                              "cons_cable",
+                              "cons_print",
+                              "cons_public", 
+                              "cons_talk",
+                              "cons_desk",
+                              "cons_mobile",
+                              "log_news",
+                              "Safari_dummy",
+                              "IE_dummy",
+                              "Chrome_dummy",
+                              "Firefox_dummy",
+                              "Social_Media_Use")
+
+
+
+
+#Create Sets of variables to use in models:
+list_variables_to_run_1 = list(c('Prop_Unreliable_NewsG_Score_dv','Prop_Unreliable_NewsG_Score'),
+                               c('Prop_Reliable_NewsG_Score_dv','Prop_Reliable_NewsG_Score'),
+                               c('Count_Unreliable_NewsG_Score_dv','Count_Unreliable_NewsG_Score'),
+                               c('Count_Reliable_NewsG_Score_dv','Count_Reliable_NewsG_Score'),
+                               c('Average_domain_NewsG_Score_dv','Average_domain_NewsG_Score'),
+                               c('Prop_Unreliable_NewsG_Score_post','Prop_Unreliable_NewsG_Score'),
+                               c('Prop_Reliable_NewsG_Score_post','Prop_Reliable_NewsG_Score'),
+                               c('Count_Unreliable_NewsG_Score_post','Count_Unreliable_NewsG_Score'),
+                               c('Count_Reliable_NewsG_Score_post','Count_Reliable_NewsG_Score'),
+                               c('Average_domain_NewsG_Score_post','Average_domain_NewsG_Score'))
+
+#Create list of Titles:
+Titles <- c('Testing the Effect of the Intervention on Proportion of News Diet That is Unreliable with Covariate-Adjusted Models (HC2 Robust standard errors) (Before July 1st)',
+            'Testing the Effect of the Intervention on Proportion of News Diet That is Reliable with Covariate-Adjusted Models (HC2 Robust standard errors) (Before July 1st)',
+            'Testing the Effect of the Intervention on Count of Unreliable News Consumed with Covariate-Adjusted Models (HC2 Robust standard errors) (Before July 1st)',
+            'Testing the Effect of the Intervention on Count of Reliable News Consumed with Covariate-Adjusted Models (HC2 Robust standard errors) (Before July 1st)',
+            'Testing the Effect of the Intervention on Reliability Score of News Diet with Covariate-Adjusted Models (HC2 Robust standard errors) (Before July 1st)',
+            'Testing the Effect of the Intervention on Proportion of News Diet That is Unreliable with Covariate-Adjusted Models (HC2 Robust standard errors) (After July 1st)',
+            'Testing the Effect of the Intervention on Proportion of News Diet That is Reliable with Covariate-Adjusted Models (HC2 Robust standard errors) (After July 1st)',
+            'Testing the Effect of the Intervention on Count of Unreliable News Consumed with Covariate-Adjusted Models (HC2 Robust standard errors) (After July 1st)',
+            'Testing the Effect of the Intervention on Count of Reliable News Consumed with Covariate-Adjusted Models (HC2 Robust standard errors) (After July 1st)',
+            'Testing the Effect of the Intervention on Reliability Score of News Diet with Covariate-Adjusted Models (HC2 Robust standard errors) (After July 1st)')
+
+
+
+#Create list of filenames:
+Tables_title <-  c(paste0('./Tables/Table_',subset_name,'_1.txt'),
+                   paste0('./Tables/Table_',subset_name,'_2.txt'),
+                   paste0('./Tables/Table_',subset_name,'_3.txt'),
+                   paste0('./Tables/Table_',subset_name,'_4.txt'),
+                   paste0('./Tables/Table_',subset_name,'_5.txt'),
+                   paste0('./Tables/Table_',subset_name,'_6.txt'),
+                   paste0('./Tables/Table_',subset_name,'_7.txt'),
+                   paste0('./Tables/Table_',subset_name,'_8.txt'),
+                   paste0('./Tables/Table_',subset_name,'_9.txt'),
+                   paste0('./Tables/Table_',subset_name,'_10.txt'))
+
+#Create crosswalk for variables and display names:
+top_attribute_names <- c("gender_dummy_fem",
+                         "educ_score",
+                         'Treated',
+                         "Age",
+                         "Age_Sq",
+                         "party_score",
+                         "race_white",
+                         "ideo_score",
+                         "Trust_Media_w1",
+                         "trust_news",
+                         "trust_news_sm",
+                         "cons_news_n",
+                         "cons_cable",
+                         "cons_print",
+                         "cons_public", 
+                         "cons_talk",
+                         "cons_desk",
+                         "cons_mobile",
+                         "Safari_dummy",
+                         "log_news",
+                         'Prop_Unreliable_NewsG_Score',
+                         'Prop_Reliable_NewsG_Score',
+                         'Count_Unreliable_NewsG_Score',
+                         'Count_Reliable_NewsG_Score',
+                         'Average_domain_NewsG_Score',
+                         'compliance_check_1',
+                         'Complied',
+                         "IE_dummy",
+                         "Chrome_dummy",
+                         "Firefox_dummy",
+                         "Social_Media_Use")
+
+top_attributes_html <- c('Gender',
+                         'Education',
+                         'Treatment',
+                         'Age',
+                         'Age-Squared',
+                         "Party ID",
+                         "Race/Ethnicity",
+                         "Ideology ",
+                         "Trust in Media",
+                         "Trust of news in newspapers",
+                         "Trust of news on social media ",
+                         "News consumption (network news)",
+                         "News consumption (cable news)",
+                         "News consumption (print news) ",
+                         "News consumption (public radio)", 
+                         "News consumption (talk radio)",
+                         "News consumption (news on desktop)",
+                         "News consumption (news on mobile)",
+                         "Web Browser (Safari)",
+                         "Log of news viewed",
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value',
+                         'Treatment',
+                         'Treatment',
+                         "Internet Explorer Browser",
+                         "Chrome Browser",
+                         "Firefox Browser",
+                         "Social Media use")
+
+names(top_attributes_html) <- top_attribute_names
+
+
+
+#Run For loop to produce Tables 3-12:
+i=1
+for(i in 1:length(list_variables_to_run_1)){
+  list_possible_covariates_for_use <- c(list_variables_to_run_1[[i]],list_possible_covariates)
+  
+  data_for_analysis <- subset_data %>% ungroup() %>% select(`list_possible_covariates_for_use`)
+  
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
+  
+  #Use glmnet lasso to choose covariates to be a part of model:
+  names_of_columns <- Lasso(data_for_analysis)
+  
+  #names_of_columns
+  
+  names_of_columns <- c('Treated',names_of_columns)
+  
+  
+  names_use <- names(subset_data)[(names(subset_data) %in% names_of_columns)]
+  
+  data_for_analysis <- subset_data[, names_use]
+  
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
+  
+  f <- paste0(list_variables_to_run_1[[i]][1], " ~ .")
+  
+  ITT_Model <- lm_robust(as.formula(f), data = data_for_analysis)
+  
+  
+  names_of_columns_2 <- c(names_of_columns,'compliance_check_1')
+  names_use <- names(subset_data)[(names(subset_data) %in% names_of_columns_2)]
+  data_for_analysis <- subset_data[, names_use]
+  
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
+  
+  f <- paste0(list_variables_to_run_1[[i]][1], '~ . - Treated | . - compliance_check_1')
+  
+  #CACE Model 1
+  CACE_Model_1 <- iv_robust(as.formula(f), data = data_for_analysis)
+  
+  CACE_Model_1$term[which(CACE_Model_1$term == "compliance_check_11")] <- 'Treated'
+  
+  # #CACE Model 2 - Passed first and second wave compliance check
+  names_of_columns_3 <- c(names_of_columns,'Complied')
+  names_use <- names(subset_data)[(names(subset_data) %in% names_of_columns_3)]
+  data_for_analysis <- subset_data[, names_use]
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
+  f <- paste0(list_variables_to_run_1[[i]][1], '~  . - Treated | . - Complied')
+  CACE_Model_2 <- iv_robust(as.formula(f), data = data_for_analysis)
+  
+  CACE_Model_2$term[which(CACE_Model_2$term == "Complied")] <- 'Treated'
+  
+  #names of the variables:
+  Variable_Names <- names(ITT_Model$coefficients)[-1]
+  Variable_Names <- str_replace_all(Variable_Names, top_attributes_html)
+  
+  #Write Table
+  texreg(list(ITT_Model,CACE_Model_1,CACE_Model_2),
+         include.ci = FALSE,
+         digits=4,
+         omit.coef = '(Intercept)',
+         caption= Titles[i],
+         label = "table",
+         include.rmse = FALSE,
+         custom.coef.names = Variable_Names,
+         custom.model.names= c("Intent-To-Treat (ITT)", "CACE (Model 1)","CACE (Model 2)"),
+         file=Tables_title[i],
+         float.pos = "!htbp",
+         caption.above = TRUE)
+}
+
+
+
+
+
+
+#Create Sets of variables to use in models:
+list_variables_to_run_1 = list(c('Prop_Unreliable_NewsG_Score_dv'),
+                               c('Prop_Reliable_NewsG_Score_dv'),
+                               c('Count_Unreliable_NewsG_Score_dv'),
+                               c('Count_Reliable_NewsG_Score_dv'),
+                               c('Average_domain_NewsG_Score_dv'),
+                               c('Prop_Unreliable_NewsG_Score_post'),
+                               c('Prop_Reliable_NewsG_Score_post'),
+                               c('Count_Unreliable_NewsG_Score_post'),
+                               c('Count_Reliable_NewsG_Score_post'),
+                               c('Average_domain_NewsG_Score_post'))
+
+
+
+
+
+#Create list of Titles:
+Titles <- c('Testing the Effect of the Intervention on Proportion of News Diet That is Unreliable with Covariate-Unadjusted Models (HC2 Robust standard errors) (Before July 1st) ',
+            'Testing the Effect of the Intervention on Proportion of News Diet That is Reliable with Covariate-Unadjusted Models (HC2 Robust standard errors) (Before July 1st)',
+            'Testing the Effect of the Intervention on Count of Unreliable News Consumed with Covariate-Unadjusted Models (HC2 Robust standard errors) (Before July 1st)',
+            'Testing the Effect of the Intervention on Count of Reliable News Consumed with Covariate-Unadjusted Models (HC2 Robust standard errors) (Before July 1st)',
+            'Testing the Effect of the Intervention on Reliability Score of News Diet with Covariate-Unadjusted Models (HC2 Robust standard errors) (Before July 1st)',
+            'Testing the Effect of the Intervention on Proportion of News Diet That is Unreliable with Covariate-Unadjusted Models (HC2 Robust standard errors) (After July 1st)',
+            'Testing the Effect of the Intervention on Proportion of News Diet That is Reliable with Covariate-Unadjusted Models (HC2 Robust standard errors) (After July 1st)',
+            'Testing the Effect of the Intervention on Count of Unreliable News Consumed with Covariate-Unadjusted Models (HC2 Robust standard errors) (After July 1st)',
+            'Testing the Effect of the Intervention on Count of Reliable News Consumed with Covariate-Unadjusted Models (HC2 Robust standard errors) (After July 1st)',
+            'Testing the Effect of the Intervention on Reliability Score of News Diet with Covariate-Unadjusted Models (HC2 Robust standard errors) (After July 1st)')
+
+
+
+#Create list of filenames:
+Tables_title <-  c(paste0('./Tables/Table_',subset_name,'_11.txt'),
+                   paste0('./Tables/Table_',subset_name,'_12.txt'),
+                   paste0('./Tables/Table_',subset_name,'_13.txt'),
+                   paste0('./Tables/Table_',subset_name,'_14.txt'),
+                   paste0('./Tables/Table_',subset_name,'_15.txt'),
+                   paste0('./Tables/Table_',subset_name,'_16.txt'),
+                   paste0('./Tables/Table_',subset_name,'_17.txt'),
+                   paste0('./Tables/Table_',subset_name,'_18.txt'),
+                   paste0('./Tables/Table_',subset_name,'_19.txt'),
+                   paste0('./Tables/Table_',subset_name,'_20.txt'))
+
+#Create crosswalk for variables and display names:
+top_attribute_names <- c('Treated',
+                         'Prop_Unreliable_NewsG_Score',
+                         'Prop_Reliable_NewsG_Score',
+                         'Count_Unreliable_NewsG_Score',
+                         'Count_Reliable_NewsG_Score',
+                         'Average_domain_NewsG_Score')
+
+top_attributes_html <- c('Treatment',
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value')
+
+
+names(top_attributes_html) <- top_attribute_names
+
+#Run For loop to produce Tables 27-36:
+
+i=1
+for(i in 1:length(list_variables_to_run_1)){
+  list_possible_covariates_for_use <- c('Treated',list_variables_to_run_1[[i]])
+  
+  data_for_analysis <- subset_data %>% ungroup() %>% select(`list_possible_covariates_for_use`)
+  
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
+  
+  f <- paste0(list_variables_to_run_1[[i]][1], " ~ .")
+  
+  ITT_Model <- lm_robust(as.formula(f), data = data_for_analysis)
+  
+  names_of_columns_2 <- c('Treated',list_possible_covariates_for_use,'compliance_check_1')
+  
+  names_use <- names(subset_data)[(names(subset_data) %in% names_of_columns_2)]
+  
+  data_for_analysis <- subset_data[, names_use]
+  
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
+  
+  f <- paste0(list_variables_to_run_1[[i]][1], '~ . - Treated | . - compliance_check_1')
+  
+  #CACE Model 1
+  CACE_Model_1 <- iv_robust(as.formula(f), data = data_for_analysis)
+  
+  CACE_Model_1$term[which(CACE_Model_1$term == "compliance_check_11")] <- 'Treated'
+  
+  # #CACE Model 2 - Passed first and second wave compliance check
+  
+  names_of_columns_3 <- c('Treated',list_possible_covariates_for_use,'Complied')
+  
+  names_use <- names(subset_data)[(names(subset_data) %in% names_of_columns_3)]
+  
+  data_for_analysis <- subset_data[, names_use]
+  
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
+  
+  f <- paste0(list_variables_to_run_1[[i]][1], '~  . - Treated | . - Complied')
+  
+  CACE_Model_2 <- iv_robust(as.formula(f), data = data_for_analysis)
+  
+  CACE_Model_2$term[which(CACE_Model_2$term == "Complied")] <- 'Treated'
+  
+  
+  #names of the variables:
+  
+  Variable_Names <- names(ITT_Model$coefficients)[-1]
+  Variable_Names <- str_replace_all(Variable_Names, top_attributes_html)
+  
+  #Write Table
+  texreg(list(ITT_Model,CACE_Model_1,CACE_Model_2),
+         include.ci = FALSE,
+         digits=4,
+         omit.coef = '(Intercept)',
+         caption= Titles[i],
+         label = "table",
+         include.rmse = FALSE,
+         custom.coef.names = Variable_Names,
+         custom.model.names= c("Intent-To-Treat (ITT)", "CACE (Model 1)","CACE (Model 2)"),
+         file=Tables_title[i],
+         float.pos = "!htbp",
+         caption.above = TRUE)
+}
+
+
+
+#################################### Behavioral Measures -- Subset by Younger Respondents ######################
+
+
+subset_data <- Pulse_data %>% filter(Age <= 35)
+subset_name <- '35_younger'
+
+#List of possible variables for inclusion:
+list_possible_covariates <- c("gender_dummy_fem",
+                              "educ_score",
+                              "Age",
+                              "Age_Sq",
+                              "party_score",
+                              "race_white",
+                              "ideo_score",
+                              "Trust_Media_w1",
+                              "trust_news",
+                              "trust_news_sm",
+                              "cons_news_n",
+                              "cons_cable",
+                              "cons_print",
+                              "cons_public", 
+                              "cons_talk",
+                              "cons_desk",
+                              "cons_mobile",
+                              "log_news",
+                              "Safari_dummy",
+                              "IE_dummy",
+                              "Chrome_dummy",
+                              "Firefox_dummy",
+                              "Social_Media_Use")
+
+
+
+
+#Create Sets of variables to use in models:
+list_variables_to_run_1 = list(c('Prop_Unreliable_NewsG_Score_dv','Prop_Unreliable_NewsG_Score'),
+                               c('Prop_Reliable_NewsG_Score_dv','Prop_Reliable_NewsG_Score'),
+                               c('Count_Unreliable_NewsG_Score_dv','Count_Unreliable_NewsG_Score'),
+                               c('Count_Reliable_NewsG_Score_dv','Count_Reliable_NewsG_Score'),
+                               c('Average_domain_NewsG_Score_dv','Average_domain_NewsG_Score'),
+                               c('Prop_Unreliable_NewsG_Score_post','Prop_Unreliable_NewsG_Score'),
+                               c('Prop_Reliable_NewsG_Score_post','Prop_Reliable_NewsG_Score'),
+                               c('Count_Unreliable_NewsG_Score_post','Count_Unreliable_NewsG_Score'),
+                               c('Count_Reliable_NewsG_Score_post','Count_Reliable_NewsG_Score'),
+                               c('Average_domain_NewsG_Score_post','Average_domain_NewsG_Score'))
+
+#Create list of Titles:
+Titles <- c('Testing the Effect of the Intervention on Proportion of News Diet That is Unreliable with Covariate-Adjusted Models (HC2 Robust standard errors) (Before July 1st)',
+            'Testing the Effect of the Intervention on Proportion of News Diet That is Reliable with Covariate-Adjusted Models (HC2 Robust standard errors) (Before July 1st)',
+            'Testing the Effect of the Intervention on Count of Unreliable News Consumed with Covariate-Adjusted Models (HC2 Robust standard errors) (Before July 1st)',
+            'Testing the Effect of the Intervention on Count of Reliable News Consumed with Covariate-Adjusted Models (HC2 Robust standard errors) (Before July 1st)',
+            'Testing the Effect of the Intervention on Reliability Score of News Diet with Covariate-Adjusted Models (HC2 Robust standard errors) (Before July 1st)',
+            'Testing the Effect of the Intervention on Proportion of News Diet That is Unreliable with Covariate-Adjusted Models (HC2 Robust standard errors) (After July 1st)',
+            'Testing the Effect of the Intervention on Proportion of News Diet That is Reliable with Covariate-Adjusted Models (HC2 Robust standard errors) (After July 1st)',
+            'Testing the Effect of the Intervention on Count of Unreliable News Consumed with Covariate-Adjusted Models (HC2 Robust standard errors) (After July 1st)',
+            'Testing the Effect of the Intervention on Count of Reliable News Consumed with Covariate-Adjusted Models (HC2 Robust standard errors) (After July 1st)',
+            'Testing the Effect of the Intervention on Reliability Score of News Diet with Covariate-Adjusted Models (HC2 Robust standard errors) (After July 1st)')
+
+
+
+#Create list of filenames:
+Tables_title <-  c(paste0('./Tables/Table_',subset_name,'_1.txt'),
+                   paste0('./Tables/Table_',subset_name,'_2.txt'),
+                   paste0('./Tables/Table_',subset_name,'_3.txt'),
+                   paste0('./Tables/Table_',subset_name,'_4.txt'),
+                   paste0('./Tables/Table_',subset_name,'_5.txt'),
+                   paste0('./Tables/Table_',subset_name,'_6.txt'),
+                   paste0('./Tables/Table_',subset_name,'_7.txt'),
+                   paste0('./Tables/Table_',subset_name,'_8.txt'),
+                   paste0('./Tables/Table_',subset_name,'_9.txt'),
+                   paste0('./Tables/Table_',subset_name,'_10.txt'))
+
+#Create crosswalk for variables and display names:
+top_attribute_names <- c("gender_dummy_fem",
+                         "educ_score",
+                         'Treated',
+                         "Age",
+                         "Age_Sq",
+                         "party_score",
+                         "race_white",
+                         "ideo_score",
+                         "Trust_Media_w1",
+                         "trust_news",
+                         "trust_news_sm",
+                         "cons_news_n",
+                         "cons_cable",
+                         "cons_print",
+                         "cons_public", 
+                         "cons_talk",
+                         "cons_desk",
+                         "cons_mobile",
+                         "Safari_dummy",
+                         "log_news",
+                         'Prop_Unreliable_NewsG_Score',
+                         'Prop_Reliable_NewsG_Score',
+                         'Count_Unreliable_NewsG_Score',
+                         'Count_Reliable_NewsG_Score',
+                         'Average_domain_NewsG_Score',
+                         'compliance_check_1',
+                         'Complied',
+                         "IE_dummy",
+                         "Chrome_dummy",
+                         "Firefox_dummy",
+                         "Social_Media_Use")
+
+top_attributes_html <- c('Gender',
+                         'Education',
+                         'Treatment',
+                         'Age',
+                         'Age-Squared',
+                         "Party ID",
+                         "Race/Ethnicity",
+                         "Ideology ",
+                         "Trust in Media",
+                         "Trust of news in newspapers",
+                         "Trust of news on social media ",
+                         "News consumption (network news)",
+                         "News consumption (cable news)",
+                         "News consumption (print news) ",
+                         "News consumption (public radio)", 
+                         "News consumption (talk radio)",
+                         "News consumption (news on desktop)",
+                         "News consumption (news on mobile)",
+                         "Web Browser (Safari)",
+                         "Log of news viewed",
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value',
+                         'Treatment',
+                         'Treatment',
+                         "Internet Explorer Browser",
+                         "Chrome Browser",
+                         "Firefox Browser",
+                         "Social Media use")
+
+names(top_attributes_html) <- top_attribute_names
+
+
+
+#Run For loop to produce Tables 3-12:
+i=1
+for(i in 1:length(list_variables_to_run_1)){
+  list_possible_covariates_for_use <- c(list_variables_to_run_1[[i]],list_possible_covariates)
+  
+  data_for_analysis <- subset_data %>% ungroup() %>% select(`list_possible_covariates_for_use`)
+  
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
+  
+  #Use glmnet lasso to choose covariates to be a part of model:
+  names_of_columns <- Lasso(data_for_analysis)
+  
+  #names_of_columns
+  
+  names_of_columns <- c('Treated',names_of_columns)
+  
+  
+  names_use <- names(subset_data)[(names(subset_data) %in% names_of_columns)]
+  
+  data_for_analysis <- subset_data[, names_use]
+  
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
+  
+  f <- paste0(list_variables_to_run_1[[i]][1], " ~ .")
+  
+  ITT_Model <- lm_robust(as.formula(f), data = data_for_analysis)
+  
+  
+  names_of_columns_2 <- c(names_of_columns,'compliance_check_1')
+  names_use <- names(subset_data)[(names(subset_data) %in% names_of_columns_2)]
+  data_for_analysis <- subset_data[, names_use]
+  
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
+  
+  f <- paste0(list_variables_to_run_1[[i]][1], '~ . - Treated | . - compliance_check_1')
+  
+  #CACE Model 1
+  CACE_Model_1 <- iv_robust(as.formula(f), data = data_for_analysis)
+  
+  CACE_Model_1$term[which(CACE_Model_1$term == "compliance_check_11")] <- 'Treated'
+  
+  # #CACE Model 2 - Passed first and second wave compliance check
+  names_of_columns_3 <- c(names_of_columns,'Complied')
+  names_use <- names(subset_data)[(names(subset_data) %in% names_of_columns_3)]
+  data_for_analysis <- subset_data[, names_use]
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
+  f <- paste0(list_variables_to_run_1[[i]][1], '~  . - Treated | . - Complied')
+  CACE_Model_2 <- iv_robust(as.formula(f), data = data_for_analysis)
+  
+  CACE_Model_2$term[which(CACE_Model_2$term == "Complied")] <- 'Treated'
+  
+  #names of the variables:
+  Variable_Names <- names(ITT_Model$coefficients)[-1]
+  Variable_Names <- str_replace_all(Variable_Names, top_attributes_html)
+  
+  #Write Table
+  texreg(list(ITT_Model,CACE_Model_1,CACE_Model_2),
+         include.ci = FALSE,
+         digits=4,
+         omit.coef = '(Intercept)',
+         caption= Titles[i],
+         label = "table",
+         include.rmse = FALSE,
+         custom.coef.names = Variable_Names,
+         custom.model.names= c("Intent-To-Treat (ITT)", "CACE (Model 1)","CACE (Model 2)"),
+         file=Tables_title[i],
+         float.pos = "!htbp",
+         caption.above = TRUE)
+}
+
+
+
+
+
+
+#Create Sets of variables to use in models:
+list_variables_to_run_1 = list(c('Prop_Unreliable_NewsG_Score_dv'),
+                               c('Prop_Reliable_NewsG_Score_dv'),
+                               c('Count_Unreliable_NewsG_Score_dv'),
+                               c('Count_Reliable_NewsG_Score_dv'),
+                               c('Average_domain_NewsG_Score_dv'),
+                               c('Prop_Unreliable_NewsG_Score_post'),
+                               c('Prop_Reliable_NewsG_Score_post'),
+                               c('Count_Unreliable_NewsG_Score_post'),
+                               c('Count_Reliable_NewsG_Score_post'),
+                               c('Average_domain_NewsG_Score_post'))
+
+
+
+
+
+#Create list of Titles:
+Titles <- c('Testing the Effect of the Intervention on Proportion of News Diet That is Unreliable with Covariate-Unadjusted Models (HC2 Robust standard errors) (Before July 1st) ',
+            'Testing the Effect of the Intervention on Proportion of News Diet That is Reliable with Covariate-Unadjusted Models (HC2 Robust standard errors) (Before July 1st)',
+            'Testing the Effect of the Intervention on Count of Unreliable News Consumed with Covariate-Unadjusted Models (HC2 Robust standard errors) (Before July 1st)',
+            'Testing the Effect of the Intervention on Count of Reliable News Consumed with Covariate-Unadjusted Models (HC2 Robust standard errors) (Before July 1st)',
+            'Testing the Effect of the Intervention on Reliability Score of News Diet with Covariate-Unadjusted Models (HC2 Robust standard errors) (Before July 1st)',
+            'Testing the Effect of the Intervention on Proportion of News Diet That is Unreliable with Covariate-Unadjusted Models (HC2 Robust standard errors) (After July 1st)',
+            'Testing the Effect of the Intervention on Proportion of News Diet That is Reliable with Covariate-Unadjusted Models (HC2 Robust standard errors) (After July 1st)',
+            'Testing the Effect of the Intervention on Count of Unreliable News Consumed with Covariate-Unadjusted Models (HC2 Robust standard errors) (After July 1st)',
+            'Testing the Effect of the Intervention on Count of Reliable News Consumed with Covariate-Unadjusted Models (HC2 Robust standard errors) (After July 1st)',
+            'Testing the Effect of the Intervention on Reliability Score of News Diet with Covariate-Unadjusted Models (HC2 Robust standard errors) (After July 1st)')
+
+
+
+#Create list of filenames:
+Tables_title <-  c(paste0('./Tables/Table_',subset_name,'_11.txt'),
+                   paste0('./Tables/Table_',subset_name,'_12.txt'),
+                   paste0('./Tables/Table_',subset_name,'_13.txt'),
+                   paste0('./Tables/Table_',subset_name,'_14.txt'),
+                   paste0('./Tables/Table_',subset_name,'_15.txt'),
+                   paste0('./Tables/Table_',subset_name,'_16.txt'),
+                   paste0('./Tables/Table_',subset_name,'_17.txt'),
+                   paste0('./Tables/Table_',subset_name,'_18.txt'),
+                   paste0('./Tables/Table_',subset_name,'_19.txt'),
+                   paste0('./Tables/Table_',subset_name,'_20.txt'))
+
+#Create crosswalk for variables and display names:
+top_attribute_names <- c('Treated',
+                         'Prop_Unreliable_NewsG_Score',
+                         'Prop_Reliable_NewsG_Score',
+                         'Count_Unreliable_NewsG_Score',
+                         'Count_Reliable_NewsG_Score',
+                         'Average_domain_NewsG_Score')
+
+top_attributes_html <- c('Treatment',
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value')
+
+
+names(top_attributes_html) <- top_attribute_names
+
+#Run For loop to produce Tables 27-36:
+
+i=1
+for(i in 1:length(list_variables_to_run_1)){
+  list_possible_covariates_for_use <- c('Treated',list_variables_to_run_1[[i]])
+  
+  data_for_analysis <- subset_data %>% ungroup() %>% select(`list_possible_covariates_for_use`)
+  
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
+  
+  f <- paste0(list_variables_to_run_1[[i]][1], " ~ .")
+  
+  ITT_Model <- lm_robust(as.formula(f), data = data_for_analysis)
+  
+  names_of_columns_2 <- c('Treated',list_possible_covariates_for_use,'compliance_check_1')
+  
+  names_use <- names(subset_data)[(names(subset_data) %in% names_of_columns_2)]
+  
+  data_for_analysis <- subset_data[, names_use]
+  
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
+  
+  f <- paste0(list_variables_to_run_1[[i]][1], '~ . - Treated | . - compliance_check_1')
+  
+  #CACE Model 1
+  CACE_Model_1 <- iv_robust(as.formula(f), data = data_for_analysis)
+  
+  CACE_Model_1$term[which(CACE_Model_1$term == "compliance_check_11")] <- 'Treated'
+  
+  # #CACE Model 2 - Passed first and second wave compliance check
+  
+  names_of_columns_3 <- c('Treated',list_possible_covariates_for_use,'Complied')
+  
+  names_use <- names(subset_data)[(names(subset_data) %in% names_of_columns_3)]
+  
+  data_for_analysis <- subset_data[, names_use]
+  
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
+  
+  f <- paste0(list_variables_to_run_1[[i]][1], '~  . - Treated | . - Complied')
+  
+  CACE_Model_2 <- iv_robust(as.formula(f), data = data_for_analysis)
+  
+  CACE_Model_2$term[which(CACE_Model_2$term == "Complied")] <- 'Treated'
+  
+  
+  #names of the variables:
+  
+  Variable_Names <- names(ITT_Model$coefficients)[-1]
+  Variable_Names <- str_replace_all(Variable_Names, top_attributes_html)
+  
+  #Write Table
+  texreg(list(ITT_Model,CACE_Model_1,CACE_Model_2),
+         include.ci = FALSE,
+         digits=4,
+         omit.coef = '(Intercept)',
+         caption= Titles[i],
+         label = "table",
+         include.rmse = FALSE,
+         custom.coef.names = Variable_Names,
+         custom.model.names= c("Intent-To-Treat (ITT)", "CACE (Model 1)","CACE (Model 2)"),
+         file=Tables_title[i],
+         float.pos = "!htbp",
+         caption.above = TRUE)
+}
+
+
+#################################### Behavioral Measures -- Subset by Republican Respondents ######################
+
+
+subset_data <- Pulse_data %>% filter(party_score > 4)
+subset_name <- 'Republican'
+
+#List of possible variables for inclusion:
+list_possible_covariates <- c("gender_dummy_fem",
+                              "educ_score",
+                              "Age",
+                              "Age_Sq",
+                              "party_score",
+                              "race_white",
+                              "ideo_score",
+                              "Trust_Media_w1",
+                              "trust_news",
+                              "trust_news_sm",
+                              "cons_news_n",
+                              "cons_cable",
+                              "cons_print",
+                              "cons_public", 
+                              "cons_talk",
+                              "cons_desk",
+                              "cons_mobile",
+                              "log_news",
+                              "Safari_dummy",
+                              "IE_dummy",
+                              "Chrome_dummy",
+                              "Firefox_dummy",
+                              "Social_Media_Use")
+
+
+
+
+#Create Sets of variables to use in models:
+list_variables_to_run_1 = list(c('Prop_Unreliable_NewsG_Score_dv','Prop_Unreliable_NewsG_Score'),
+                               c('Prop_Reliable_NewsG_Score_dv','Prop_Reliable_NewsG_Score'),
+                               c('Count_Unreliable_NewsG_Score_dv','Count_Unreliable_NewsG_Score'),
+                               c('Count_Reliable_NewsG_Score_dv','Count_Reliable_NewsG_Score'),
+                               c('Average_domain_NewsG_Score_dv','Average_domain_NewsG_Score'),
+                               c('Prop_Unreliable_NewsG_Score_post','Prop_Unreliable_NewsG_Score'),
+                               c('Prop_Reliable_NewsG_Score_post','Prop_Reliable_NewsG_Score'),
+                               c('Count_Unreliable_NewsG_Score_post','Count_Unreliable_NewsG_Score'),
+                               c('Count_Reliable_NewsG_Score_post','Count_Reliable_NewsG_Score'),
+                               c('Average_domain_NewsG_Score_post','Average_domain_NewsG_Score'))
+
+#Create list of Titles:
+Titles <- c('Testing the Effect of the Intervention on Proportion of News Diet That is Unreliable with Covariate-Adjusted Models (HC2 Robust standard errors) (Before July 1st)',
+            'Testing the Effect of the Intervention on Proportion of News Diet That is Reliable with Covariate-Adjusted Models (HC2 Robust standard errors) (Before July 1st)',
+            'Testing the Effect of the Intervention on Count of Unreliable News Consumed with Covariate-Adjusted Models (HC2 Robust standard errors) (Before July 1st)',
+            'Testing the Effect of the Intervention on Count of Reliable News Consumed with Covariate-Adjusted Models (HC2 Robust standard errors) (Before July 1st)',
+            'Testing the Effect of the Intervention on Reliability Score of News Diet with Covariate-Adjusted Models (HC2 Robust standard errors) (Before July 1st)',
+            'Testing the Effect of the Intervention on Proportion of News Diet That is Unreliable with Covariate-Adjusted Models (HC2 Robust standard errors) (After July 1st)',
+            'Testing the Effect of the Intervention on Proportion of News Diet That is Reliable with Covariate-Adjusted Models (HC2 Robust standard errors) (After July 1st)',
+            'Testing the Effect of the Intervention on Count of Unreliable News Consumed with Covariate-Adjusted Models (HC2 Robust standard errors) (After July 1st)',
+            'Testing the Effect of the Intervention on Count of Reliable News Consumed with Covariate-Adjusted Models (HC2 Robust standard errors) (After July 1st)',
+            'Testing the Effect of the Intervention on Reliability Score of News Diet with Covariate-Adjusted Models (HC2 Robust standard errors) (After July 1st)')
+
+
+
+#Create list of filenames:
+Tables_title <-  c(paste0('./Tables/Table_',subset_name,'_1.txt'),
+                   paste0('./Tables/Table_',subset_name,'_2.txt'),
+                   paste0('./Tables/Table_',subset_name,'_3.txt'),
+                   paste0('./Tables/Table_',subset_name,'_4.txt'),
+                   paste0('./Tables/Table_',subset_name,'_5.txt'),
+                   paste0('./Tables/Table_',subset_name,'_6.txt'),
+                   paste0('./Tables/Table_',subset_name,'_7.txt'),
+                   paste0('./Tables/Table_',subset_name,'_8.txt'),
+                   paste0('./Tables/Table_',subset_name,'_9.txt'),
+                   paste0('./Tables/Table_',subset_name,'_10.txt'))
+
+#Create crosswalk for variables and display names:
+top_attribute_names <- c("gender_dummy_fem",
+                         "educ_score",
+                         'Treated',
+                         "Age",
+                         "Age_Sq",
+                         "party_score",
+                         "race_white",
+                         "ideo_score",
+                         "Trust_Media_w1",
+                         "trust_news",
+                         "trust_news_sm",
+                         "cons_news_n",
+                         "cons_cable",
+                         "cons_print",
+                         "cons_public", 
+                         "cons_talk",
+                         "cons_desk",
+                         "cons_mobile",
+                         "Safari_dummy",
+                         "log_news",
+                         'Prop_Unreliable_NewsG_Score',
+                         'Prop_Reliable_NewsG_Score',
+                         'Count_Unreliable_NewsG_Score',
+                         'Count_Reliable_NewsG_Score',
+                         'Average_domain_NewsG_Score',
+                         'compliance_check_1',
+                         'Complied',
+                         "IE_dummy",
+                         "Chrome_dummy",
+                         "Firefox_dummy",
+                         "Social_Media_Use")
+
+top_attributes_html <- c('Gender',
+                         'Education',
+                         'Treatment',
+                         'Age',
+                         'Age-Squared',
+                         "Party ID",
+                         "Race/Ethnicity",
+                         "Ideology ",
+                         "Trust in Media",
+                         "Trust of news in newspapers",
+                         "Trust of news on social media ",
+                         "News consumption (network news)",
+                         "News consumption (cable news)",
+                         "News consumption (print news) ",
+                         "News consumption (public radio)", 
+                         "News consumption (talk radio)",
+                         "News consumption (news on desktop)",
+                         "News consumption (news on mobile)",
+                         "Web Browser (Safari)",
+                         "Log of news viewed",
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value',
+                         'Treatment',
+                         'Treatment',
+                         "Internet Explorer Browser",
+                         "Chrome Browser",
+                         "Firefox Browser",
+                         "Social Media use")
+
+names(top_attributes_html) <- top_attribute_names
+
+
+
+#Run For loop to produce Tables 3-12:
+i=1
+for(i in 1:length(list_variables_to_run_1)){
+  list_possible_covariates_for_use <- c(list_variables_to_run_1[[i]],list_possible_covariates)
+  
+  data_for_analysis <- subset_data %>% ungroup() %>% select(`list_possible_covariates_for_use`)
+  
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
+  
+  #Use glmnet lasso to choose covariates to be a part of model:
+  names_of_columns <- Lasso(data_for_analysis)
+  
+  #names_of_columns
+  
+  names_of_columns <- c('Treated',names_of_columns)
+  
+  
+  names_use <- names(subset_data)[(names(subset_data) %in% names_of_columns)]
+  
+  data_for_analysis <- subset_data[, names_use]
+  
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
+  
+  f <- paste0(list_variables_to_run_1[[i]][1], " ~ .")
+  
+  ITT_Model <- lm_robust(as.formula(f), data = data_for_analysis)
+  
+  
+  names_of_columns_2 <- c(names_of_columns,'compliance_check_1')
+  names_use <- names(subset_data)[(names(subset_data) %in% names_of_columns_2)]
+  data_for_analysis <- subset_data[, names_use]
+  
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
+  
+  f <- paste0(list_variables_to_run_1[[i]][1], '~ . - Treated | . - compliance_check_1')
+  
+  #CACE Model 1
+  CACE_Model_1 <- iv_robust(as.formula(f), data = data_for_analysis)
+  
+  CACE_Model_1$term[which(CACE_Model_1$term == "compliance_check_11")] <- 'Treated'
+  
+  # #CACE Model 2 - Passed first and second wave compliance check
+  names_of_columns_3 <- c(names_of_columns,'Complied')
+  names_use <- names(subset_data)[(names(subset_data) %in% names_of_columns_3)]
+  data_for_analysis <- subset_data[, names_use]
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
+  f <- paste0(list_variables_to_run_1[[i]][1], '~  . - Treated | . - Complied')
+  CACE_Model_2 <- iv_robust(as.formula(f), data = data_for_analysis)
+  
+  CACE_Model_2$term[which(CACE_Model_2$term == "Complied")] <- 'Treated'
+  
+  #names of the variables:
+  Variable_Names <- names(ITT_Model$coefficients)[-1]
+  Variable_Names <- str_replace_all(Variable_Names, top_attributes_html)
+  
+  #Write Table
+  texreg(list(ITT_Model,CACE_Model_1,CACE_Model_2),
+         include.ci = FALSE,
+         digits=4,
+         omit.coef = '(Intercept)',
+         caption= Titles[i],
+         label = "table",
+         include.rmse = FALSE,
+         custom.coef.names = Variable_Names,
+         custom.model.names= c("Intent-To-Treat (ITT)", "CACE (Model 1)","CACE (Model 2)"),
+         file=Tables_title[i],
+         float.pos = "!htbp",
+         caption.above = TRUE)
+}
+
+
+
+
+
+
+#Create Sets of variables to use in models:
+list_variables_to_run_1 = list(c('Prop_Unreliable_NewsG_Score_dv'),
+                               c('Prop_Reliable_NewsG_Score_dv'),
+                               c('Count_Unreliable_NewsG_Score_dv'),
+                               c('Count_Reliable_NewsG_Score_dv'),
+                               c('Average_domain_NewsG_Score_dv'),
+                               c('Prop_Unreliable_NewsG_Score_post'),
+                               c('Prop_Reliable_NewsG_Score_post'),
+                               c('Count_Unreliable_NewsG_Score_post'),
+                               c('Count_Reliable_NewsG_Score_post'),
+                               c('Average_domain_NewsG_Score_post'))
+
+
+
+
+
+#Create list of Titles:
+Titles <- c('Testing the Effect of the Intervention on Proportion of News Diet That is Unreliable with Covariate-Unadjusted Models (HC2 Robust standard errors) (Before July 1st) ',
+            'Testing the Effect of the Intervention on Proportion of News Diet That is Reliable with Covariate-Unadjusted Models (HC2 Robust standard errors) (Before July 1st)',
+            'Testing the Effect of the Intervention on Count of Unreliable News Consumed with Covariate-Unadjusted Models (HC2 Robust standard errors) (Before July 1st)',
+            'Testing the Effect of the Intervention on Count of Reliable News Consumed with Covariate-Unadjusted Models (HC2 Robust standard errors) (Before July 1st)',
+            'Testing the Effect of the Intervention on Reliability Score of News Diet with Covariate-Unadjusted Models (HC2 Robust standard errors) (Before July 1st)',
+            'Testing the Effect of the Intervention on Proportion of News Diet That is Unreliable with Covariate-Unadjusted Models (HC2 Robust standard errors) (After July 1st)',
+            'Testing the Effect of the Intervention on Proportion of News Diet That is Reliable with Covariate-Unadjusted Models (HC2 Robust standard errors) (After July 1st)',
+            'Testing the Effect of the Intervention on Count of Unreliable News Consumed with Covariate-Unadjusted Models (HC2 Robust standard errors) (After July 1st)',
+            'Testing the Effect of the Intervention on Count of Reliable News Consumed with Covariate-Unadjusted Models (HC2 Robust standard errors) (After July 1st)',
+            'Testing the Effect of the Intervention on Reliability Score of News Diet with Covariate-Unadjusted Models (HC2 Robust standard errors) (After July 1st)')
+
+
+
+#Create list of filenames:
+Tables_title <-  c(paste0('./Tables/Table_',subset_name,'_11.txt'),
+                   paste0('./Tables/Table_',subset_name,'_12.txt'),
+                   paste0('./Tables/Table_',subset_name,'_13.txt'),
+                   paste0('./Tables/Table_',subset_name,'_14.txt'),
+                   paste0('./Tables/Table_',subset_name,'_15.txt'),
+                   paste0('./Tables/Table_',subset_name,'_16.txt'),
+                   paste0('./Tables/Table_',subset_name,'_17.txt'),
+                   paste0('./Tables/Table_',subset_name,'_18.txt'),
+                   paste0('./Tables/Table_',subset_name,'_19.txt'),
+                   paste0('./Tables/Table_',subset_name,'_20.txt'))
+
+#Create crosswalk for variables and display names:
+top_attribute_names <- c('Treated',
+                         'Prop_Unreliable_NewsG_Score',
+                         'Prop_Reliable_NewsG_Score',
+                         'Count_Unreliable_NewsG_Score',
+                         'Count_Reliable_NewsG_Score',
+                         'Average_domain_NewsG_Score')
+
+top_attributes_html <- c('Treatment',
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value')
+
+
+names(top_attributes_html) <- top_attribute_names
+
+#Run For loop to produce Tables 27-36:
+
+i=1
+for(i in 1:length(list_variables_to_run_1)){
+  list_possible_covariates_for_use <- c('Treated',list_variables_to_run_1[[i]])
+  
+  data_for_analysis <- subset_data %>% ungroup() %>% select(`list_possible_covariates_for_use`)
+  
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
+  
+  f <- paste0(list_variables_to_run_1[[i]][1], " ~ .")
+  
+  ITT_Model <- lm_robust(as.formula(f), data = data_for_analysis)
+  
+  names_of_columns_2 <- c('Treated',list_possible_covariates_for_use,'compliance_check_1')
+  
+  names_use <- names(subset_data)[(names(subset_data) %in% names_of_columns_2)]
+  
+  data_for_analysis <- subset_data[, names_use]
+  
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
+  
+  f <- paste0(list_variables_to_run_1[[i]][1], '~ . - Treated | . - compliance_check_1')
+  
+  #CACE Model 1
+  CACE_Model_1 <- iv_robust(as.formula(f), data = data_for_analysis)
+  
+  CACE_Model_1$term[which(CACE_Model_1$term == "compliance_check_11")] <- 'Treated'
+  
+  # #CACE Model 2 - Passed first and second wave compliance check
+  
+  names_of_columns_3 <- c('Treated',list_possible_covariates_for_use,'Complied')
+  
+  names_use <- names(subset_data)[(names(subset_data) %in% names_of_columns_3)]
+  
+  data_for_analysis <- subset_data[, names_use]
+  
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
+  
+  f <- paste0(list_variables_to_run_1[[i]][1], '~  . - Treated | . - Complied')
+  
+  CACE_Model_2 <- iv_robust(as.formula(f), data = data_for_analysis)
+  
+  CACE_Model_2$term[which(CACE_Model_2$term == "Complied")] <- 'Treated'
+  
+  
+  #names of the variables:
+  
+  Variable_Names <- names(ITT_Model$coefficients)[-1]
+  Variable_Names <- str_replace_all(Variable_Names, top_attributes_html)
+  
+  #Write Table
+  texreg(list(ITT_Model,CACE_Model_1,CACE_Model_2),
+         include.ci = FALSE,
+         digits=4,
+         omit.coef = '(Intercept)',
+         caption= Titles[i],
+         label = "table",
+         include.rmse = FALSE,
+         custom.coef.names = Variable_Names,
+         custom.model.names= c("Intent-To-Treat (ITT)", "CACE (Model 1)","CACE (Model 2)"),
+         file=Tables_title[i],
+         float.pos = "!htbp",
+         caption.above = TRUE)
+}
+
+
+
+
+
+#################################### Behavioral Measures -- Subset by Democrat Respondents ######################
+
+
+subset_data <- Pulse_data %>% filter(party_score < 4)
+subset_name <- 'Democrat'
+
+#List of possible variables for inclusion:
+list_possible_covariates <- c("gender_dummy_fem",
+                              "educ_score",
+                              "Age",
+                              "Age_Sq",
+                              "party_score",
+                              "race_white",
+                              "ideo_score",
+                              "Trust_Media_w1",
+                              "trust_news",
+                              "trust_news_sm",
+                              "cons_news_n",
+                              "cons_cable",
+                              "cons_print",
+                              "cons_public", 
+                              "cons_talk",
+                              "cons_desk",
+                              "cons_mobile",
+                              "log_news",
+                              "Safari_dummy",
+                              "IE_dummy",
+                              "Chrome_dummy",
+                              "Firefox_dummy",
+                              "Social_Media_Use")
+
+
+
+
+#Create Sets of variables to use in models:
+list_variables_to_run_1 = list(c('Prop_Unreliable_NewsG_Score_dv','Prop_Unreliable_NewsG_Score'),
+                               c('Prop_Reliable_NewsG_Score_dv','Prop_Reliable_NewsG_Score'),
+                               c('Count_Unreliable_NewsG_Score_dv','Count_Unreliable_NewsG_Score'),
+                               c('Count_Reliable_NewsG_Score_dv','Count_Reliable_NewsG_Score'),
+                               c('Average_domain_NewsG_Score_dv','Average_domain_NewsG_Score'),
+                               c('Prop_Unreliable_NewsG_Score_post','Prop_Unreliable_NewsG_Score'),
+                               c('Prop_Reliable_NewsG_Score_post','Prop_Reliable_NewsG_Score'),
+                               c('Count_Unreliable_NewsG_Score_post','Count_Unreliable_NewsG_Score'),
+                               c('Count_Reliable_NewsG_Score_post','Count_Reliable_NewsG_Score'),
+                               c('Average_domain_NewsG_Score_post','Average_domain_NewsG_Score'))
+
+#Create list of Titles:
+Titles <- c('Testing the Effect of the Intervention on Proportion of News Diet That is Unreliable with Covariate-Adjusted Models (HC2 Robust standard errors) (Before July 1st)',
+            'Testing the Effect of the Intervention on Proportion of News Diet That is Reliable with Covariate-Adjusted Models (HC2 Robust standard errors) (Before July 1st)',
+            'Testing the Effect of the Intervention on Count of Unreliable News Consumed with Covariate-Adjusted Models (HC2 Robust standard errors) (Before July 1st)',
+            'Testing the Effect of the Intervention on Count of Reliable News Consumed with Covariate-Adjusted Models (HC2 Robust standard errors) (Before July 1st)',
+            'Testing the Effect of the Intervention on Reliability Score of News Diet with Covariate-Adjusted Models (HC2 Robust standard errors) (Before July 1st)',
+            'Testing the Effect of the Intervention on Proportion of News Diet That is Unreliable with Covariate-Adjusted Models (HC2 Robust standard errors) (After July 1st)',
+            'Testing the Effect of the Intervention on Proportion of News Diet That is Reliable with Covariate-Adjusted Models (HC2 Robust standard errors) (After July 1st)',
+            'Testing the Effect of the Intervention on Count of Unreliable News Consumed with Covariate-Adjusted Models (HC2 Robust standard errors) (After July 1st)',
+            'Testing the Effect of the Intervention on Count of Reliable News Consumed with Covariate-Adjusted Models (HC2 Robust standard errors) (After July 1st)',
+            'Testing the Effect of the Intervention on Reliability Score of News Diet with Covariate-Adjusted Models (HC2 Robust standard errors) (After July 1st)')
+
+
+
+#Create list of filenames:
+Tables_title <-  c(paste0('./Tables/Table_',subset_name,'_1.txt'),
+                   paste0('./Tables/Table_',subset_name,'_2.txt'),
+                   paste0('./Tables/Table_',subset_name,'_3.txt'),
+                   paste0('./Tables/Table_',subset_name,'_4.txt'),
+                   paste0('./Tables/Table_',subset_name,'_5.txt'),
+                   paste0('./Tables/Table_',subset_name,'_6.txt'),
+                   paste0('./Tables/Table_',subset_name,'_7.txt'),
+                   paste0('./Tables/Table_',subset_name,'_8.txt'),
+                   paste0('./Tables/Table_',subset_name,'_9.txt'),
+                   paste0('./Tables/Table_',subset_name,'_10.txt'))
+
+#Create crosswalk for variables and display names:
+top_attribute_names <- c("gender_dummy_fem",
+                         "educ_score",
+                         'Treated',
+                         "Age",
+                         "Age_Sq",
+                         "party_score",
+                         "race_white",
+                         "ideo_score",
+                         "Trust_Media_w1",
+                         "trust_news",
+                         "trust_news_sm",
+                         "cons_news_n",
+                         "cons_cable",
+                         "cons_print",
+                         "cons_public", 
+                         "cons_talk",
+                         "cons_desk",
+                         "cons_mobile",
+                         "Safari_dummy",
+                         "log_news",
+                         'Prop_Unreliable_NewsG_Score',
+                         'Prop_Reliable_NewsG_Score',
+                         'Count_Unreliable_NewsG_Score',
+                         'Count_Reliable_NewsG_Score',
+                         'Average_domain_NewsG_Score',
+                         'compliance_check_1',
+                         'Complied',
+                         "IE_dummy",
+                         "Chrome_dummy",
+                         "Firefox_dummy",
+                         "Social_Media_Use")
+
+top_attributes_html <- c('Gender',
+                         'Education',
+                         'Treatment',
+                         'Age',
+                         'Age-Squared',
+                         "Party ID",
+                         "Race/Ethnicity",
+                         "Ideology ",
+                         "Trust in Media",
+                         "Trust of news in newspapers",
+                         "Trust of news on social media ",
+                         "News consumption (network news)",
+                         "News consumption (cable news)",
+                         "News consumption (print news) ",
+                         "News consumption (public radio)", 
+                         "News consumption (talk radio)",
+                         "News consumption (news on desktop)",
+                         "News consumption (news on mobile)",
+                         "Web Browser (Safari)",
+                         "Log of news viewed",
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value',
+                         'Treatment',
+                         'Treatment',
+                         "Internet Explorer Browser",
+                         "Chrome Browser",
+                         "Firefox Browser",
+                         "Social Media use")
+
+names(top_attributes_html) <- top_attribute_names
+
+
+
+#Run For loop to produce Tables 3-12:
+i=1
+for(i in 1:length(list_variables_to_run_1)){
+  list_possible_covariates_for_use <- c(list_variables_to_run_1[[i]],list_possible_covariates)
+  
+  data_for_analysis <- subset_data %>% ungroup() %>% select(`list_possible_covariates_for_use`)
+  
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
+  
+  #Use glmnet lasso to choose covariates to be a part of model:
+  names_of_columns <- Lasso(data_for_analysis)
+  
+  #names_of_columns
+  
+  names_of_columns <- c('Treated',names_of_columns)
+  
+  
+  names_use <- names(subset_data)[(names(subset_data) %in% names_of_columns)]
+  
+  data_for_analysis <- subset_data[, names_use]
+  
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
+  
+  f <- paste0(list_variables_to_run_1[[i]][1], " ~ .")
+  
+  ITT_Model <- lm_robust(as.formula(f), data = data_for_analysis)
+  
+  
+  names_of_columns_2 <- c(names_of_columns,'compliance_check_1')
+  names_use <- names(subset_data)[(names(subset_data) %in% names_of_columns_2)]
+  data_for_analysis <- subset_data[, names_use]
+  
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
+  
+  f <- paste0(list_variables_to_run_1[[i]][1], '~ . - Treated | . - compliance_check_1')
+  
+  #CACE Model 1
+  CACE_Model_1 <- iv_robust(as.formula(f), data = data_for_analysis)
+  
+  CACE_Model_1$term[which(CACE_Model_1$term == "compliance_check_11")] <- 'Treated'
+  
+  # #CACE Model 2 - Passed first and second wave compliance check
+  names_of_columns_3 <- c(names_of_columns,'Complied')
+  names_use <- names(subset_data)[(names(subset_data) %in% names_of_columns_3)]
+  data_for_analysis <- subset_data[, names_use]
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
+  f <- paste0(list_variables_to_run_1[[i]][1], '~  . - Treated | . - Complied')
+  CACE_Model_2 <- iv_robust(as.formula(f), data = data_for_analysis)
+  
+  CACE_Model_2$term[which(CACE_Model_2$term == "Complied")] <- 'Treated'
+  
+  #names of the variables:
+  Variable_Names <- names(ITT_Model$coefficients)[-1]
+  Variable_Names <- str_replace_all(Variable_Names, top_attributes_html)
+  
+  #Write Table
+  texreg(list(ITT_Model,CACE_Model_1,CACE_Model_2),
+         include.ci = FALSE,
+         digits=4,
+         omit.coef = '(Intercept)',
+         caption= Titles[i],
+         label = "table",
+         include.rmse = FALSE,
+         custom.coef.names = Variable_Names,
+         custom.model.names= c("Intent-To-Treat (ITT)", "CACE (Model 1)","CACE (Model 2)"),
+         file=Tables_title[i],
+         float.pos = "!htbp",
+         caption.above = TRUE)
+}
+
+
+
+
+
+
+#Create Sets of variables to use in models:
+list_variables_to_run_1 = list(c('Prop_Unreliable_NewsG_Score_dv'),
+                               c('Prop_Reliable_NewsG_Score_dv'),
+                               c('Count_Unreliable_NewsG_Score_dv'),
+                               c('Count_Reliable_NewsG_Score_dv'),
+                               c('Average_domain_NewsG_Score_dv'),
+                               c('Prop_Unreliable_NewsG_Score_post'),
+                               c('Prop_Reliable_NewsG_Score_post'),
+                               c('Count_Unreliable_NewsG_Score_post'),
+                               c('Count_Reliable_NewsG_Score_post'),
+                               c('Average_domain_NewsG_Score_post'))
+
+
+
+
+
+#Create list of Titles:
+Titles <- c('Testing the Effect of the Intervention on Proportion of News Diet That is Unreliable with Covariate-Unadjusted Models (HC2 Robust standard errors) (Before July 1st) ',
+            'Testing the Effect of the Intervention on Proportion of News Diet That is Reliable with Covariate-Unadjusted Models (HC2 Robust standard errors) (Before July 1st)',
+            'Testing the Effect of the Intervention on Count of Unreliable News Consumed with Covariate-Unadjusted Models (HC2 Robust standard errors) (Before July 1st)',
+            'Testing the Effect of the Intervention on Count of Reliable News Consumed with Covariate-Unadjusted Models (HC2 Robust standard errors) (Before July 1st)',
+            'Testing the Effect of the Intervention on Reliability Score of News Diet with Covariate-Unadjusted Models (HC2 Robust standard errors) (Before July 1st)',
+            'Testing the Effect of the Intervention on Proportion of News Diet That is Unreliable with Covariate-Unadjusted Models (HC2 Robust standard errors) (After July 1st)',
+            'Testing the Effect of the Intervention on Proportion of News Diet That is Reliable with Covariate-Unadjusted Models (HC2 Robust standard errors) (After July 1st)',
+            'Testing the Effect of the Intervention on Count of Unreliable News Consumed with Covariate-Unadjusted Models (HC2 Robust standard errors) (After July 1st)',
+            'Testing the Effect of the Intervention on Count of Reliable News Consumed with Covariate-Unadjusted Models (HC2 Robust standard errors) (After July 1st)',
+            'Testing the Effect of the Intervention on Reliability Score of News Diet with Covariate-Unadjusted Models (HC2 Robust standard errors) (After July 1st)')
+
+
+
+#Create list of filenames:
+Tables_title <-  c(paste0('./Tables/Table_',subset_name,'_11.txt'),
+                   paste0('./Tables/Table_',subset_name,'_12.txt'),
+                   paste0('./Tables/Table_',subset_name,'_13.txt'),
+                   paste0('./Tables/Table_',subset_name,'_14.txt'),
+                   paste0('./Tables/Table_',subset_name,'_15.txt'),
+                   paste0('./Tables/Table_',subset_name,'_16.txt'),
+                   paste0('./Tables/Table_',subset_name,'_17.txt'),
+                   paste0('./Tables/Table_',subset_name,'_18.txt'),
+                   paste0('./Tables/Table_',subset_name,'_19.txt'),
+                   paste0('./Tables/Table_',subset_name,'_20.txt'))
+
+#Create crosswalk for variables and display names:
+top_attribute_names <- c('Treated',
+                         'Prop_Unreliable_NewsG_Score',
+                         'Prop_Reliable_NewsG_Score',
+                         'Count_Unreliable_NewsG_Score',
+                         'Count_Reliable_NewsG_Score',
+                         'Average_domain_NewsG_Score')
+
+top_attributes_html <- c('Treatment',
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value')
+
+
+names(top_attributes_html) <- top_attribute_names
+
+#Run For loop to produce Tables 27-36:
+
+i=1
+for(i in 1:length(list_variables_to_run_1)){
+  list_possible_covariates_for_use <- c('Treated',list_variables_to_run_1[[i]])
+  
+  data_for_analysis <- subset_data %>% ungroup() %>% select(`list_possible_covariates_for_use`)
+  
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
+  
+  f <- paste0(list_variables_to_run_1[[i]][1], " ~ .")
+  
+  ITT_Model <- lm_robust(as.formula(f), data = data_for_analysis)
+  
+  names_of_columns_2 <- c('Treated',list_possible_covariates_for_use,'compliance_check_1')
+  
+  names_use <- names(subset_data)[(names(subset_data) %in% names_of_columns_2)]
+  
+  data_for_analysis <- subset_data[, names_use]
+  
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
+  
+  f <- paste0(list_variables_to_run_1[[i]][1], '~ . - Treated | . - compliance_check_1')
+  
+  #CACE Model 1
+  CACE_Model_1 <- iv_robust(as.formula(f), data = data_for_analysis)
+  
+  CACE_Model_1$term[which(CACE_Model_1$term == "compliance_check_11")] <- 'Treated'
+  
+  # #CACE Model 2 - Passed first and second wave compliance check
+  
+  names_of_columns_3 <- c('Treated',list_possible_covariates_for_use,'Complied')
+  
+  names_use <- names(subset_data)[(names(subset_data) %in% names_of_columns_3)]
+  
+  data_for_analysis <- subset_data[, names_use]
+  
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
+  
+  f <- paste0(list_variables_to_run_1[[i]][1], '~  . - Treated | . - Complied')
+  
+  CACE_Model_2 <- iv_robust(as.formula(f), data = data_for_analysis)
+  
+  CACE_Model_2$term[which(CACE_Model_2$term == "Complied")] <- 'Treated'
+  
+  
+  #names of the variables:
+  
+  Variable_Names <- names(ITT_Model$coefficients)[-1]
+  Variable_Names <- str_replace_all(Variable_Names, top_attributes_html)
+  
+  #Write Table
+  texreg(list(ITT_Model,CACE_Model_1,CACE_Model_2),
+         include.ci = FALSE,
+         digits=4,
+         omit.coef = '(Intercept)',
+         caption= Titles[i],
+         label = "table",
+         include.rmse = FALSE,
+         custom.coef.names = Variable_Names,
+         custom.model.names= c("Intent-To-Treat (ITT)", "CACE (Model 1)","CACE (Model 2)"),
+         file=Tables_title[i],
+         float.pos = "!htbp",
+         caption.above = TRUE)
+}
+
+
+
+####################################### Moderates ###########################################
+
+
+
+#################################### Behavioral Measures -- Subset by Democrat Respondents ######################
+
+
+subset_data <- Pulse_data %>% filter(party_score == 4)
+subset_name <- 'Moderate'
+
+#List of possible variables for inclusion:
+list_possible_covariates <- c("gender_dummy_fem",
+                              "educ_score",
+                              "Age",
+                              "Age_Sq",
+                              "party_score",
+                              "race_white",
+                              "ideo_score",
+                              "Trust_Media_w1",
+                              "trust_news",
+                              "trust_news_sm",
+                              "cons_news_n",
+                              "cons_cable",
+                              "cons_print",
+                              "cons_public", 
+                              "cons_talk",
+                              "cons_desk",
+                              "cons_mobile",
+                              "log_news",
+                              "Safari_dummy",
+                              "IE_dummy",
+                              "Chrome_dummy",
+                              "Firefox_dummy",
+                              "Social_Media_Use")
+
+
+
+
+#Create Sets of variables to use in models:
+list_variables_to_run_1 = list(c('Prop_Unreliable_NewsG_Score_dv','Prop_Unreliable_NewsG_Score'),
+                               c('Prop_Reliable_NewsG_Score_dv','Prop_Reliable_NewsG_Score'),
+                               c('Count_Unreliable_NewsG_Score_dv','Count_Unreliable_NewsG_Score'),
+                               c('Count_Reliable_NewsG_Score_dv','Count_Reliable_NewsG_Score'),
+                               c('Average_domain_NewsG_Score_dv','Average_domain_NewsG_Score'),
+                               c('Prop_Unreliable_NewsG_Score_post','Prop_Unreliable_NewsG_Score'),
+                               c('Prop_Reliable_NewsG_Score_post','Prop_Reliable_NewsG_Score'),
+                               c('Count_Unreliable_NewsG_Score_post','Count_Unreliable_NewsG_Score'),
+                               c('Count_Reliable_NewsG_Score_post','Count_Reliable_NewsG_Score'),
+                               c('Average_domain_NewsG_Score_post','Average_domain_NewsG_Score'))
+
+#Create list of Titles:
+Titles <- c('Testing the Effect of the Intervention on Proportion of News Diet That is Unreliable with Covariate-Adjusted Models (HC2 Robust standard errors) (Before July 1st)',
+            'Testing the Effect of the Intervention on Proportion of News Diet That is Reliable with Covariate-Adjusted Models (HC2 Robust standard errors) (Before July 1st)',
+            'Testing the Effect of the Intervention on Count of Unreliable News Consumed with Covariate-Adjusted Models (HC2 Robust standard errors) (Before July 1st)',
+            'Testing the Effect of the Intervention on Count of Reliable News Consumed with Covariate-Adjusted Models (HC2 Robust standard errors) (Before July 1st)',
+            'Testing the Effect of the Intervention on Reliability Score of News Diet with Covariate-Adjusted Models (HC2 Robust standard errors) (Before July 1st)',
+            'Testing the Effect of the Intervention on Proportion of News Diet That is Unreliable with Covariate-Adjusted Models (HC2 Robust standard errors) (After July 1st)',
+            'Testing the Effect of the Intervention on Proportion of News Diet That is Reliable with Covariate-Adjusted Models (HC2 Robust standard errors) (After July 1st)',
+            'Testing the Effect of the Intervention on Count of Unreliable News Consumed with Covariate-Adjusted Models (HC2 Robust standard errors) (After July 1st)',
+            'Testing the Effect of the Intervention on Count of Reliable News Consumed with Covariate-Adjusted Models (HC2 Robust standard errors) (After July 1st)',
+            'Testing the Effect of the Intervention on Reliability Score of News Diet with Covariate-Adjusted Models (HC2 Robust standard errors) (After July 1st)')
+
+
+
+#Create list of filenames:
+Tables_title <-  c(paste0('./Tables/Table_',subset_name,'_1.txt'),
+                   paste0('./Tables/Table_',subset_name,'_2.txt'),
+                   paste0('./Tables/Table_',subset_name,'_3.txt'),
+                   paste0('./Tables/Table_',subset_name,'_4.txt'),
+                   paste0('./Tables/Table_',subset_name,'_5.txt'),
+                   paste0('./Tables/Table_',subset_name,'_6.txt'),
+                   paste0('./Tables/Table_',subset_name,'_7.txt'),
+                   paste0('./Tables/Table_',subset_name,'_8.txt'),
+                   paste0('./Tables/Table_',subset_name,'_9.txt'),
+                   paste0('./Tables/Table_',subset_name,'_10.txt'))
+
+#Create crosswalk for variables and display names:
+top_attribute_names <- c("gender_dummy_fem",
+                         "educ_score",
+                         'Treated',
+                         "Age",
+                         "Age_Sq",
+                         "party_score",
+                         "race_white",
+                         "ideo_score",
+                         "Trust_Media_w1",
+                         "trust_news",
+                         "trust_news_sm",
+                         "cons_news_n",
+                         "cons_cable",
+                         "cons_print",
+                         "cons_public", 
+                         "cons_talk",
+                         "cons_desk",
+                         "cons_mobile",
+                         "Safari_dummy",
+                         "log_news",
+                         'Prop_Unreliable_NewsG_Score',
+                         'Prop_Reliable_NewsG_Score',
+                         'Count_Unreliable_NewsG_Score',
+                         'Count_Reliable_NewsG_Score',
+                         'Average_domain_NewsG_Score',
+                         'compliance_check_1',
+                         'Complied',
+                         "IE_dummy",
+                         "Chrome_dummy",
+                         "Firefox_dummy",
+                         "Social_Media_Use")
+
+top_attributes_html <- c('Gender',
+                         'Education',
+                         'Treatment',
+                         'Age',
+                         'Age-Squared',
+                         "Party ID",
+                         "Race/Ethnicity",
+                         "Ideology ",
+                         "Trust in Media",
+                         "Trust of news in newspapers",
+                         "Trust of news on social media ",
+                         "News consumption (network news)",
+                         "News consumption (cable news)",
+                         "News consumption (print news) ",
+                         "News consumption (public radio)", 
+                         "News consumption (talk radio)",
+                         "News consumption (news on desktop)",
+                         "News consumption (news on mobile)",
+                         "Web Browser (Safari)",
+                         "Log of news viewed",
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value',
+                         'Treatment',
+                         'Treatment',
+                         "Internet Explorer Browser",
+                         "Chrome Browser",
+                         "Firefox Browser",
+                         "Social Media use")
+
+names(top_attributes_html) <- top_attribute_names
+
+
+
+#Run For loop to produce Tables 3-12:
+i=1
+for(i in 1:length(list_variables_to_run_1)){
+  list_possible_covariates_for_use <- c(list_variables_to_run_1[[i]],list_possible_covariates)
+  
+  data_for_analysis <- subset_data %>% ungroup() %>% select(`list_possible_covariates_for_use`)
+  
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
+  
+  #Use glmnet lasso to choose covariates to be a part of model:
+  names_of_columns <- Lasso(data_for_analysis)
+  
+  #names_of_columns
+  
+  names_of_columns <- c('Treated',names_of_columns)
+  
+  
+  names_use <- names(subset_data)[(names(subset_data) %in% names_of_columns)]
+  
+  data_for_analysis <- subset_data[, names_use]
+  
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
+  
+  f <- paste0(list_variables_to_run_1[[i]][1], " ~ .")
+  
+  ITT_Model <- lm_robust(as.formula(f), data = data_for_analysis)
+  
+  
+  names_of_columns_2 <- c(names_of_columns,'compliance_check_1')
+  names_use <- names(subset_data)[(names(subset_data) %in% names_of_columns_2)]
+  data_for_analysis <- subset_data[, names_use]
+  
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
+  
+  f <- paste0(list_variables_to_run_1[[i]][1], '~ . - Treated | . - compliance_check_1')
+  
+  #CACE Model 1
+  CACE_Model_1 <- iv_robust(as.formula(f), data = data_for_analysis)
+  
+  CACE_Model_1$term[which(CACE_Model_1$term == "compliance_check_11")] <- 'Treated'
+  
+  # #CACE Model 2 - Passed first and second wave compliance check
+  names_of_columns_3 <- c(names_of_columns,'Complied')
+  names_use <- names(subset_data)[(names(subset_data) %in% names_of_columns_3)]
+  data_for_analysis <- subset_data[, names_use]
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
+  f <- paste0(list_variables_to_run_1[[i]][1], '~  . - Treated | . - Complied')
+  CACE_Model_2 <- iv_robust(as.formula(f), data = data_for_analysis)
+  
+  CACE_Model_2$term[which(CACE_Model_2$term == "Complied")] <- 'Treated'
+  
+  #names of the variables:
+  Variable_Names <- names(ITT_Model$coefficients)[-1]
+  Variable_Names <- str_replace_all(Variable_Names, top_attributes_html)
+  
+  #Write Table
+  texreg(list(ITT_Model,CACE_Model_1,CACE_Model_2),
+         include.ci = FALSE,
+         digits=4,
+         omit.coef = '(Intercept)',
+         caption= Titles[i],
+         label = "table",
+         include.rmse = FALSE,
+         custom.coef.names = Variable_Names,
+         custom.model.names= c("Intent-To-Treat (ITT)", "CACE (Model 1)","CACE (Model 2)"),
+         file=Tables_title[i],
+         float.pos = "!htbp",
+         caption.above = TRUE)
+}
+
+
+
+
+
+
+#Create Sets of variables to use in models:
+list_variables_to_run_1 = list(c('Prop_Unreliable_NewsG_Score_dv'),
+                               c('Prop_Reliable_NewsG_Score_dv'),
+                               c('Count_Unreliable_NewsG_Score_dv'),
+                               c('Count_Reliable_NewsG_Score_dv'),
+                               c('Average_domain_NewsG_Score_dv'),
+                               c('Prop_Unreliable_NewsG_Score_post'),
+                               c('Prop_Reliable_NewsG_Score_post'),
+                               c('Count_Unreliable_NewsG_Score_post'),
+                               c('Count_Reliable_NewsG_Score_post'),
+                               c('Average_domain_NewsG_Score_post'))
+
+
+
+
+
+#Create list of Titles:
+Titles <- c('Testing the Effect of the Intervention on Proportion of News Diet That is Unreliable with Covariate-Unadjusted Models (HC2 Robust standard errors) (Before July 1st) ',
+            'Testing the Effect of the Intervention on Proportion of News Diet That is Reliable with Covariate-Unadjusted Models (HC2 Robust standard errors) (Before July 1st)',
+            'Testing the Effect of the Intervention on Count of Unreliable News Consumed with Covariate-Unadjusted Models (HC2 Robust standard errors) (Before July 1st)',
+            'Testing the Effect of the Intervention on Count of Reliable News Consumed with Covariate-Unadjusted Models (HC2 Robust standard errors) (Before July 1st)',
+            'Testing the Effect of the Intervention on Reliability Score of News Diet with Covariate-Unadjusted Models (HC2 Robust standard errors) (Before July 1st)',
+            'Testing the Effect of the Intervention on Proportion of News Diet That is Unreliable with Covariate-Unadjusted Models (HC2 Robust standard errors) (After July 1st)',
+            'Testing the Effect of the Intervention on Proportion of News Diet That is Reliable with Covariate-Unadjusted Models (HC2 Robust standard errors) (After July 1st)',
+            'Testing the Effect of the Intervention on Count of Unreliable News Consumed with Covariate-Unadjusted Models (HC2 Robust standard errors) (After July 1st)',
+            'Testing the Effect of the Intervention on Count of Reliable News Consumed with Covariate-Unadjusted Models (HC2 Robust standard errors) (After July 1st)',
+            'Testing the Effect of the Intervention on Reliability Score of News Diet with Covariate-Unadjusted Models (HC2 Robust standard errors) (After July 1st)')
+
+
+
+#Create list of filenames:
+Tables_title <-  c(paste0('./Tables/Table_',subset_name,'_11.txt'),
+                   paste0('./Tables/Table_',subset_name,'_12.txt'),
+                   paste0('./Tables/Table_',subset_name,'_13.txt'),
+                   paste0('./Tables/Table_',subset_name,'_14.txt'),
+                   paste0('./Tables/Table_',subset_name,'_15.txt'),
+                   paste0('./Tables/Table_',subset_name,'_16.txt'),
+                   paste0('./Tables/Table_',subset_name,'_17.txt'),
+                   paste0('./Tables/Table_',subset_name,'_18.txt'),
+                   paste0('./Tables/Table_',subset_name,'_19.txt'),
+                   paste0('./Tables/Table_',subset_name,'_20.txt'))
+
+#Create crosswalk for variables and display names:
+top_attribute_names <- c('Treated',
+                         'Prop_Unreliable_NewsG_Score',
+                         'Prop_Reliable_NewsG_Score',
+                         'Count_Unreliable_NewsG_Score',
+                         'Count_Reliable_NewsG_Score',
+                         'Average_domain_NewsG_Score')
+
+top_attributes_html <- c('Treatment',
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value')
+
+
+names(top_attributes_html) <- top_attribute_names
+
+#Run For loop to produce Tables 27-36:
+
+i=1
+for(i in 1:length(list_variables_to_run_1)){
+  list_possible_covariates_for_use <- c('Treated',list_variables_to_run_1[[i]])
+  
+  data_for_analysis <- subset_data %>% ungroup() %>% select(`list_possible_covariates_for_use`)
+  
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
+  
+  f <- paste0(list_variables_to_run_1[[i]][1], " ~ .")
+  
+  ITT_Model <- lm_robust(as.formula(f), data = data_for_analysis)
+  
+  names_of_columns_2 <- c('Treated',list_possible_covariates_for_use,'compliance_check_1')
+  
+  names_use <- names(subset_data)[(names(subset_data) %in% names_of_columns_2)]
+  
+  data_for_analysis <- subset_data[, names_use]
+  
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
+  
+  f <- paste0(list_variables_to_run_1[[i]][1], '~ . - Treated | . - compliance_check_1')
+  
+  #CACE Model 1
+  CACE_Model_1 <- iv_robust(as.formula(f), data = data_for_analysis)
+  
+  CACE_Model_1$term[which(CACE_Model_1$term == "compliance_check_11")] <- 'Treated'
+  
+  # #CACE Model 2 - Passed first and second wave compliance check
+  
+  names_of_columns_3 <- c('Treated',list_possible_covariates_for_use,'Complied')
+  
+  names_use <- names(subset_data)[(names(subset_data) %in% names_of_columns_3)]
+  
+  data_for_analysis <- subset_data[, names_use]
+  
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
+  
+  f <- paste0(list_variables_to_run_1[[i]][1], '~  . - Treated | . - Complied')
+  
+  CACE_Model_2 <- iv_robust(as.formula(f), data = data_for_analysis)
+  
+  CACE_Model_2$term[which(CACE_Model_2$term == "Complied")] <- 'Treated'
+  
+  
+  #names of the variables:
+  
+  Variable_Names <- names(ITT_Model$coefficients)[-1]
+  Variable_Names <- str_replace_all(Variable_Names, top_attributes_html)
+  
+  #Write Table
+  texreg(list(ITT_Model,CACE_Model_1,CACE_Model_2),
+         include.ci = FALSE,
+         digits=4,
+         omit.coef = '(Intercept)',
+         caption= Titles[i],
+         label = "table",
+         include.rmse = FALSE,
+         custom.coef.names = Variable_Names,
+         custom.model.names= c("Intent-To-Treat (ITT)", "CACE (Model 1)","CACE (Model 2)"),
+         file=Tables_title[i],
+         float.pos = "!htbp",
+         caption.above = TRUE)
+}
+
+
+
+
+
+
+
+
+
+
+#################################### Behavioral Measures -- Subset by High Digital Literacy ######################
+
+subset_data <- Pulse_data %>% filter(Total_DL > 48)
+subset_name <- 'High_DL'
+
+#List of possible variables for inclusion:
+list_possible_covariates <- c("gender_dummy_fem",
+                              "educ_score",
+                              "Age",
+                              "Age_Sq",
+                              "party_score",
+                              "race_white",
+                              "ideo_score",
+                              "Trust_Media_w1",
+                              "trust_news",
+                              "trust_news_sm",
+                              "cons_news_n",
+                              "cons_cable",
+                              "cons_print",
+                              "cons_public", 
+                              "cons_talk",
+                              "cons_desk",
+                              "cons_mobile",
+                              "log_news",
+                              "Safari_dummy",
+                              "IE_dummy",
+                              "Chrome_dummy",
+                              "Firefox_dummy",
+                              "Social_Media_Use")
+
+
+
+
+#Create Sets of variables to use in models:
+list_variables_to_run_1 = list(c('Prop_Unreliable_NewsG_Score_dv','Prop_Unreliable_NewsG_Score'),
+                               c('Prop_Reliable_NewsG_Score_dv','Prop_Reliable_NewsG_Score'),
+                               c('Count_Unreliable_NewsG_Score_dv','Count_Unreliable_NewsG_Score'),
+                               c('Count_Reliable_NewsG_Score_dv','Count_Reliable_NewsG_Score'),
+                               c('Average_domain_NewsG_Score_dv','Average_domain_NewsG_Score'),
+                               c('Prop_Unreliable_NewsG_Score_post','Prop_Unreliable_NewsG_Score'),
+                               c('Prop_Reliable_NewsG_Score_post','Prop_Reliable_NewsG_Score'),
+                               c('Count_Unreliable_NewsG_Score_post','Count_Unreliable_NewsG_Score'),
+                               c('Count_Reliable_NewsG_Score_post','Count_Reliable_NewsG_Score'),
+                               c('Average_domain_NewsG_Score_post','Average_domain_NewsG_Score'))
+
+#Create list of Titles:
+Titles <- c('Testing the Effect of the Intervention on Proportion of News Diet That is Unreliable with Covariate-Adjusted Models (HC2 Robust standard errors) (Before July 1st)',
+            'Testing the Effect of the Intervention on Proportion of News Diet That is Reliable with Covariate-Adjusted Models (HC2 Robust standard errors) (Before July 1st)',
+            'Testing the Effect of the Intervention on Count of Unreliable News Consumed with Covariate-Adjusted Models (HC2 Robust standard errors) (Before July 1st)',
+            'Testing the Effect of the Intervention on Count of Reliable News Consumed with Covariate-Adjusted Models (HC2 Robust standard errors) (Before July 1st)',
+            'Testing the Effect of the Intervention on Reliability Score of News Diet with Covariate-Adjusted Models (HC2 Robust standard errors) (Before July 1st)',
+            'Testing the Effect of the Intervention on Proportion of News Diet That is Unreliable with Covariate-Adjusted Models (HC2 Robust standard errors) (After July 1st)',
+            'Testing the Effect of the Intervention on Proportion of News Diet That is Reliable with Covariate-Adjusted Models (HC2 Robust standard errors) (After July 1st)',
+            'Testing the Effect of the Intervention on Count of Unreliable News Consumed with Covariate-Adjusted Models (HC2 Robust standard errors) (After July 1st)',
+            'Testing the Effect of the Intervention on Count of Reliable News Consumed with Covariate-Adjusted Models (HC2 Robust standard errors) (After July 1st)',
+            'Testing the Effect of the Intervention on Reliability Score of News Diet with Covariate-Adjusted Models (HC2 Robust standard errors) (After July 1st)')
+
+
+
+#Create list of filenames:
+Tables_title <-  c(paste0('./Tables/Table_',subset_name,'_1.txt'),
+                   paste0('./Tables/Table_',subset_name,'_2.txt'),
+                   paste0('./Tables/Table_',subset_name,'_3.txt'),
+                   paste0('./Tables/Table_',subset_name,'_4.txt'),
+                   paste0('./Tables/Table_',subset_name,'_5.txt'),
+                   paste0('./Tables/Table_',subset_name,'_6.txt'),
+                   paste0('./Tables/Table_',subset_name,'_7.txt'),
+                   paste0('./Tables/Table_',subset_name,'_8.txt'),
+                   paste0('./Tables/Table_',subset_name,'_9.txt'),
+                   paste0('./Tables/Table_',subset_name,'_10.txt'))
+
+#Create crosswalk for variables and display names:
+top_attribute_names <- c("gender_dummy_fem",
+                         "educ_score",
+                         'Treated',
+                         "Age",
+                         "Age_Sq",
+                         "party_score",
+                         "race_white",
+                         "ideo_score",
+                         "Trust_Media_w1",
+                         "trust_news",
+                         "trust_news_sm",
+                         "cons_news_n",
+                         "cons_cable",
+                         "cons_print",
+                         "cons_public", 
+                         "cons_talk",
+                         "cons_desk",
+                         "cons_mobile",
+                         "Safari_dummy",
+                         "log_news",
+                         'Prop_Unreliable_NewsG_Score',
+                         'Prop_Reliable_NewsG_Score',
+                         'Count_Unreliable_NewsG_Score',
+                         'Count_Reliable_NewsG_Score',
+                         'Average_domain_NewsG_Score',
+                         'compliance_check_1',
+                         'Complied',
+                         "IE_dummy",
+                         "Chrome_dummy",
+                         "Firefox_dummy",
+                         "Social_Media_Use")
+
+top_attributes_html <- c('Gender',
+                         'Education',
+                         'Treatment',
+                         'Age',
+                         'Age-Squared',
+                         "Party ID",
+                         "Race/Ethnicity",
+                         "Ideology ",
+                         "Trust in Media",
+                         "Trust of news in newspapers",
+                         "Trust of news on social media ",
+                         "News consumption (network news)",
+                         "News consumption (cable news)",
+                         "News consumption (print news) ",
+                         "News consumption (public radio)", 
+                         "News consumption (talk radio)",
+                         "News consumption (news on desktop)",
+                         "News consumption (news on mobile)",
+                         "Web Browser (Safari)",
+                         "Log of news viewed",
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value',
+                         'Treatment',
+                         'Treatment',
+                         "Internet Explorer Browser",
+                         "Chrome Browser",
+                         "Firefox Browser",
+                         "Social Media use")
+
+names(top_attributes_html) <- top_attribute_names
+
+
+
+#Run For loop to produce Tables 3-12:
+i=1
+for(i in 1:length(list_variables_to_run_1)){
+  list_possible_covariates_for_use <- c(list_variables_to_run_1[[i]],list_possible_covariates)
+  
+  data_for_analysis <- subset_data %>% ungroup() %>% select(`list_possible_covariates_for_use`)
+  
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
+  
+  #Use glmnet lasso to choose covariates to be a part of model:
+  names_of_columns <- Lasso(data_for_analysis)
+  
+  #names_of_columns
+  
+  names_of_columns <- c('Treated',names_of_columns)
+  
+  
+  names_use <- names(subset_data)[(names(subset_data) %in% names_of_columns)]
+  
+  data_for_analysis <- subset_data[, names_use]
+  
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
+  
+  f <- paste0(list_variables_to_run_1[[i]][1], " ~ .")
+  
+  ITT_Model <- lm_robust(as.formula(f), data = data_for_analysis)
+  
+  
+  names_of_columns_2 <- c(names_of_columns,'compliance_check_1')
+  names_use <- names(subset_data)[(names(subset_data) %in% names_of_columns_2)]
+  data_for_analysis <- subset_data[, names_use]
+  
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
+  
+  f <- paste0(list_variables_to_run_1[[i]][1], '~ . - Treated | . - compliance_check_1')
+  
+  #CACE Model 1
+  CACE_Model_1 <- iv_robust(as.formula(f), data = data_for_analysis)
+  
+  CACE_Model_1$term[which(CACE_Model_1$term == "compliance_check_11")] <- 'Treated'
+  
+  # #CACE Model 2 - Passed first and second wave compliance check
+  names_of_columns_3 <- c(names_of_columns,'Complied')
+  names_use <- names(subset_data)[(names(subset_data) %in% names_of_columns_3)]
+  data_for_analysis <- subset_data[, names_use]
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
+  f <- paste0(list_variables_to_run_1[[i]][1], '~  . - Treated | . - Complied')
+  CACE_Model_2 <- iv_robust(as.formula(f), data = data_for_analysis)
+  
+  CACE_Model_2$term[which(CACE_Model_2$term == "Complied")] <- 'Treated'
+  
+  #names of the variables:
+  Variable_Names <- names(ITT_Model$coefficients)[-1]
+  Variable_Names <- str_replace_all(Variable_Names, top_attributes_html)
+  
+  #Write Table
+  texreg(list(ITT_Model,CACE_Model_1,CACE_Model_2),
+         include.ci = FALSE,
+         digits=4,
+         omit.coef = '(Intercept)',
+         caption= Titles[i],
+         label = "table",
+         include.rmse = FALSE,
+         custom.coef.names = Variable_Names,
+         custom.model.names= c("Intent-To-Treat (ITT)", "CACE (Model 1)","CACE (Model 2)"),
+         file=Tables_title[i],
+         float.pos = "!htbp",
+         caption.above = TRUE)
+}
+
+
+
+
+
+
+#Create Sets of variables to use in models:
+list_variables_to_run_1 = list(c('Prop_Unreliable_NewsG_Score_dv'),
+                               c('Prop_Reliable_NewsG_Score_dv'),
+                               c('Count_Unreliable_NewsG_Score_dv'),
+                               c('Count_Reliable_NewsG_Score_dv'),
+                               c('Average_domain_NewsG_Score_dv'),
+                               c('Prop_Unreliable_NewsG_Score_post'),
+                               c('Prop_Reliable_NewsG_Score_post'),
+                               c('Count_Unreliable_NewsG_Score_post'),
+                               c('Count_Reliable_NewsG_Score_post'),
+                               c('Average_domain_NewsG_Score_post'))
+
+
+
+
+
+#Create list of Titles:
+Titles <- c('Testing the Effect of the Intervention on Proportion of News Diet That is Unreliable with Covariate-Unadjusted Models (HC2 Robust standard errors) (Before July 1st) ',
+            'Testing the Effect of the Intervention on Proportion of News Diet That is Reliable with Covariate-Unadjusted Models (HC2 Robust standard errors) (Before July 1st)',
+            'Testing the Effect of the Intervention on Count of Unreliable News Consumed with Covariate-Unadjusted Models (HC2 Robust standard errors) (Before July 1st)',
+            'Testing the Effect of the Intervention on Count of Reliable News Consumed with Covariate-Unadjusted Models (HC2 Robust standard errors) (Before July 1st)',
+            'Testing the Effect of the Intervention on Reliability Score of News Diet with Covariate-Unadjusted Models (HC2 Robust standard errors) (Before July 1st)',
+            'Testing the Effect of the Intervention on Proportion of News Diet That is Unreliable with Covariate-Unadjusted Models (HC2 Robust standard errors) (After July 1st)',
+            'Testing the Effect of the Intervention on Proportion of News Diet That is Reliable with Covariate-Unadjusted Models (HC2 Robust standard errors) (After July 1st)',
+            'Testing the Effect of the Intervention on Count of Unreliable News Consumed with Covariate-Unadjusted Models (HC2 Robust standard errors) (After July 1st)',
+            'Testing the Effect of the Intervention on Count of Reliable News Consumed with Covariate-Unadjusted Models (HC2 Robust standard errors) (After July 1st)',
+            'Testing the Effect of the Intervention on Reliability Score of News Diet with Covariate-Unadjusted Models (HC2 Robust standard errors) (After July 1st)')
+
+
+
+#Create list of filenames:
+Tables_title <-  c(paste0('./Tables/Table_',subset_name,'_11.txt'),
+                   paste0('./Tables/Table_',subset_name,'_12.txt'),
+                   paste0('./Tables/Table_',subset_name,'_13.txt'),
+                   paste0('./Tables/Table_',subset_name,'_14.txt'),
+                   paste0('./Tables/Table_',subset_name,'_15.txt'),
+                   paste0('./Tables/Table_',subset_name,'_16.txt'),
+                   paste0('./Tables/Table_',subset_name,'_17.txt'),
+                   paste0('./Tables/Table_',subset_name,'_18.txt'),
+                   paste0('./Tables/Table_',subset_name,'_19.txt'),
+                   paste0('./Tables/Table_',subset_name,'_20.txt'))
+
+#Create crosswalk for variables and display names:
+top_attribute_names <- c('Treated',
+                         'Prop_Unreliable_NewsG_Score',
+                         'Prop_Reliable_NewsG_Score',
+                         'Count_Unreliable_NewsG_Score',
+                         'Count_Reliable_NewsG_Score',
+                         'Average_domain_NewsG_Score')
+
+top_attributes_html <- c('Treatment',
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value')
+
+
+names(top_attributes_html) <- top_attribute_names
+
+#Run For loop to produce Tables 27-36:
+
+i=1
+for(i in 1:length(list_variables_to_run_1)){
+  list_possible_covariates_for_use <- c('Treated',list_variables_to_run_1[[i]])
+  
+  data_for_analysis <- subset_data %>% ungroup() %>% select(`list_possible_covariates_for_use`)
+  
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
+  
+  f <- paste0(list_variables_to_run_1[[i]][1], " ~ .")
+  
+  ITT_Model <- lm_robust(as.formula(f), data = data_for_analysis)
+  
+  names_of_columns_2 <- c('Treated',list_possible_covariates_for_use,'compliance_check_1')
+  
+  names_use <- names(subset_data)[(names(subset_data) %in% names_of_columns_2)]
+  
+  data_for_analysis <- subset_data[, names_use]
+  
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
+  
+  f <- paste0(list_variables_to_run_1[[i]][1], '~ . - Treated | . - compliance_check_1')
+  
+  #CACE Model 1
+  CACE_Model_1 <- iv_robust(as.formula(f), data = data_for_analysis)
+  
+  CACE_Model_1$term[which(CACE_Model_1$term == "compliance_check_11")] <- 'Treated'
+  
+  # #CACE Model 2 - Passed first and second wave compliance check
+  
+  names_of_columns_3 <- c('Treated',list_possible_covariates_for_use,'Complied')
+  
+  names_use <- names(subset_data)[(names(subset_data) %in% names_of_columns_3)]
+  
+  data_for_analysis <- subset_data[, names_use]
+  
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
+  
+  f <- paste0(list_variables_to_run_1[[i]][1], '~  . - Treated | . - Complied')
+  
+  CACE_Model_2 <- iv_robust(as.formula(f), data = data_for_analysis)
+  
+  CACE_Model_2$term[which(CACE_Model_2$term == "Complied")] <- 'Treated'
+  
+  
+  #names of the variables:
+  
+  Variable_Names <- names(ITT_Model$coefficients)[-1]
+  Variable_Names <- str_replace_all(Variable_Names, top_attributes_html)
+  
+  #Write Table
+  texreg(list(ITT_Model,CACE_Model_1,CACE_Model_2),
+         include.ci = FALSE,
+         digits=4,
+         omit.coef = '(Intercept)',
+         caption= Titles[i],
+         label = "table",
+         include.rmse = FALSE,
+         custom.coef.names = Variable_Names,
+         custom.model.names= c("Intent-To-Treat (ITT)", "CACE (Model 1)","CACE (Model 2)"),
+         file=Tables_title[i],
+         float.pos = "!htbp",
+         caption.above = TRUE)
+}
+
+
+
+
+#################################### Behavioral Measures -- Subset by Low Digital Literacy ######################
+
+
+
+subset_data <- Pulse_data %>% filter(Total_DL < 48)
+subset_name <- 'Low_DL'
+
+#List of possible variables for inclusion:
+list_possible_covariates <- c("gender_dummy_fem",
+                              "educ_score",
+                              "Age",
+                              "Age_Sq",
+                              "party_score",
+                              "race_white",
+                              "ideo_score",
+                              "Trust_Media_w1",
+                              "trust_news",
+                              "trust_news_sm",
+                              "cons_news_n",
+                              "cons_cable",
+                              "cons_print",
+                              "cons_public", 
+                              "cons_talk",
+                              "cons_desk",
+                              "cons_mobile",
+                              "log_news",
+                              "Safari_dummy",
+                              "IE_dummy",
+                              "Chrome_dummy",
+                              "Firefox_dummy",
+                              "Social_Media_Use")
+
+
+
+
+#Create Sets of variables to use in models:
+list_variables_to_run_1 = list(c('Prop_Unreliable_NewsG_Score_dv','Prop_Unreliable_NewsG_Score'),
+                               c('Prop_Reliable_NewsG_Score_dv','Prop_Reliable_NewsG_Score'),
+                               c('Count_Unreliable_NewsG_Score_dv','Count_Unreliable_NewsG_Score'),
+                               c('Count_Reliable_NewsG_Score_dv','Count_Reliable_NewsG_Score'),
+                               c('Average_domain_NewsG_Score_dv','Average_domain_NewsG_Score'),
+                               c('Prop_Unreliable_NewsG_Score_post','Prop_Unreliable_NewsG_Score'),
+                               c('Prop_Reliable_NewsG_Score_post','Prop_Reliable_NewsG_Score'),
+                               c('Count_Unreliable_NewsG_Score_post','Count_Unreliable_NewsG_Score'),
+                               c('Count_Reliable_NewsG_Score_post','Count_Reliable_NewsG_Score'),
+                               c('Average_domain_NewsG_Score_post','Average_domain_NewsG_Score'))
+
+#Create list of Titles:
+Titles <- c('Testing the Effect of the Intervention on Proportion of News Diet That is Unreliable with Covariate-Adjusted Models (HC2 Robust standard errors) (Before July 1st)',
+            'Testing the Effect of the Intervention on Proportion of News Diet That is Reliable with Covariate-Adjusted Models (HC2 Robust standard errors) (Before July 1st)',
+            'Testing the Effect of the Intervention on Count of Unreliable News Consumed with Covariate-Adjusted Models (HC2 Robust standard errors) (Before July 1st)',
+            'Testing the Effect of the Intervention on Count of Reliable News Consumed with Covariate-Adjusted Models (HC2 Robust standard errors) (Before July 1st)',
+            'Testing the Effect of the Intervention on Reliability Score of News Diet with Covariate-Adjusted Models (HC2 Robust standard errors) (Before July 1st)',
+            'Testing the Effect of the Intervention on Proportion of News Diet That is Unreliable with Covariate-Adjusted Models (HC2 Robust standard errors) (After July 1st)',
+            'Testing the Effect of the Intervention on Proportion of News Diet That is Reliable with Covariate-Adjusted Models (HC2 Robust standard errors) (After July 1st)',
+            'Testing the Effect of the Intervention on Count of Unreliable News Consumed with Covariate-Adjusted Models (HC2 Robust standard errors) (After July 1st)',
+            'Testing the Effect of the Intervention on Count of Reliable News Consumed with Covariate-Adjusted Models (HC2 Robust standard errors) (After July 1st)',
+            'Testing the Effect of the Intervention on Reliability Score of News Diet with Covariate-Adjusted Models (HC2 Robust standard errors) (After July 1st)')
+
+
+
+#Create list of filenames:
+Tables_title <-  c(paste0('./Tables/Table_',subset_name,'_1.txt'),
+                   paste0('./Tables/Table_',subset_name,'_2.txt'),
+                   paste0('./Tables/Table_',subset_name,'_3.txt'),
+                   paste0('./Tables/Table_',subset_name,'_4.txt'),
+                   paste0('./Tables/Table_',subset_name,'_5.txt'),
+                   paste0('./Tables/Table_',subset_name,'_6.txt'),
+                   paste0('./Tables/Table_',subset_name,'_7.txt'),
+                   paste0('./Tables/Table_',subset_name,'_8.txt'),
+                   paste0('./Tables/Table_',subset_name,'_9.txt'),
+                   paste0('./Tables/Table_',subset_name,'_10.txt'))
+
+#Create crosswalk for variables and display names:
+top_attribute_names <- c("gender_dummy_fem",
+                         "educ_score",
+                         'Treated',
+                         "Age",
+                         "Age_Sq",
+                         "party_score",
+                         "race_white",
+                         "ideo_score",
+                         "Trust_Media_w1",
+                         "trust_news",
+                         "trust_news_sm",
+                         "cons_news_n",
+                         "cons_cable",
+                         "cons_print",
+                         "cons_public", 
+                         "cons_talk",
+                         "cons_desk",
+                         "cons_mobile",
+                         "Safari_dummy",
+                         "log_news",
+                         'Prop_Unreliable_NewsG_Score',
+                         'Prop_Reliable_NewsG_Score',
+                         'Count_Unreliable_NewsG_Score',
+                         'Count_Reliable_NewsG_Score',
+                         'Average_domain_NewsG_Score',
+                         'compliance_check_1',
+                         'Complied',
+                         "IE_dummy",
+                         "Chrome_dummy",
+                         "Firefox_dummy",
+                         "Social_Media_Use")
+
+top_attributes_html <- c('Gender',
+                         'Education',
+                         'Treatment',
+                         'Age',
+                         'Age-Squared',
+                         "Party ID",
+                         "Race/Ethnicity",
+                         "Ideology ",
+                         "Trust in Media",
+                         "Trust of news in newspapers",
+                         "Trust of news on social media ",
+                         "News consumption (network news)",
+                         "News consumption (cable news)",
+                         "News consumption (print news) ",
+                         "News consumption (public radio)", 
+                         "News consumption (talk radio)",
+                         "News consumption (news on desktop)",
+                         "News consumption (news on mobile)",
+                         "Web Browser (Safari)",
+                         "Log of news viewed",
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value',
+                         'Treatment',
+                         'Treatment',
+                         "Internet Explorer Browser",
+                         "Chrome Browser",
+                         "Firefox Browser",
+                         "Social Media use")
+
+names(top_attributes_html) <- top_attribute_names
+
+
+
+#Run For loop to produce Tables 3-12:
+i=1
+for(i in 1:length(list_variables_to_run_1)){
+  list_possible_covariates_for_use <- c(list_variables_to_run_1[[i]],list_possible_covariates)
+  
+  data_for_analysis <- subset_data %>% ungroup() %>% select(`list_possible_covariates_for_use`)
+  
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
+  
+  #Use glmnet lasso to choose covariates to be a part of model:
+  names_of_columns <- Lasso(data_for_analysis)
+  
+  #names_of_columns
+  
+  names_of_columns <- c('Treated',names_of_columns)
+  
+  
+  names_use <- names(subset_data)[(names(subset_data) %in% names_of_columns)]
+  
+  data_for_analysis <- subset_data[, names_use]
+  
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
+  
+  f <- paste0(list_variables_to_run_1[[i]][1], " ~ .")
+  
+  ITT_Model <- lm_robust(as.formula(f), data = data_for_analysis)
+  
+  
+  names_of_columns_2 <- c(names_of_columns,'compliance_check_1')
+  names_use <- names(subset_data)[(names(subset_data) %in% names_of_columns_2)]
+  data_for_analysis <- subset_data[, names_use]
+  
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
+  
+  f <- paste0(list_variables_to_run_1[[i]][1], '~ . - Treated | . - compliance_check_1')
+  
+  #CACE Model 1
+  CACE_Model_1 <- iv_robust(as.formula(f), data = data_for_analysis)
+  
+  CACE_Model_1$term[which(CACE_Model_1$term == "compliance_check_11")] <- 'Treated'
+  
+  # #CACE Model 2 - Passed first and second wave compliance check
+  names_of_columns_3 <- c(names_of_columns,'Complied')
+  names_use <- names(subset_data)[(names(subset_data) %in% names_of_columns_3)]
+  data_for_analysis <- subset_data[, names_use]
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
+  f <- paste0(list_variables_to_run_1[[i]][1], '~  . - Treated | . - Complied')
+  CACE_Model_2 <- iv_robust(as.formula(f), data = data_for_analysis)
+  
+  CACE_Model_2$term[which(CACE_Model_2$term == "Complied")] <- 'Treated'
+  
+  #names of the variables:
+  Variable_Names <- names(ITT_Model$coefficients)[-1]
+  Variable_Names <- str_replace_all(Variable_Names, top_attributes_html)
+  
+  #Write Table
+  texreg(list(ITT_Model,CACE_Model_1,CACE_Model_2),
+         include.ci = FALSE,
+         digits=4,
+         omit.coef = '(Intercept)',
+         caption= Titles[i],
+         label = "table",
+         include.rmse = FALSE,
+         custom.coef.names = Variable_Names,
+         custom.model.names= c("Intent-To-Treat (ITT)", "CACE (Model 1)","CACE (Model 2)"),
+         file=Tables_title[i],
+         float.pos = "!htbp",
+         caption.above = TRUE)
+}
+
+
+
+
+
+
+#Create Sets of variables to use in models:
+list_variables_to_run_1 = list(c('Prop_Unreliable_NewsG_Score_dv'),
+                               c('Prop_Reliable_NewsG_Score_dv'),
+                               c('Count_Unreliable_NewsG_Score_dv'),
+                               c('Count_Reliable_NewsG_Score_dv'),
+                               c('Average_domain_NewsG_Score_dv'),
+                               c('Prop_Unreliable_NewsG_Score_post'),
+                               c('Prop_Reliable_NewsG_Score_post'),
+                               c('Count_Unreliable_NewsG_Score_post'),
+                               c('Count_Reliable_NewsG_Score_post'),
+                               c('Average_domain_NewsG_Score_post'))
+
+
+
+
+
+#Create list of Titles:
+Titles <- c('Testing the Effect of the Intervention on Proportion of News Diet That is Unreliable with Covariate-Unadjusted Models (HC2 Robust standard errors) (Before July 1st) ',
+            'Testing the Effect of the Intervention on Proportion of News Diet That is Reliable with Covariate-Unadjusted Models (HC2 Robust standard errors) (Before July 1st)',
+            'Testing the Effect of the Intervention on Count of Unreliable News Consumed with Covariate-Unadjusted Models (HC2 Robust standard errors) (Before July 1st)',
+            'Testing the Effect of the Intervention on Count of Reliable News Consumed with Covariate-Unadjusted Models (HC2 Robust standard errors) (Before July 1st)',
+            'Testing the Effect of the Intervention on Reliability Score of News Diet with Covariate-Unadjusted Models (HC2 Robust standard errors) (Before July 1st)',
+            'Testing the Effect of the Intervention on Proportion of News Diet That is Unreliable with Covariate-Unadjusted Models (HC2 Robust standard errors) (After July 1st)',
+            'Testing the Effect of the Intervention on Proportion of News Diet That is Reliable with Covariate-Unadjusted Models (HC2 Robust standard errors) (After July 1st)',
+            'Testing the Effect of the Intervention on Count of Unreliable News Consumed with Covariate-Unadjusted Models (HC2 Robust standard errors) (After July 1st)',
+            'Testing the Effect of the Intervention on Count of Reliable News Consumed with Covariate-Unadjusted Models (HC2 Robust standard errors) (After July 1st)',
+            'Testing the Effect of the Intervention on Reliability Score of News Diet with Covariate-Unadjusted Models (HC2 Robust standard errors) (After July 1st)')
+
+
+
+#Create list of filenames:
+Tables_title <-  c(paste0('./Tables/Table_',subset_name,'_11.txt'),
+                   paste0('./Tables/Table_',subset_name,'_12.txt'),
+                   paste0('./Tables/Table_',subset_name,'_13.txt'),
+                   paste0('./Tables/Table_',subset_name,'_14.txt'),
+                   paste0('./Tables/Table_',subset_name,'_15.txt'),
+                   paste0('./Tables/Table_',subset_name,'_16.txt'),
+                   paste0('./Tables/Table_',subset_name,'_17.txt'),
+                   paste0('./Tables/Table_',subset_name,'_18.txt'),
+                   paste0('./Tables/Table_',subset_name,'_19.txt'),
+                   paste0('./Tables/Table_',subset_name,'_20.txt'))
+
+#Create crosswalk for variables and display names:
+top_attribute_names <- c('Treated',
+                         'Prop_Unreliable_NewsG_Score',
+                         'Prop_Reliable_NewsG_Score',
+                         'Count_Unreliable_NewsG_Score',
+                         'Count_Reliable_NewsG_Score',
+                         'Average_domain_NewsG_Score')
+
+top_attributes_html <- c('Treatment',
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value',
+                         'Pre-Treatment Value')
+
+
+names(top_attributes_html) <- top_attribute_names
+
+#Run For loop to produce Tables 27-36:
+
+i=1
+for(i in 1:length(list_variables_to_run_1)){
+  list_possible_covariates_for_use <- c('Treated',list_variables_to_run_1[[i]])
+  
+  data_for_analysis <- subset_data %>% ungroup() %>% select(`list_possible_covariates_for_use`)
+  
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
+  
+  f <- paste0(list_variables_to_run_1[[i]][1], " ~ .")
+  
+  ITT_Model <- lm_robust(as.formula(f), data = data_for_analysis)
+  
+  names_of_columns_2 <- c('Treated',list_possible_covariates_for_use,'compliance_check_1')
+  
+  names_use <- names(subset_data)[(names(subset_data) %in% names_of_columns_2)]
+  
+  data_for_analysis <- subset_data[, names_use]
+  
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
+  
+  f <- paste0(list_variables_to_run_1[[i]][1], '~ . - Treated | . - compliance_check_1')
+  
+  #CACE Model 1
+  CACE_Model_1 <- iv_robust(as.formula(f), data = data_for_analysis)
+  
+  CACE_Model_1$term[which(CACE_Model_1$term == "compliance_check_11")] <- 'Treated'
+  
+  # #CACE Model 2 - Passed first and second wave compliance check
+  
+  names_of_columns_3 <- c('Treated',list_possible_covariates_for_use,'Complied')
+  
+  names_use <- names(subset_data)[(names(subset_data) %in% names_of_columns_3)]
+  
+  data_for_analysis <- subset_data[, names_use]
+  
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
+  
+  f <- paste0(list_variables_to_run_1[[i]][1], '~  . - Treated | . - Complied')
+  
+  CACE_Model_2 <- iv_robust(as.formula(f), data = data_for_analysis)
+  
+  CACE_Model_2$term[which(CACE_Model_2$term == "Complied")] <- 'Treated'
+  
+  
+  #names of the variables:
+  
+  Variable_Names <- names(ITT_Model$coefficients)[-1]
+  Variable_Names <- str_replace_all(Variable_Names, top_attributes_html)
+  
+  #Write Table
+  texreg(list(ITT_Model,CACE_Model_1,CACE_Model_2),
+         include.ci = FALSE,
+         digits=4,
+         omit.coef = '(Intercept)',
+         caption= Titles[i],
+         label = "table",
+         include.rmse = FALSE,
+         custom.coef.names = Variable_Names,
+         custom.model.names= c("Intent-To-Treat (ITT)", "CACE (Model 1)","CACE (Model 2)"),
+         file=Tables_title[i],
+         float.pos = "!htbp",
+         caption.above = TRUE)
+}
+
+
+
+
+
+
+#New Table:
+
+
+
+#Read in survey data with digital trace data:
+Pulse_data <- read_csv('./Data/Clean_NewsGuard_Digital_Trace_Data.csv',
+                       col_types = cols(
+                         .default= col_character(),
+                         Treated = col_double(),
+                         Complied=col_double(),
+                         Total_DL =  col_double(),
+                         Inverse_DL = col_double(),
+                         Total_Science_Misinfo  =  col_double(),
+                         Social_Media_Use =  col_double(),
+                         income_score =  col_double(),
+                         abs_part =  col_double(),
+                         mean_cons =  col_double(),
+                         Average_domain_NewsG_Score_post= col_double(),
+                         Average_domain_NewsG_Score= col_double(),
+                         Prop_Unreliable_NewsG_Score_post= col_double(),
+                         Prop_Unreliable_NewsG_Score= col_double(),
+                         Prop_Reliable_NewsG_Score_post = col_double(),
+                         Prop_Reliable_NewsG_Score = col_double(),
+                         Count_Unreliable_NewsG_Score_post = col_double(),
+                         Count_Unreliable_NewsG_Score = col_double(),
+                         Count_Reliable_NewsG_Score_post = col_double(),
+                         Count_Reliable_NewsG_Score = col_double(),
+                         Prop_Unreliable_NewsG_Score_dv = col_double(),
+                         Average_domain_NewsG_Score_dv = col_double(),
+                         Prop_Reliable_NewsG_Score_dv = col_double(),
+                         Count_Unreliable_NewsG_Score_dv = col_double(),
+                         Count_Reliable_NewsG_Score_dv = col_double(),
+                         gender_dummy_fem=col_double(),
+                         educ_score=col_double(),
+                         Age=col_double(),
+                         Age_Sq=col_double(),
+                         party_score=col_double(),
+                         race_white=col_double(),
+                         ideo_score=col_double(),
+                         Trust_Media_w1=col_double(),
+                         trust_news=col_double(),
+                         trust_news_sm=col_double(),
+                         cons_news_n=col_double(),
+                         cons_cable=col_double(),
+                         cons_print=col_double(),
+                         cons_public=col_double(), 
+                         cons_talk=col_double(),
+                         cons_desk=col_double(),
+                         cons_mobile=col_double(),
+                         Safari_dummy=col_double(),
+                         log_news=col_double()
+                       ))
+
+
+
+#Read in survey data without digital trace data:
+
+data_frame_1 <- read_csv('./Data/Clean_NewsGuard_Survey_Study.csv',
+                         col_types = cols(
+                           .default= col_character(),
+                           Treated = col_double(),
+                           Pulse_Dummy=col_double(),
+                           Complied=col_double(),
+                           Total_DL =  col_double(),
+                           Inverse_DL = col_double(),
+                           income_score =  col_double(),
+                           Total_Science_Misinfo  =  col_double(),
+                           Social_Media_Use =  col_double(),
+                           SMP4310=col_double(),
+                           SMP4310_w2=col_double(),
+                           SMP4326=col_double(),
+                           SMP4326_w2=col_double(),
+                           Trust_inst_w2=col_double(),
+                           Trust_inst_w1=col_double(),
+                           BLM_Misinfo_Index_w2=col_double(),
+                           Covid_Misinfo_Index_w2=col_double(),
+                           BLM_info_Index_w2=col_double(),
+                           Covid_info_Index_w2=col_double(),
+                           Pol_cyn_2=col_double(),
+                           Pol_cyn_1=col_double(),
+                           Fox_Trust_2=col_double(),
+                           Fox_Trust_1=col_double(),
+                           CNN_Trust_2=col_double(),
+                           CNN_Trust_1=col_double(),
+                           ABC_Trust_2=col_double(),
+                           ABC_Trust_1=col_double(),
+                           NBC_Trust_2=col_double(),
+                           NBC_Trust_1=col_double(),
+                           CBS_Trust_2=col_double(),
+                           CBS_Trust_1=col_double(),
+                           aff_pol_w2=col_double(),
+                           aff_pol_w1=col_double(),
+                           Trust_Media_w2=col_double(),
+                           Treated=col_double(),
+                           Trust_Media_w1=col_double(),
+                           gender_dummy_fem=col_double(),
+                           educ_score=col_double(),
+                           Age=col_double(),
+                           Age_Sq=col_double(),
+                           party_score=col_double(),
+                           race_white=col_double(),
+                           ideo_score=col_double(),
+                           Trust_Media_w1=col_double(),
+                           trust_news=col_double(),
+                           trust_news_sm=col_double(),
+                           cons_news_n=col_double(),
+                           cons_cable=col_double(),
+                           cons_print=col_double(),
+                           cons_public=col_double(), 
+                           cons_talk=col_double(),
+                           cons_desk=col_double(),
+                           cons_mobile=col_double(),
+                           Safari_dummy=col_double()
+                         ))
+
+#Table 1: Produce Descriptive statistics for sample by treatment and control groups:
+
+Summary_stats <- Pulse_data %>% mutate(Groups = ifelse(Treated == 1 & !is.na(Pulse_Dummy),'Treated','No Pulse Data'))
+Summary_stats <- Summary_stats %>% mutate(Groups = ifelse(Treated == 0 & !is.na(Pulse_Dummy),'Control',Groups))
+Summary_stats <- Summary_stats %>% filter(Groups != 'No Pulse Data')
+
+
+library(dplyr)
+
+data_groups <- Summary_stats %>% group_by(Groups) %>% mutate(Mean_Prop_Unrel_Pre = mean(Prop_Unreliable_NewsG_Score,na.rm=T))
+data_groups <- data_groups %>% group_by(Groups) %>% mutate(Mean_Prop_Unrel_Treat = mean(Prop_Unreliable_NewsG_Score_dv,na.rm=T))
+data_groups <- data_groups %>% group_by(Groups) %>% mutate(Mean_Prop_Unrel_Post = mean(Prop_Unreliable_NewsG_Score_post,na.rm=T))
+
+data_groups <- data_groups %>% group_by(Groups) %>% mutate(Mean_Prop_Rel_Pre = mean(Prop_Reliable_NewsG_Score,na.rm=T))
+data_groups <- data_groups %>% group_by(Groups) %>% mutate(Mean_Prop_Rel_Treat = mean(Prop_Reliable_NewsG_Score_dv,na.rm=T))
+data_groups <- data_groups %>% group_by(Groups) %>% mutate(Mean_Prop_Rel_Post = mean(Prop_Reliable_NewsG_Score_post,na.rm=T))
+
+data_groups <- data_groups %>% group_by(Groups) %>% mutate(Count_Unrel_Pre = mean(Count_Unreliable_NewsG_Score,na.rm=T))
+data_groups <- data_groups %>% group_by(Groups) %>% mutate(Count_Unrel_Treat = mean(Count_Unreliable_NewsG_Score_dv,na.rm=T))
+data_groups <- data_groups %>% group_by(Groups) %>% mutate(Count_Unrel_Post = mean(Count_Unreliable_NewsG_Score_post,na.rm=T))
+
+data_groups <- data_groups %>% group_by(Groups) %>% mutate(Count_Rel_Pre = mean(Count_Reliable_NewsG_Score,na.rm=T))
+data_groups <- data_groups %>% group_by(Groups) %>% mutate(Count_Rel_Treat = mean(Count_Reliable_NewsG_Score_dv,na.rm=T))
+data_groups <- data_groups %>% group_by(Groups) %>% mutate(Count_Rel_Post = mean(Count_Reliable_NewsG_Score_post,na.rm=T))
+
+data_groups <- data_groups %>% group_by(Groups) %>% mutate(Mean_Avg_Score_Pre = mean(Average_domain_NewsG_Score,na.rm=T))
+data_groups <- data_groups %>% group_by(Groups) %>% mutate(Mean_Avg_Score_Treat = mean(Average_domain_NewsG_Score_dv,na.rm=T))
+data_groups <- data_groups %>% group_by(Groups) %>% mutate(Mean_Avg_Score_Post = mean(Average_domain_NewsG_Score_post,na.rm=T))
+
+
+
+
+
+
+mean_data_groups <- data_groups %>% select(Groups,
+                                           Mean_Prop_Unrel_Pre,
+                                           Mean_Prop_Unrel_Treat,
+                                           Mean_Prop_Unrel_Post,
+                                           Mean_Prop_Rel_Pre,
+                                           Mean_Prop_Rel_Treat,
+                                           Mean_Prop_Rel_Post,
+                                           Count_Unrel_Pre,
+                                           Count_Unrel_Treat,
+                                           Count_Unrel_Post,
+                                           Count_Rel_Pre,
+                                           Count_Rel_Treat,
+                                           Count_Rel_Post,
+                                           Mean_Avg_Score_Pre,
+                                           Mean_Avg_Score_Treat,
+                                           Mean_Avg_Score_Post)
+
+count_groups <- mean_data_groups %>% group_by(Groups) %>% count()
+mean_data_groups <- unique(mean_data_groups)
+
+mean_data_groups <- merge(count_groups,mean_data_groups,by='Groups') 
+
+
+mean_data_groups_2 <- data.frame(t(mean_data_groups[-1]))
+colnames(mean_data_groups_2) <- mean_data_groups[, 1]
+
+mean_data_groups_2$Difference <- mean_data_groups_2$Treated - mean_data_groups_2$Control
+mean_data_groups_2$Control <- round(mean_data_groups_2$Control,5)
+mean_data_groups_2$Treated <- round(mean_data_groups_2$Treated,5)
+mean_data_groups_2$Difference <- round(mean_data_groups_2$Difference,5)
+
+mean_data_groups_2$Control <- as.character(mean_data_groups_2$Control)
+mean_data_groups_2$Treated <- as.character(mean_data_groups_2$Treated)
+mean_data_groups_2$Difference <- as.character(mean_data_groups_2$Difference)
+
+
+
+
+row.names(mean_data_groups_2) <- c('Number of respondents',
+                                   'Average Proportion of News Viewed that was \"Unreliable\" (Pre-Treatment period)',
+                                   'Average Proportion of News Viewed that was \"Unreliable\" (Treatment period)',
+                                   'Average Proportion of News Viewed that was \"Unreliable\" (Post-Treatment period)',
+                                   'Average Proportion of News Viewed that was \"Reliable\" (Pre-Treatment period)',
+                                   'Average Proportion of News Viewed that was \"Reliable\" (Treatment period)',
+                                   'Average Proportion of News Viewed that was \"Reliable\" (Post-Treatment period)',
+                                   'Average Count (log) of News Viewed that was \"Unreliable\" (Pre-Treatment period)',
+                                   'Average Count (log) of News Viewed that was \"Unreliable\" (Treatment period)',
+                                   'Average Count (log) of News Viewed that was \"Unreliable\" (Post-Treatment period)',
+                                   'Average Count (log) of News Viewed that was \"Reliable\" (Pre-Treatment period)',
+                                   'Average Count (log) of News Viewed that was \"Reliable\" (Treatment period)',
+                                   'Average Count (log) of News Viewed that was \"Reliable\" (Post-Treatment period)',
+                                   'Average Reliability Score of News Viewed (Pre-Treatment period)',
+                                   'Average Reliability Score of News Viewed (Treatment period)',
+                                   'Average Reliability Score of News Viewed (Post-Treatment period)')
+
+library(xtable)
+#Create Xtable Object:
+xt <- xtable(mean_data_groups_2,align=c(
+  "|p{9cm}|","p{2cm}|",
+  "p{2cm}|","p{2cm}|"),caption = "Average Statistics for Behavioral Measures of Online News Quality by Control and Treatment Group in Each Time Period of Interest")
+
+#Name Columns:
+names(xt) <- c('Control','Treatment','Difference (Treatment - Control)')
+
+#Write Table:
+write(print(xt,sanitize.colnames.function = identity,caption.placement = "top"),file='./Tables/Summary_Stat.txt')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#Read in survey data with digital trace data:
+Pulse_data <- read_csv('./Data/Clean_NewsGuard_Digital_Trace_Data.csv',
+                       col_types = cols(
+                         .default= col_character(),
+                         Treated = col_double(),
+                         Complied=col_double(),
+                         Total_DL =  col_double(),
+                         Inverse_DL = col_double(),
+                         Total_Science_Misinfo  =  col_double(),
+                         Social_Media_Use =  col_double(),
+                         income_score =  col_double(),
+                         abs_part =  col_double(),
+                         mean_cons =  col_double(),
+                         Average_domain_NewsG_Score_post= col_double(),
+                         Average_domain_NewsG_Score= col_double(),
+                         Prop_Unreliable_NewsG_Score_post= col_double(),
+                         Prop_Unreliable_NewsG_Score= col_double(),
+                         Prop_Reliable_NewsG_Score_post = col_double(),
+                         Prop_Reliable_NewsG_Score = col_double(),
+                         Count_Unreliable_NewsG_Score_post = col_double(),
+                         Count_Unreliable_NewsG_Score = col_double(),
+                         Count_Reliable_NewsG_Score_post = col_double(),
+                         Count_Reliable_NewsG_Score = col_double(),
+                         Prop_Unreliable_NewsG_Score_dv = col_double(),
+                         Average_domain_NewsG_Score_dv = col_double(),
+                         Prop_Reliable_NewsG_Score_dv = col_double(),
+                         Count_Unreliable_NewsG_Score_dv = col_double(),
+                         Count_Reliable_NewsG_Score_dv = col_double(),
+                         gender_dummy_fem=col_double(),
+                         educ_score=col_double(),
+                         Age=col_double(),
+                         Age_Sq=col_double(),
+                         party_score=col_double(),
+                         race_white=col_double(),
+                         ideo_score=col_double(),
+                         Trust_Media_w1=col_double(),
+                         trust_news=col_double(),
+                         trust_news_sm=col_double(),
+                         cons_news_n=col_double(),
+                         cons_cable=col_double(),
+                         cons_print=col_double(),
+                         cons_public=col_double(), 
+                         cons_talk=col_double(),
+                         cons_desk=col_double(),
+                         cons_mobile=col_double(),
+                         Safari_dummy=col_double(),
+                         log_news=col_double()
+                       ))
+
+
+
+#Read in survey data without digital trace data:
+#Table 1: Produce Descriptive statistics for sample by treatment and control groups:
+
+mean(Pulse_data$Prop_Reliable_NewsG_Score,na.rm=T)
+
+
+Summary_stats <- Pulse_data %>% mutate(Groups = ifelse(Treated == 1 & !is.na(Pulse_Dummy),'Treated','No Pulse Data'))
+Summary_stats <- Summary_stats %>% mutate(Groups = ifelse(Treated == 0 & !is.na(Pulse_Dummy),'Control',Groups))
+Summary_stats <- Summary_stats %>% filter(Groups != 'No Pulse Data')
+
+Summary_stats_1 <- Summary_stats %>% group_by(Groups) %>% mutate(grp.mean = mean(Prop_Unreliable_NewsG_Score,na.rm=T))
+
+Summary_stats_1 <- Summary_stats_1 %>% select(Groups,grp.mean)
+
+Summary_stats_1 <- unique(Summary_stats_1)
+
+Summary_stats <- Summary_stats %>% select(Groups,Prop_Unreliable_NewsG_Score)
+
+
+# Use semi-transparent fill
+ggplot(Summary_stats, aes(x=Prop_Unreliable_NewsG_Score, fill=Groups,color=Groups)) +
+  geom_density(alpha=0.4) +
+  geom_vline(data=Summary_stats_1, aes(xintercept=grp.mean, color=Groups),
+             linetype="dashed",size=1,alpha=0.8) +
+  coord_cartesian(xlim=c(0,0.75),
+                  ylim=c(0,175)) +
+  xlab('\nProportion of Online News Viewed that is Unreliable') + 
+  ylab('Density\n') + 
+  theme_classic() +
+  theme(axis.title.x = element_text(size=16),
+        axis.text.x  = element_text(size=16),
+        axis.title.y = element_text(size=16),
+        axis.text.y  = element_text(size=16),
+        plot.title = element_text(size = 16),
+        legend.title = element_text(size=16),
+        legend.text = element_text(size=14))
+
+ggsave('./Figures/Distribution_Unrel_1.png',height=5,width=10)
+
+
+
+Summary_stats <- Pulse_data %>% mutate(Groups = ifelse(Treated == 1 & !is.na(Pulse_Dummy),'Treated','No Pulse Data'))
+Summary_stats <- Summary_stats %>% mutate(Groups = ifelse(Treated == 0 & !is.na(Pulse_Dummy),'Control',Groups))
+Summary_stats <- Summary_stats %>% filter(Groups != 'No Pulse Data')
+
+Summary_stats_1 <- Summary_stats %>% group_by(Groups) %>% mutate(grp.mean = mean(Prop_Unreliable_NewsG_Score_dv,na.rm=T))
+
+Summary_stats_1 <- Summary_stats_1 %>% select(Groups,grp.mean)
+
+Summary_stats_1 <- unique(Summary_stats_1)
+
+Summary_stats <- Summary_stats %>% select(Groups,Prop_Unreliable_NewsG_Score_dv)
+
+
+# Use semi-transparent fill
+ggplot(Summary_stats, aes(x=Prop_Unreliable_NewsG_Score_dv, fill=Groups,color=Groups)) +
+  geom_density(alpha=0.4) +
+  geom_vline(data=Summary_stats_1, aes(xintercept=grp.mean, color=Groups),
+             linetype="dashed",size=1,alpha=0.8) +
+  coord_cartesian(xlim=c(0,0.75),
+                  ylim=c(0,175)) +
+  xlab('\nProportion of Online News Viewed that is Unreliable') + 
+  ylab('Density\n') + 
+  theme_classic() +
+  theme(axis.title.x = element_text(size=16),
+        axis.text.x  = element_text(size=16),
+        axis.title.y = element_text(size=16),
+        axis.text.y  = element_text(size=16),
+        plot.title = element_text(size = 16),
+        legend.title = element_text(size=16),
+        legend.text = element_text(size=14))
+
+ggsave('./Figures/Distribution_Unrel_2.png',height=5,width=10)
+
+
+
+
+
+Summary_stats <- Pulse_data %>% mutate(Groups = ifelse(Treated == 1 & !is.na(Pulse_Dummy),'Treated','No Pulse Data'))
+Summary_stats <- Summary_stats %>% mutate(Groups = ifelse(Treated == 0 & !is.na(Pulse_Dummy),'Control',Groups))
+Summary_stats <- Summary_stats %>% filter(Groups != 'No Pulse Data')
+
+Summary_stats_1 <- Summary_stats %>% group_by(Groups) %>% mutate(grp.mean = mean(Prop_Unreliable_NewsG_Score_post,na.rm=T))
+
+Summary_stats_1 <- Summary_stats_1 %>% select(Groups,grp.mean)
+
+Summary_stats_1 <- unique(Summary_stats_1)
+
+Summary_stats <- Summary_stats %>% select(Groups,Prop_Unreliable_NewsG_Score_post)
+
+
+# Use semi-transparent fill
+ggplot(Summary_stats, aes(x=Prop_Unreliable_NewsG_Score_post, fill=Groups,color=Groups)) +
+  geom_density(alpha=0.4) +
+  geom_vline(data=Summary_stats_1, aes(xintercept=grp.mean, color=Groups),
+             linetype="dashed",size=1,alpha=0.8) +
+  xlab('\nProportion of Online News Viewed that is Unreliable') + 
+  ylab('Density\n') + 
+  coord_cartesian(xlim=c(0,0.75),
+                  ylim=c(0,175)) +
+  theme_classic() +
+  theme(axis.title.x = element_text(size=16),
+        axis.text.x  = element_text(size=16),
+        axis.title.y = element_text(size=16),
+        axis.text.y  = element_text(size=16),
+        plot.title = element_text(size = 16),
+        legend.title = element_text(size=16),
+        legend.text = element_text(size=14))
+
+ggsave('./Figures/Distribution_Unrel_3.png',height=5,width=10)
+
+
+#Read in survey data without digital trace data:
+#Table 1: Produce Descriptive statistics for sample by treatment and control groups:
+
+Summary_stats <- Pulse_data %>% mutate(Groups = ifelse(Treated == 1 & !is.na(Pulse_Dummy),'Treated','No Pulse Data'))
+Summary_stats <- Summary_stats %>% mutate(Groups = ifelse(Treated == 0 & !is.na(Pulse_Dummy),'Control',Groups))
+Summary_stats <- Summary_stats %>% filter(Groups != 'No Pulse Data')
+
+Summary_stats_1 <- Summary_stats %>% group_by(Groups) %>% mutate(grp.mean = mean(Prop_Reliable_NewsG_Score,na.rm=T))
+
+Summary_stats_1 <- Summary_stats_1 %>% select(Groups,grp.mean)
+
+Summary_stats_1 <- unique(Summary_stats_1)
+
+Summary_stats <- Summary_stats %>% select(Groups,Prop_Reliable_NewsG_Score)
+
+
+# Use semi-transparent fill
+ggplot(Summary_stats, aes(x=Prop_Reliable_NewsG_Score, fill=Groups,color=Groups)) +
+  geom_density(alpha=0.4) +
+  geom_vline(data=Summary_stats_1, aes(xintercept=grp.mean, color=Groups),
+             linetype="dashed",size=1,alpha=0.8) +
+  coord_cartesian(xlim=c(0,1),
+                  ylim=c(0,2)) +
+  xlab('\nProportion of Online News Viewed that is Reliable') + 
+  ylab('Density\n') + 
+  theme_classic() +
+  theme(axis.title.x = element_text(size=16),
+        axis.text.x  = element_text(size=16),
+        axis.title.y = element_text(size=16),
+        axis.text.y  = element_text(size=16),
+        plot.title = element_text(size = 16),
+        legend.title = element_text(size=16),
+        legend.text = element_text(size=14))
+
+ggsave('./Figures/Distribution_Rel_1.png',height=5,width=10)
+
+
+
+Summary_stats <- Pulse_data %>% mutate(Groups = ifelse(Treated == 1 & !is.na(Pulse_Dummy),'Treated','No Pulse Data'))
+Summary_stats <- Summary_stats %>% mutate(Groups = ifelse(Treated == 0 & !is.na(Pulse_Dummy),'Control',Groups))
+Summary_stats <- Summary_stats %>% filter(Groups != 'No Pulse Data')
+
+Summary_stats_1 <- Summary_stats %>% group_by(Groups) %>% mutate(grp.mean = mean(Prop_Reliable_NewsG_Score_dv,na.rm=T))
+
+Summary_stats_1 <- Summary_stats_1 %>% select(Groups,grp.mean)
+
+Summary_stats_1 <- unique(Summary_stats_1)
+
+Summary_stats <- Summary_stats %>% select(Groups,Prop_Reliable_NewsG_Score_dv)
+
+
+# Use semi-transparent fill
+ggplot(Summary_stats, aes(x=Prop_Reliable_NewsG_Score_dv, fill=Groups,color=Groups)) +
+  geom_density(alpha=0.4) +
+  geom_vline(data=Summary_stats_1, aes(xintercept=grp.mean, color=Groups),
+             linetype="dashed",size=1,alpha=0.8) +
+  coord_cartesian(xlim=c(0,1),
+                  ylim=c(0,2)) +
+  xlab('\nProportion of Online News Viewed that is Reliable') + 
+  ylab('Density\n') + 
+  theme_classic() +
+  theme(axis.title.x = element_text(size=16),
+        axis.text.x  = element_text(size=16),
+        axis.title.y = element_text(size=16),
+        axis.text.y  = element_text(size=16),
+        plot.title = element_text(size = 16),
+        legend.title = element_text(size=16),
+        legend.text = element_text(size=14))
+
+ggsave('./Figures/Distribution_Rel_2.png',height=5,width=10)
+
+
+
+
+
+Summary_stats <- Pulse_data %>% mutate(Groups = ifelse(Treated == 1 & !is.na(Pulse_Dummy),'Treated','No Pulse Data'))
+Summary_stats <- Summary_stats %>% mutate(Groups = ifelse(Treated == 0 & !is.na(Pulse_Dummy),'Control',Groups))
+Summary_stats <- Summary_stats %>% filter(Groups != 'No Pulse Data')
+
+Summary_stats_1 <- Summary_stats %>% group_by(Groups) %>% mutate(grp.mean = mean(Prop_Reliable_NewsG_Score_post,na.rm=T))
+
+Summary_stats_1 <- Summary_stats_1 %>% select(Groups,grp.mean)
+
+Summary_stats_1 <- unique(Summary_stats_1)
+
+Summary_stats <- Summary_stats %>% select(Groups,Prop_Reliable_NewsG_Score_post)
+
+
+# Use semi-transparent fill
+ggplot(Summary_stats, aes(x=Prop_Reliable_NewsG_Score_post, fill=Groups,color=Groups)) +
+  geom_density(alpha=0.4) +
+  geom_vline(data=Summary_stats_1, aes(xintercept=grp.mean, color=Groups),
+             linetype="dashed",size=1,alpha=0.8) +
+  xlab('\nProportion of Online News Viewed that is Reliable') + 
+  ylab('Density\n') + 
+  coord_cartesian(xlim=c(0,1),
+                  ylim=c(0,2)) +
+  theme_classic() +
+  theme(axis.title.x = element_text(size=16),
+        axis.text.x  = element_text(size=16),
+        axis.title.y = element_text(size=16),
+        axis.text.y  = element_text(size=16),
+        plot.title = element_text(size = 16),
+        legend.title = element_text(size=16),
+        legend.text = element_text(size=14))
+
+ggsave('./Figures/Distribution_Rel_3.png',height=5,width=10)
+
+
+
+
+#Count of Unreliable News (log)
+####################################################################################
+
+
+Summary_stats <- Pulse_data %>% mutate(Groups = ifelse(Treated == 1 & !is.na(Pulse_Dummy),'Treated','No Pulse Data'))
+Summary_stats <- Summary_stats %>% mutate(Groups = ifelse(Treated == 0 & !is.na(Pulse_Dummy),'Control',Groups))
+Summary_stats <- Summary_stats %>% filter(Groups != 'No Pulse Data')
+
+Summary_stats_1 <- Summary_stats %>% group_by(Groups) %>% mutate(grp.mean = mean(Count_Unreliable_NewsG_Score,na.rm=T))
+
+Summary_stats_1 <- Summary_stats_1 %>% select(Groups,grp.mean)
+
+Summary_stats_1 <- unique(Summary_stats_1)
+
+Summary_stats <- Summary_stats %>% select(Groups,Count_Unreliable_NewsG_Score)
+
+
+# Use semi-transparent fill
+ggplot(Summary_stats, aes(x=Count_Unreliable_NewsG_Score, fill=Groups,color=Groups)) +
+  geom_density(alpha=0.4) +
+  geom_vline(data=Summary_stats_1, aes(xintercept=grp.mean, color=Groups),
+             linetype="dashed",size=1,alpha=0.8) +
+  coord_cartesian(xlim=c(0,3),
+                  ylim=c(0,5)) +
+  xlab('\nCount of Online News Viewed that is Unreliable (log)') + 
+  ylab('Density\n') + 
+  theme_classic() +
+  theme(axis.title.x = element_text(size=16),
+        axis.text.x  = element_text(size=16),
+        axis.title.y = element_text(size=16),
+        axis.text.y  = element_text(size=16),
+        plot.title = element_text(size = 16),
+        legend.title = element_text(size=16),
+        legend.text = element_text(size=14))
+
+ggsave('./Figures/Distribution_Count_Unrel_1.png',height=5,width=10)
+
+
+
+Summary_stats <- Pulse_data %>% mutate(Groups = ifelse(Treated == 1 & !is.na(Pulse_Dummy),'Treated','No Pulse Data'))
+Summary_stats <- Summary_stats %>% mutate(Groups = ifelse(Treated == 0 & !is.na(Pulse_Dummy),'Control',Groups))
+Summary_stats <- Summary_stats %>% filter(Groups != 'No Pulse Data')
+
+Summary_stats_1 <- Summary_stats %>% group_by(Groups) %>% mutate(grp.mean = mean(Count_Unreliable_NewsG_Score_dv,na.rm=T))
+
+Summary_stats_1 <- Summary_stats_1 %>% select(Groups,grp.mean)
+
+Summary_stats_1 <- unique(Summary_stats_1)
+
+Summary_stats <- Summary_stats %>% select(Groups,Count_Unreliable_NewsG_Score_dv)
+
+
+# Use semi-transparent fill
+ggplot(Summary_stats, aes(x=Count_Unreliable_NewsG_Score_dv, fill=Groups,color=Groups)) +
+  geom_density(alpha=0.4) +
+  geom_vline(data=Summary_stats_1, aes(xintercept=grp.mean, color=Groups),
+             linetype="dashed",size=1,alpha=0.8) +
+  coord_cartesian(xlim=c(0,3),
+                  ylim=c(0,5)) +
+  xlab('\nCount of Online News Viewed that is Unreliable (log)') + 
+  ylab('Density\n') + 
+  theme_classic() +
+  theme(axis.title.x = element_text(size=16),
+        axis.text.x  = element_text(size=16),
+        axis.title.y = element_text(size=16),
+        axis.text.y  = element_text(size=16),
+        plot.title = element_text(size = 16),
+        legend.title = element_text(size=16),
+        legend.text = element_text(size=14))
+
+ggsave('./Figures/Distribution_Count_Unrel_2.png',height=5,width=10)
+
+
+
+
+
+Summary_stats <- Pulse_data %>% mutate(Groups = ifelse(Treated == 1 & !is.na(Pulse_Dummy),'Treated','No Pulse Data'))
+Summary_stats <- Summary_stats %>% mutate(Groups = ifelse(Treated == 0 & !is.na(Pulse_Dummy),'Control',Groups))
+Summary_stats <- Summary_stats %>% filter(Groups != 'No Pulse Data')
+
+Summary_stats_1 <- Summary_stats %>% group_by(Groups) %>% mutate(grp.mean = mean(Count_Unreliable_NewsG_Score_post,na.rm=T))
+
+Summary_stats_1 <- Summary_stats_1 %>% select(Groups,grp.mean)
+
+Summary_stats_1 <- unique(Summary_stats_1)
+
+Summary_stats <- Summary_stats %>% select(Groups,Count_Unreliable_NewsG_Score_post)
+
+
+# Use semi-transparent fill
+ggplot(Summary_stats, aes(x=Count_Unreliable_NewsG_Score_post, fill=Groups,color=Groups)) +
+  geom_density(alpha=0.4) +
+  geom_vline(data=Summary_stats_1, aes(xintercept=grp.mean, color=Groups),
+             linetype="dashed",size=1,alpha=0.8) +
+  xlab('\nCount of Online News Viewed that is Unreliable (log)') + 
+  ylab('Density\n') + 
+  coord_cartesian(xlim=c(0,3),
+                  ylim=c(0,5)) +
+  theme_classic() +
+  theme(axis.title.x = element_text(size=16),
+        axis.text.x  = element_text(size=16),
+        axis.title.y = element_text(size=16),
+        axis.text.y  = element_text(size=16),
+        plot.title = element_text(size = 16),
+        legend.title = element_text(size=16),
+        legend.text = element_text(size=14))
+
+ggsave('./Figures/Distribution_Count_Unrel_3.png',height=5,width=10)
+
+
+
+
+
+
+
+
+
+
+
+
+
+#Count of Reliable News (log)
+####################################################################################
+
+
+Summary_stats <- Pulse_data %>% mutate(Groups = ifelse(Treated == 1 & !is.na(Pulse_Dummy),'Treated','No Pulse Data'))
+Summary_stats <- Summary_stats %>% mutate(Groups = ifelse(Treated == 0 & !is.na(Pulse_Dummy),'Control',Groups))
+Summary_stats <- Summary_stats %>% filter(Groups != 'No Pulse Data')
+
+Summary_stats_1 <- Summary_stats %>% group_by(Groups) %>% mutate(grp.mean = mean(Count_Reliable_NewsG_Score,na.rm=T))
+
+Summary_stats_1 <- Summary_stats_1 %>% select(Groups,grp.mean)
+
+Summary_stats_1 <- unique(Summary_stats_1)
+
+Summary_stats <- Summary_stats %>% select(Groups,Count_Reliable_NewsG_Score)
+
+
+# Use semi-transparent fill
+ggplot(Summary_stats, aes(x=Count_Reliable_NewsG_Score, fill=Groups,color=Groups)) +
+  geom_density(alpha=0.4) +
+  geom_vline(data=Summary_stats_1, aes(xintercept=grp.mean, color=Groups),
+             linetype="dashed",size=1,alpha=0.8) +
+  coord_cartesian(xlim=c(0,5),
+                  ylim=c(0,0.55)) +
+  xlab('\nCount of Online News Viewed that is Reliable (log)') + 
+  ylab('Density\n') + 
+  theme_classic() +
+  theme(axis.title.x = element_text(size=16),
+        axis.text.x  = element_text(size=16),
+        axis.title.y = element_text(size=16),
+        axis.text.y  = element_text(size=16),
+        plot.title = element_text(size = 16),
+        legend.title = element_text(size=16),
+        legend.text = element_text(size=14))
+
+ggsave('./Figures/Distribution_Count_rel_1.png',height=5,width=10)
+
+
+
+Summary_stats <- Pulse_data %>% mutate(Groups = ifelse(Treated == 1 & !is.na(Pulse_Dummy),'Treated','No Pulse Data'))
+Summary_stats <- Summary_stats %>% mutate(Groups = ifelse(Treated == 0 & !is.na(Pulse_Dummy),'Control',Groups))
+Summary_stats <- Summary_stats %>% filter(Groups != 'No Pulse Data')
+
+Summary_stats_1 <- Summary_stats %>% group_by(Groups) %>% mutate(grp.mean = mean(Count_Reliable_NewsG_Score_dv,na.rm=T))
+
+Summary_stats_1 <- Summary_stats_1 %>% select(Groups,grp.mean)
+
+Summary_stats_1 <- unique(Summary_stats_1)
+
+Summary_stats <- Summary_stats %>% select(Groups,Count_Reliable_NewsG_Score_dv)
+
+
+# Use semi-transparent fill
+ggplot(Summary_stats, aes(x=Count_Reliable_NewsG_Score_dv, fill=Groups,color=Groups)) +
+  geom_density(alpha=0.4) +
+  geom_vline(data=Summary_stats_1, aes(xintercept=grp.mean, color=Groups),
+             linetype="dashed",size=1,alpha=0.8) +
+  coord_cartesian(xlim=c(0,5),
+                  ylim=c(0,0.55)) +
+  xlab('\nCount of Online News Viewed that is Reliable (log)') + 
+  ylab('Density\n') + 
+  theme_classic() +
+  theme(axis.title.x = element_text(size=16),
+        axis.text.x  = element_text(size=16),
+        axis.title.y = element_text(size=16),
+        axis.text.y  = element_text(size=16),
+        plot.title = element_text(size = 16),
+        legend.title = element_text(size=16),
+        legend.text = element_text(size=14))
+
+ggsave('./Figures/Distribution_Count_rel_2.png',height=5,width=10)
+
+
+
+
+
+Summary_stats <- Pulse_data %>% mutate(Groups = ifelse(Treated == 1 & !is.na(Pulse_Dummy),'Treated','No Pulse Data'))
+Summary_stats <- Summary_stats %>% mutate(Groups = ifelse(Treated == 0 & !is.na(Pulse_Dummy),'Control',Groups))
+Summary_stats <- Summary_stats %>% filter(Groups != 'No Pulse Data')
+
+Summary_stats_1 <- Summary_stats %>% group_by(Groups) %>% mutate(grp.mean = mean(Count_Reliable_NewsG_Score_post,na.rm=T))
+
+Summary_stats_1 <- Summary_stats_1 %>% select(Groups,grp.mean)
+
+Summary_stats_1 <- unique(Summary_stats_1)
+
+Summary_stats <- Summary_stats %>% select(Groups,Count_Reliable_NewsG_Score_post)
+
+
+# Use semi-transparent fill
+ggplot(Summary_stats, aes(x=Count_Reliable_NewsG_Score_post, fill=Groups,color=Groups)) +
+  geom_density(alpha=0.4) +
+  geom_vline(data=Summary_stats_1, aes(xintercept=grp.mean, color=Groups),
+             linetype="dashed",size=1,alpha=0.8) +
+  xlab('\nCount of Online News Viewed that is Reliable (log)') + 
+  ylab('Density\n') + 
+  coord_cartesian(xlim=c(0,5),
+                  ylim=c(0,0.55)) +
+  theme_classic() +
+  theme(axis.title.x = element_text(size=16),
+        axis.text.x  = element_text(size=16),
+        axis.title.y = element_text(size=16),
+        axis.text.y  = element_text(size=16),
+        plot.title = element_text(size = 16),
+        legend.title = element_text(size=16),
+        legend.text = element_text(size=14))
+
+ggsave('./Figures/Distribution_Count_rel_3.png',height=5,width=10)
+
+
+
+
+
+
+################################################## Mobile Analysis ####################################################
+
+
+#Read in survey data with digital trace data:
+Pulse_data <- read_csv('./Data/Clean_Mobile_Digital_Trace_Data.csv',
+                       col_types = cols(
+                         .default= col_character(),
+                         Treated = col_double(),
+                         Complied=col_double(),
+                         IE_dummy = col_double(),
+                         Chrome_dummy = col_double(),
+                         Firefox_dummy = col_double(),
+                         Social_Media_Use = col_double(),
+                         compliance_check_1=col_double(),
+                         Average_domain_NewsG_Score_post= col_double(),
+                         Average_domain_NewsG_Score= col_double(),
+                         Prop_Unreliable_NewsG_Score_post= col_double(),
+                         Prop_Unreliable_NewsG_Score= col_double(),
+                         Prop_Unreliable_NewsG_Score_post = col_double(),
+                         Prop_Unreliable_NewsG_Score = col_double(),
+                         Prop_Reliable_NewsG_Score_post = col_double(),
+                         Prop_Reliable_NewsG_Score = col_double(),
+                         Count_Unreliable_NewsG_Score_post = col_double(),
+                         Count_Unreliable_NewsG_Score = col_double(),
+                         Count_Reliable_NewsG_Score_post = col_double(),
+                         Count_Reliable_NewsG_Score = col_double(),
+                         Prop_Unreliable_NewsG_Score_dv = col_double(),
+                         Average_domain_NewsG_Score_dv = col_double(),
+                         Prop_Reliable_NewsG_Score_dv = col_double(),
+                         Count_Unreliable_NewsG_Score_dv = col_double(),
+                         Count_Reliable_NewsG_Score_dv = col_double(),
+                         gender_dummy_fem=col_double(),
+                         educ_score=col_double(),
+                         Age=col_double(),
+                         Age_Sq=col_double(),
+                         party_score=col_double(),
+                         race_white=col_double(),
+                         ideo_score=col_double(),
+                         Trust_Media_w1=col_double(),
+                         Trust_Media_w2=col_double(),
+                         trust_news=col_double(),
+                         trust_news_sm=col_double(),
+                         cons_news_n=col_double(),
+                         cons_cable=col_double(),
+                         cons_print=col_double(),
+                         cons_public=col_double(), 
+                         cons_talk=col_double(),
+                         cons_desk=col_double(),
+                         cons_mobile=col_double(),
+                         Safari_dummy=col_double(),
+                         log_news=col_double(),
+                         totalvisits_dv=col_double(),
+                         totalvisits_pre=col_double(),
+                         totalvisits_post=col_double(),
+                         log_total_pre=col_double(),
+                         log_total_dv=col_double(),
+                         log_total_post=col_double()
+                         ))
+
+
+
+#Create a function using glmnet lasso that chooses the variables to use:
+Lasso <- function(data_for_analysis) {
+  set.seed(938)
+  lasso_select <- cv.glmnet(x=as.matrix(data_for_analysis[,-1]),
+                            y=as.vector(data_for_analysis[,1]),
+                            alpha=1)
+  
+  coef.out <- coef(lasso_select, exact = TRUE)
+  indices <- which(coef.out != 0)
+  names_of_columns_3 <- c(rownames(coef.out)[indices],colnames(data_for_analysis)[1])
+  names_of_columns_3 <- names_of_columns_3[!names_of_columns_3 %in% "(Intercept)"]
+  return(names_of_columns_3)
+}
+
+#Function for cleaning data:
+
+Clean <- function(data_for_analysis) {
+  #Replace Infinite values in data with NA
+  data_for_analysis <- do.call(data.frame,                      
+                               lapply(data_for_analysis,
+                                      function(x) replace(x, is.infinite(x), NA)))
+  #Remove NA values:
+  data_for_analysis <- na.omit(data_for_analysis)
+  
+  return(data_for_analysis)
+}
+
+
+######### Run Covariate-Adjusted Complier Average Causal Effects (CACE) using strongest compliance check:
+
+### Test Hypotheses 1, 2, and 3:
+#(H1) We test whether in-feed source reliability labels shift downstream news and information consumption from unreliable sources known for publishing misleading or false content to more reliable sources
+#(H2) We test whether it increases trust in mainstream media and reliable sources (H2), and  
+#(H3) mitigate phenomena associated with democratic dysfunction (affective polarization and political cynicism). 
+
+######################### (Hypothesis 1) ################################
+
+################## Proportion Unreliable (After July 1st) ##############################################
+
+data_for_analysis <- Pulse_data %>% ungroup() %>% select(Prop_Unreliable_NewsG_Score_post,
+                                                         Prop_Unreliable_NewsG_Score,
+                                                         gender_dummy_fem,
+                                                         educ_score,
+                                                         Age,
+                                                         Age_Sq,
+                                                         party_score,
+                                                         race_white,
+                                                         ideo_score,
+                                                         Trust_Media_w1,
+                                                         trust_news,
+                                                         trust_news_sm,
+                                                         cons_news_n,
+                                                         cons_cable,
+                                                         cons_print,
+                                                         cons_public, 
+                                                         cons_talk,
+                                                         cons_desk,
+                                                         cons_mobile,
+                                                         Safari_dummy,
+                                                         log_news,
+                                                         IE_dummy,
+                                                         Chrome_dummy,
+                                                         Firefox_dummy,
+                                                         Social_Media_Use)
+
+
+
+#Clean Data:
+data_for_analysis <- Clean(data_for_analysis)
+
+#Use glmnet lasso to choose covariates to be a part of model:
+names_of_columns_3 <- Lasso(data_for_analysis)
+
+names_of_columns_3 <- c('Treated',names_of_columns_3)
+
+names.use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_3)]
+
+data_for_analysis <- Pulse_data[, names.use]
+
+data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
+                             lapply(data_for_analysis,
+                                    function(x) replace(x, is.infinite(x), NA)))
+
+ivreg_Unrel_Post_compl_2 <- lm_robust(Prop_Unreliable_NewsG_Score_post ~ ., data = data_for_analysis)
+
+
+################## Domain Score (After July 1st)   ##############################################
+data_for_analysis <- Pulse_data %>%  ungroup() %>% select(Average_domain_NewsG_Score_post,
+                                                          Average_domain_NewsG_Score,
+                                                          gender_dummy_fem,
+                                                          educ_score,
+                                                          Age,
+                                                          Age_Sq,
+                                                          party_score,
+                                                          race_white,
+                                                          ideo_score,
+                                                          Trust_Media_w1,
+                                                          trust_news,
+                                                          trust_news_sm,
+                                                          cons_news_n,
+                                                          cons_cable,
+                                                          cons_print,
+                                                          cons_public, 
+                                                          cons_talk,
+                                                          cons_desk,
+                                                          cons_mobile,
+                                                          Safari_dummy,
+                                                          log_news)
+
+
+#Clean Data:
+data_for_analysis <- Clean(data_for_analysis)
+
+#Use glmnet lasso to choose covariates to be a part of model:
+names_of_columns_3 <- Lasso(data_for_analysis)
+
+names_of_columns_3 <- c('Treated',names_of_columns_3)
+
+names.use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_3)]
+
+data_for_analysis <- Pulse_data[, names.use]
+
+data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
+                             lapply(data_for_analysis,
+                                    function(x) replace(x, is.infinite(x), NA)))
+
+ivreg_news_Post_compl_2 <- lm_robust(Average_domain_NewsG_Score_post ~ ., data = data_for_analysis)
+
+################## Proportion Reliable (After July 1st)   ##############################################
+data_for_analysis <- Pulse_data %>% ungroup() %>%  select(Prop_Reliable_NewsG_Score_post,
+                                                          Prop_Reliable_NewsG_Score,
+                                                          gender_dummy_fem,
+                                                          educ_score,
+                                                          Age,
+                                                          Age_Sq,
+                                                          party_score,
+                                                          race_white,
+                                                          ideo_score,
+                                                          Trust_Media_w1,
+                                                          trust_news,
+                                                          trust_news_sm,
+                                                          cons_news_n,
+                                                          cons_cable,
+                                                          cons_print,
+                                                          cons_public, 
+                                                          cons_talk,
+                                                          cons_desk,
+                                                          cons_mobile,
+                                                          Safari_dummy,
+                                                          log_news,
+                                                          IE_dummy,
+                                                          Chrome_dummy,
+                                                          Firefox_dummy,
+                                                          Social_Media_Use)
+
+#Clean Data:
+data_for_analysis <- Clean(data_for_analysis)
+
+#Create list of covariates that should be included:
+names_of_columns_3 <- Lasso(data_for_analysis)
+
+names_of_columns_3 <- c('Treated',names_of_columns_3)
+
+names.use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_3)]
+
+data_for_analysis <- Pulse_data[, names.use]
+
+data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
+                             lapply(data_for_analysis,
+                                    function(x) replace(x, is.infinite(x), NA)))
+
+ivreg_Rel_Post_compl_2 <- lm_robust(Prop_Reliable_NewsG_Score_post ~ ., data = data_for_analysis)
+
+
+################## Count of Unreliable (After July 1st)   ##############################################
+data_for_analysis <- Pulse_data %>% ungroup() %>%  select(Count_Unreliable_NewsG_Score_post,
+                                                          Count_Unreliable_NewsG_Score,
+                                                          gender_dummy_fem,
+                                                          educ_score,
+                                                          Age,
+                                                          Age_Sq,
+                                                          party_score,
+                                                          race_white,
+                                                          ideo_score,
+                                                          Trust_Media_w1,
+                                                          trust_news,
+                                                          trust_news_sm,
+                                                          cons_news_n,
+                                                          cons_cable,
+                                                          cons_print,
+                                                          cons_public, 
+                                                          cons_talk,
+                                                          cons_desk,
+                                                          cons_mobile,
+                                                          Safari_dummy,
+                                                          log_news,
+                                                          IE_dummy,
+                                                          Chrome_dummy,
+                                                          Firefox_dummy,
+                                                          Social_Media_Use)
+
+#Clean Data:
+data_for_analysis <- Clean(data_for_analysis)
+
+#Use glmnet lasso to choose covariates to be a part of model:
+names_of_columns_3 <- Lasso(data_for_analysis)
+
+names_of_columns_3 <- c('Treated',names_of_columns_3)
+
+names.use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_3)]
+
+data_for_analysis <- Pulse_data[, names.use]
+
+data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
+                             lapply(data_for_analysis,
+                                    function(x) replace(x, is.infinite(x), NA)))
+
+ivreg_Unrel_c_Post_compl_2 <- lm_robust(Count_Unreliable_NewsG_Score_post ~ ., data = data_for_analysis)
+
+
+################## Count of Reliable (After July 1st)  ##############################################
+data_for_analysis <- Pulse_data %>% ungroup() %>%  select(Count_Reliable_NewsG_Score_post,
+                                                          Count_Reliable_NewsG_Score,
+                                                          gender_dummy_fem,
+                                                          educ_score,
+                                                          Age,
+                                                          Age_Sq,
+                                                          party_score,
+                                                          race_white,
+                                                          ideo_score,
+                                                          Trust_Media_w1,
+                                                          trust_news,
+                                                          trust_news_sm,
+                                                          cons_news_n,
+                                                          cons_cable,
+                                                          cons_print,
+                                                          cons_public, 
+                                                          cons_talk,
+                                                          cons_desk,
+                                                          cons_mobile,
+                                                          Safari_dummy,
+                                                          log_news,
+                                                          IE_dummy,
+                                                          Chrome_dummy,
+                                                          Firefox_dummy,
+                                                          Social_Media_Use)
+
+#Clean Data:
+data_for_analysis <- Clean(data_for_analysis)
+
+#Use glmnet lasso to choose covariates to be a part of model:
+names_of_columns_3 <- Lasso(data_for_analysis)
+
+names_of_columns_3 <- c('Treated',names_of_columns_3)
+
+names.use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_3)]
+
+data_for_analysis <- Pulse_data[, names.use]
+
+data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
+                             lapply(data_for_analysis,
+                                    function(x) replace(x, is.infinite(x), NA)))
+
+ivreg_rel_c_Post_compl_2 <- lm_robust(Count_Reliable_NewsG_Score_post ~ ., data = data_for_analysis)
+
+###############Comparing pre-treatment period to the period between Wave 1 survey and July 1st (Treatment Period): 
+
+################## Proportion Unreliable (Treatment Period)  ##############################################
+
+data_for_analysis <- Pulse_data %>% ungroup() %>%  select(Prop_Unreliable_NewsG_Score_dv,
+                                                          Prop_Unreliable_NewsG_Score,
+                                                          gender_dummy_fem,
+                                                          educ_score,
+                                                          Age,
+                                                          Age_Sq,
+                                                          party_score,
+                                                          race_white,
+                                                          ideo_score,
+                                                          Trust_Media_w1,
+                                                          trust_news,
+                                                          trust_news_sm,
+                                                          cons_news_n,
+                                                          cons_cable,
+                                                          cons_print,
+                                                          cons_public, 
+                                                          cons_talk,
+                                                          cons_desk,
+                                                          cons_mobile,
+                                                          Safari_dummy,
+                                                          log_news,
+                                                          IE_dummy,
+                                                          Chrome_dummy,
+                                                          Firefox_dummy,
+                                                          Social_Media_Use)
+
+#Clean Data:
+data_for_analysis <- Clean(data_for_analysis)
+
+#Use glmnet lasso to choose covariates to be a part of model:
+names_of_columns_3 <- Lasso(data_for_analysis)
+
+names_of_columns_3 <- c('Treated',names_of_columns_3)
+
+names.use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_3)]
+
+data_for_analysis <- Pulse_data[, names.use]
+
+data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
+                             lapply(data_for_analysis,
+                                    function(x) replace(x, is.infinite(x), NA)))
+
+ivreg_Unrel_dv_compl_2 <- lm_robust(Prop_Unreliable_NewsG_Score_dv ~ ., data = data_for_analysis)
+
+################## Domain Score (Treatment Period)  ##############################################
+data_for_analysis <- Pulse_data %>%  ungroup() %>%  select(Average_domain_NewsG_Score_dv,
+                                                           Average_domain_NewsG_Score,
+                                                           gender_dummy_fem,
+                                                           educ_score,
+                                                           Age,
+                                                           Age_Sq,
+                                                           party_score,
+                                                           race_white,
+                                                           ideo_score,
+                                                           Trust_Media_w1,
+                                                           trust_news,
+                                                           trust_news_sm,
+                                                           cons_news_n,
+                                                           cons_cable,
+                                                           cons_print,
+                                                           cons_public, 
+                                                           cons_talk,
+                                                           cons_desk,
+                                                           cons_mobile,
+                                                           Safari_dummy,
+                                                           log_news,
+                                                           IE_dummy,
+                                                           Chrome_dummy,
+                                                           Firefox_dummy,
+                                                           Social_Media_Use)
+
+#Clean Data:
+data_for_analysis <- Clean(data_for_analysis)
+
+#Use glmnet lasso to choose covariates to be a part of model:
+names_of_columns_3 <- Lasso(data_for_analysis)
+
+names_of_columns_3 <- c('Treated',names_of_columns_3)
+
+names.use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_3)]
+
+data_for_analysis <- Pulse_data[, names.use]
+
+data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
+                             lapply(data_for_analysis,
+                                    function(x) replace(x, is.infinite(x), NA)))
+
+ivreg_news_dv_compl_2 <- lm_robust(Average_domain_NewsG_Score_dv ~ ., data = data_for_analysis)
+
+################## Proportion Reliable (Treatment Period)  ##############################################
+
+data_for_analysis <- Pulse_data %>% ungroup() %>%  select(Prop_Reliable_NewsG_Score_dv,
+                                                          Prop_Reliable_NewsG_Score,
+                                                          gender_dummy_fem,
+                                                          educ_score,
+                                                          Age,
+                                                          Age_Sq,
+                                                          party_score,
+                                                          race_white,
+                                                          ideo_score,
+                                                          Trust_Media_w1,
+                                                          trust_news,
+                                                          trust_news_sm,
+                                                          cons_news_n,
+                                                          cons_cable,
+                                                          cons_print,
+                                                          cons_public, 
+                                                          cons_talk,
+                                                          cons_desk,
+                                                          cons_mobile,
+                                                          Safari_dummy,
+                                                          log_news,
+                                                          IE_dummy,
+                                                          Chrome_dummy,
+                                                          Firefox_dummy,
+                                                          Social_Media_Use)
+
+#Clean Data:
+data_for_analysis <- Clean(data_for_analysis)
+
+#Use glmnet lasso to choose covariates to be a part of model:
+names_of_columns_3 <- Lasso(data_for_analysis)
+
+names_of_columns_3 <- c('Treated',names_of_columns_3)
+
+names.use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_3)]
+
+data_for_analysis <- Pulse_data[, names.use]
+
+data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
+                             lapply(data_for_analysis,
+                                    function(x) replace(x, is.infinite(x), NA)))
+
+ivreg_Rel_dv_compl_2 <- lm_robust(Prop_Reliable_NewsG_Score_dv ~ ., data = data_for_analysis)
+
+
+################## Count of Unreliable (Treatment Period)  ##############################################
+
+data_for_analysis <- Pulse_data %>% ungroup() %>%  select(Count_Unreliable_NewsG_Score_dv,
+                                                          Count_Unreliable_NewsG_Score,
+                                                          gender_dummy_fem,
+                                                          educ_score,
+                                                          Age,
+                                                          Age_Sq,
+                                                          party_score,
+                                                          race_white,
+                                                          ideo_score,
+                                                          Trust_Media_w1,
+                                                          trust_news,
+                                                          trust_news_sm,
+                                                          cons_news_n,
+                                                          cons_cable,
+                                                          cons_print,
+                                                          cons_public, 
+                                                          cons_talk,
+                                                          cons_desk,
+                                                          cons_mobile,
+                                                          Safari_dummy,
+                                                          log_news,
+                                                          IE_dummy,
+                                                          Chrome_dummy,
+                                                          Firefox_dummy,
+                                                          Social_Media_Use)
+
+#Clean Data:
+data_for_analysis <- Clean(data_for_analysis)
+
+#Use glmnet lasso to choose covariates to be a part of model:
+names_of_columns_3 <- Lasso(data_for_analysis)
+
+names_of_columns_3 <- c('Treated',names_of_columns_3)
+
+names.use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_3)]
+
+data_for_analysis <- Pulse_data[, names.use]
+
+data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
+                             lapply(data_for_analysis,
+                                    function(x) replace(x, is.infinite(x), NA)))
+
+ivreg_Unrel_c_dv_compl_2 <- lm_robust(Count_Unreliable_NewsG_Score_dv ~ ., data = data_for_analysis)
+
+
+################## Count of Reliable (Treatment Period) ##############################################
+
+data_for_analysis <- Pulse_data %>% ungroup() %>%  select(Count_Reliable_NewsG_Score_dv,
+                                                          Count_Reliable_NewsG_Score,
+                                                          gender_dummy_fem,
+                                                          educ_score,
+                                                          Age,
+                                                          Age_Sq,
+                                                          party_score,
+                                                          race_white,
+                                                          ideo_score,
+                                                          Trust_Media_w1,
+                                                          trust_news,
+                                                          trust_news_sm,
+                                                          cons_news_n,
+                                                          cons_cable,
+                                                          cons_print,
+                                                          cons_public, 
+                                                          cons_talk,
+                                                          cons_desk,
+                                                          cons_mobile,
+                                                          Safari_dummy,
+                                                          log_news,
+                                                          IE_dummy,
+                                                          Chrome_dummy,
+                                                          Firefox_dummy,
+                                                          Social_Media_Use)
+
+#Clean Data:
+data_for_analysis <- Clean(data_for_analysis)
+
+#Use glmnet lasso to choose covariates to be a part of model:
+names_of_columns_3 <- Lasso(data_for_analysis)
+
+names_of_columns_3 <- c('Treated',names_of_columns_3)
+
+names.use <- names(Pulse_data)[(names(Pulse_data) %in% names_of_columns_3)]
+
+data_for_analysis <- Pulse_data[, names.use]
+
+data_for_analysis <- do.call(data.frame,                      # Replace Inf in data by NA
+                             lapply(data_for_analysis,
+                                    function(x) replace(x, is.infinite(x), NA)))
+
+ivreg_rel_c_dv_compl_2 <- lm_robust(Count_Reliable_NewsG_Score_dv ~ ., data = data_for_analysis)
+
+
+
+
+
+
+Period <- c('Before July 1st',
+            'July 1st - July 13th',
+            'Before July 1st',
+            'July 1st - July 13th',
+            'Before July 1st',
+            'July 1st - July 13th',
+            'Before July 1st',
+            'July 1st - July 13th',
+            'Before July 1st',
+            'July 1st - July 13th')
+
+
+
+Coef_names <- c('Proportion of Online News Consumed that is Unreliable',
+                'Proportion of Online News Consumed that is Unreliable',
+                'Count of Online News Consumed that is Unreliable',
+                'Count of Online News Consumed that is Unreliable',
+                'Proportion of Online News Consumed that is Reliable',
+                'Proportion of Online News Consumed that is Reliable',
+                'Count of Online News Consumed that is Reliable',
+                'Count of Online News Consumed that is Reliable',
+                'Average Reliability Score of Online News Consumed',
+                'Average Reliability Score of Online News Consumed')
+
+
+
+Coefficients <- c(ivreg_Unrel_dv_compl_2$coefficients[2]/sd(Pulse_data$Prop_Unreliable_NewsG_Score,na.rm=T),
+                  ivreg_Unrel_Post_compl_2$coefficients[2]/sd(Pulse_data$Prop_Unreliable_NewsG_Score,na.rm=T),
+                  ivreg_Unrel_c_dv_compl_2$coefficients[2]/sd(Pulse_data$Count_Unreliable_NewsG_Score,na.rm=T),
+                  ivreg_Unrel_c_Post_compl_2$coefficients[2]/sd(Pulse_data$Count_Unreliable_NewsG_Score,na.rm=T),
+                  ivreg_Rel_dv_compl_2$coefficients[2]/sd(Pulse_data$Prop_Reliable_NewsG_Score,na.rm=T),
+                  ivreg_Rel_Post_compl_2$coefficients[2]/sd(Pulse_data$Prop_Reliable_NewsG_Score,na.rm=T),
+                  ivreg_rel_c_dv_compl_2$coefficients[2]/sd(Pulse_data$Count_Reliable_NewsG_Score,na.rm=T),
+                  ivreg_rel_c_Post_compl_2$coefficients[2]/sd(Pulse_data$Count_Reliable_NewsG_Score,na.rm=T),
+                  ivreg_news_dv_compl_2$coefficients[2]/sd(Pulse_data$Average_domain_NewsG_Score,na.rm=T),
+                  ivreg_news_Post_compl_2$coefficients[2]/sd(Pulse_data$Average_domain_NewsG_Score,na.rm=T))                 
+
+
+CI_Upper <- c(ivreg_Unrel_dv_compl_2$conf.high[2]/sd(Pulse_data$Prop_Unreliable_NewsG_Score,na.rm=T),
+              ivreg_Unrel_Post_compl_2$conf.high[2]/sd(Pulse_data$Prop_Unreliable_NewsG_Score,na.rm=T),
+              ivreg_Unrel_c_dv_compl_2$conf.high[2]/sd(Pulse_data$Count_Unreliable_NewsG_Score,na.rm=T),
+              ivreg_Unrel_c_Post_compl_2$conf.high[2]/sd(Pulse_data$Count_Unreliable_NewsG_Score,na.rm=T),
+              ivreg_Rel_dv_compl_2$conf.high[2]/sd(Pulse_data$Prop_Reliable_NewsG_Score,na.rm=T),
+              ivreg_Rel_Post_compl_2$conf.high[2]/sd(Pulse_data$Prop_Reliable_NewsG_Score,na.rm=T),
+              ivreg_rel_c_dv_compl_2$conf.high[2]/sd(Pulse_data$Count_Reliable_NewsG_Score,na.rm=T),
+              ivreg_rel_c_Post_compl_2$conf.high[2]/sd(Pulse_data$Count_Reliable_NewsG_Score,na.rm=T),
+              ivreg_news_dv_compl_2$conf.high[2]/sd(Pulse_data$Average_domain_NewsG_Score,na.rm=T),
+              ivreg_news_Post_compl_2$conf.high[2]/sd(Pulse_data$Average_domain_NewsG_Score,na.rm=T))                 
+
+
+
+CI_Lower <- c(ivreg_Unrel_dv_compl_2$conf.low[2]/sd(Pulse_data$Prop_Unreliable_NewsG_Score,na.rm=T),
+              ivreg_Unrel_Post_compl_2$conf.low[2]/sd(Pulse_data$Prop_Unreliable_NewsG_Score,na.rm=T),
+              ivreg_Unrel_c_dv_compl_2$conf.low[2]/sd(Pulse_data$Count_Unreliable_NewsG_Score,na.rm=T),
+              ivreg_Unrel_c_Post_compl_2$conf.low[2]/sd(Pulse_data$Count_Unreliable_NewsG_Score,na.rm=T),
+              ivreg_Rel_dv_compl_2$conf.low[2]/sd(Pulse_data$Prop_Reliable_NewsG_Score,na.rm=T),
+              ivreg_Rel_Post_compl_2$conf.low[2]/sd(Pulse_data$Prop_Reliable_NewsG_Score,na.rm=T),
+              ivreg_rel_c_dv_compl_2$conf.low[2]/sd(Pulse_data$Count_Reliable_NewsG_Score,na.rm=T),
+              ivreg_rel_c_Post_compl_2$conf.low[2]/sd(Pulse_data$Count_Reliable_NewsG_Score,na.rm=T),
+              ivreg_news_dv_compl_2$conf.low[2]/sd(Pulse_data$Average_domain_NewsG_Score,na.rm=T),
+              ivreg_news_Post_compl_2$conf.low[2]/sd(Pulse_data$Average_domain_NewsG_Score,na.rm=T))                 
+
+
+
+
+d_matrix <- cbind(Period,Coef_names,Coefficients,CI_Upper,CI_Lower)
+rownames(d_matrix) <- c()
+
+d_matrix <- data.frame(d_matrix)
+
+
+d_matrix$Coefficients <- as.character(d_matrix$Coefficients)
+d_matrix$CI_Lower <- as.character(d_matrix$CI_Lower)
+d_matrix$CI_Upper <- as.character(d_matrix$CI_Upper)
+
+d_matrix$Coefficients <- as.numeric(d_matrix$Coefficients)
+d_matrix$CI_Lower <- as.numeric(d_matrix$CI_Lower)
+d_matrix$CI_Upper <- as.numeric(d_matrix$CI_Upper)
+
+
+d_matrix <- d_matrix %>% arrange(desc(row_number()))
+
+
+
+
+d_matrix$x<-c(0.8,0.9,1.3,1.4,1.8,1.9,2.3,2.4,2.8,2.9)
+
+ggplot(data = d_matrix, aes(x = x, y = Coefficients)) +
+  geom_hline(aes(yintercept = 0), color = "gray",
+             linetype = 2, size = 1.2) +
+  geom_point(aes(color = Period, shape=Period),size=4) +
+  geom_linerange(aes(min = CI_Lower, 
+                     max = CI_Upper, 
+                     color = Period),
+                 size=1.5) +
+  scale_color_manual(values=c('red','blue','purple'), name = "Period") +
+  ylab("\n Effect of NewsGuard Intervention on Online Behavioral Measures         \n(1 unit is 1 standard deviation of that measure pre-treatment)         ") +
+  theme_classic() +
+  theme(axis.title.x = element_text(size=16),
+        axis.text.x  = element_text(size=16),
+        axis.title.y = element_text(size=16),
+        axis.text.y  = element_text(size=16),
+        plot.title = element_text(size = 16),
+        legend.title = element_text(size=16),
+        legend.text = element_text(size=14)) +
+  ylim(-0.5,0.5) +
+  scale_x_continuous(" \n",breaks=c(2.85,2.35,1.85,1.35,0.85),labels=c('Proportion of Online News\nConsumed that is Unreliable',
+                                                                       'Count of Online News\nConsumed that is Unreliable',
+                                                                       'Proportion of Online News\nConsumed that is Reliable',
+                                                                       'Count of Online News\nConsumed that is Reliable',
+                                                                       'Average Reliability Score\nof Online News Consumed'),limits=c(0.5,3.4)) +
+  coord_flip()
+
+ggsave('./Figures/Mobile_Behavioral_Coefficients.png',height=12,width=10)
+
+
+
+
+
+Mobile_Pre <- read.csv('./Data/pulse_vars_mobile_pre.csv')
+Mobile_Pre <- Mobile_Pre %>% select(caseid)
+Mobile_Pre$Mobile_Period_1 <- 1
+Mobile_dv <- read.csv('./Data/pulse_vars_mobile_dv.csv')
+Mobile_dv <- Mobile_dv %>% select(caseid)
+Mobile_dv$Mobile_Period_2 <- 1
+Mobile_Post <- read.csv('./Data/pulse_vars_mobile_post.csv')
+Mobile_Post <- Mobile_Post %>% select(caseid)
+Mobile_Post$Mobile_Period_3 <- 1
+
+Mobile_IDs <- merge(Mobile_Pre,Mobile_dv,by='caseid',all=T)
+Mobile_IDs <- merge(Mobile_IDs,Mobile_Post,by='caseid',all=T)
+
+
+
+
+
+Desktop_Pre <- read.csv('./Data/pulse_vars_pre.csv')
+Desktop_Pre <- Desktop_Pre %>% select(caseid)
+Desktop_Pre$Desktop_Period_1 <- 1
+Desktop_dv <- read.csv('./Data/pulse_vars_dv.csv')
+Desktop_dv <- Desktop_dv %>% select(caseid)
+Desktop_dv$Desktop_Period_2 <- 1
+Desktop_Post <- read.csv('./Data/pulse_vars_post.csv')
+Desktop_Post <- Desktop_Post %>% select(caseid)
+Desktop_Post$Desktop_Period_3 <- 1
+
+Desktop_IDs <- merge(Desktop_Pre,Desktop_dv,by='caseid',all=T)
+Desktop_IDs <- merge(Desktop_IDs,Desktop_Post,by='caseid',all=T)
+
+
+
+Mobile_IDs <- Mobile_IDs %>% select(caseid)
+Mobile_IDs$Mobile_Data <- 1
+Desktop_IDs <- Desktop_IDs %>% select(caseid)
+Desktop_IDs$Desktop_Data <- 1
+
+All_IDs <- merge(Desktop_IDs,Mobile_IDs,by='caseid',all=T)
+
+
+All_IDs$Mobile_Data <- ifelse(is.na(All_IDs$Mobile_Data),0,1)
+All_IDs$Desktop_Data <- ifelse(is.na(All_IDs$Desktop_Data),0,1)
+
+
+All_IDs$Group <- ifelse(All_IDs$Mobile_Data == 1 & All_IDs$Desktop_Data == 1,'Both','Mobile Only')
+All_IDs$Group <- ifelse(All_IDs$Mobile_Data == 0 & All_IDs$Desktop_Data == 1,'Desktop Only',All_IDs$Group)
+
+
+Percentage_Both <- table(All_IDs$Group)[1]/(table(All_IDs$Group)[1]+table(All_IDs$Group)[2]+table(All_IDs$Group)[3])
+Percentage_Desktop <- table(All_IDs$Group)[2]/(table(All_IDs$Group)[1]+table(All_IDs$Group)[2]+table(All_IDs$Group)[3])
+Percentage_Mobile <- table(All_IDs$Group)[3]/(table(All_IDs$Group)[1]+table(All_IDs$Group)[2]+table(All_IDs$Group)[3])
+
+
+Number_Both <- as.integer(round(table(All_IDs$Group)[1],0))
+Number_Desktop <- as.integer(round(table(All_IDs$Group)[2],0))
+Number_Mobile <- as.integer(round(table(All_IDs$Group)[3],0))
+
+Number_Both <- as.character(Number_Both)
+Number_Desktop <- as.character(Number_Desktop)
+Number_Mobile <- as.character(Number_Mobile)
+
+Percentage_Both <- Percentage_Both*100
+Percentage_Desktop <- Percentage_Desktop*100
+Percentage_Mobile <- Percentage_Mobile*100
+
+Percentage_Both <- as.numeric(Percentage_Both)
+Percentage_Desktop <- as.numeric(Percentage_Desktop)
+Percentage_Mobile <- as.numeric(Percentage_Mobile)
+
+
+Percentage_Both <- as.character(round(Percentage_Both,2))
+Percentage_Desktop <- as.character(round(Percentage_Desktop,2))
+Percentage_Mobile <- as.character(round(Percentage_Mobile,2))
+
+
+Perc_mat <- matrix(c(Percentage_Desktop,Percentage_Mobile,Percentage_Both,
+                     Number_Desktop,Number_Mobile,Number_Both),ncol=3,byrow=T)
+
+xt <- xtable(Perc_mat,
+             align=c(
+               "p{2.25cm}","p{3.5cm}","p{3.5cm}",
+               "p{5.5cm}"),
+             caption='This table presents the number and percentage of the Pulse sample for which we collected only web tracking data from their desktop/laptop, only from their mobile device, or from both')
+
+#Name Columns:
+colnames(xt) <- c('Desktop/Laptop Only','Mobile Only','Both Desktop/Laptop and Mobile')
+
+rownames(xt) <- c('Percentage of Pulse Sample','Number of Respondents')
+
+
+#Write Table:
+write(print(xt,
+            sanitize.colnames.function = identity,caption.placement = "top"),file='./Tables/Table_Pulse_Summary.txt')
 
 
 

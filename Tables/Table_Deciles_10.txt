@@ -1,5 +1,5 @@
 % latex table generated in R 3.6.1 by xtable 1.8-4 package
-% Fri Jun 25 17:59:14 2021
+% Tue Jun 29 18:16:08 2021
 \begin{table}[ht]
 \centering
 \caption{Testing the Effect of the Intervention on Reliability Score of News Diet with Covariate-Adjusted Models (HC2 Robust standard errors) (After July 1st) on Different Samples of Respondents by Decile of their Quality of News Consumption Pre-Treatment (Average Reliability Score of News)} 
@@ -16,6 +16,7 @@ Bottom 10 Percent & 78.255 & 5.863 (1.858)** & 5.988 (1.892)** & 5.813 (2.066)**
   Bottom 70 Percent & 90.773 & 0.849 (0.435) & 0.856 (0.452) & 0.921 (0.507) & 511 \\ 
   Bottom 80 Percent & 92.462 & 0.711 (0.4) & 0.712 (0.414) & 0.757 (0.464) & 585 \\ 
   Bottom 90 Percent & 95 & 0.648 (0.376) & 0.631 (0.391) & 0.662 (0.44) & 663 \\ 
+  Whole Sample & 100 & 0.567 (0.358) & 0.564 (0.372) & 0.593 (0.42) & 729 \\ 
    \hline \multicolumn{5}{l}{\scriptsize{$^{***}p<0.001$; $^{**}p<0.01$; $^{*}p<0.05$}} \\  \hline
 \end{tabular}
 \end{table}

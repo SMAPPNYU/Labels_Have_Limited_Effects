@@ -1,0 +1,22 @@
+
+\begin{table}[!htbp]
+\caption{Testing the Effect of the Intervention on Reliability Score of News Diet with Covariate-Adjusted Models (HC2 Robust standard errors) (After July 1st)}
+\begin{center}
+\begin{tabular}{l c c c}
+\hline
+ & Intent-To-Treat (ITT) & CACE (Model 1) & CACE (Model 2) \\
+\hline
+Treatment           & $0.1751$       & $0.1952$       & $0.1146$       \\
+                    & $(0.3923)$     & $(0.4081)$     & $(0.4652)$     \\
+Pre-Treatment Value & $0.7973^{***}$ & $0.7946^{***}$ & $0.7997^{***}$ \\
+                    & $(0.0731)$     & $(0.0737)$     & $(0.0742)$     \\
+\hline
+R$^2$               & $0.5847$       & $0.5830$       & $0.5874$       \\
+Adj. R$^2$          & $0.5825$       & $0.5809$       & $0.5852$       \\
+Num. obs.           & $392$          & $387$          & $375$          \\
+\hline
+\multicolumn{4}{l}{\scriptsize{$^{***}p<0.001$; $^{**}p<0.01$; $^{*}p<0.05$}}
+\end{tabular}
+\label{table}
+\end{center}
+\end{table}

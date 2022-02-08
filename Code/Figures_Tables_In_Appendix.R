@@ -2769,7 +2769,7 @@ Titles <- c('Testing the Effect of the Intervention on Proportion of News Diet o
             'Testing the Effect of the Intervention on Count of Reliable News Referred From Search Engines and Social Media (Google, Twitter, and Facebook) with Covariate-Adjusted Models (HC2 Robust standard errors) (Before July 1st)',
             'Testing the Effect of the Intervention on Reliability Score of News Referred From Search Engines and Social Media (Google, Twitter, and Facebook) with Covariate-Adjusted Models (HC2 Robust standard errors) (Before July 1st)',
             'Testing the Effect of the Intervention on Proportion of News Diet of Referrals From Search Engines and Social Media (Google, Twitter, and Facebook) That is Unreliable with Covariate-Adjusted Models (HC2 Robust standard errors) (After July 1st)',
-            'Testing the Effect of the Intervention on Proportion News Diet of Referrals From Search Engines and Social Media (Google, Twitter, and Facebook) That is Reliable with Covariate-Adjusted Models (HC2 Robust standard errors) (After July 1st)',
+            'Testing the Effect of the Intervention on Proportion of News Diet of Referrals From Search Engines and Social Media (Google, Twitter, and Facebook) That is Reliable with Covariate-Adjusted Models (HC2 Robust standard errors) (After July 1st)',
             'Testing the Effect of the Intervention on Count of Unreliable News Referred From Search Engines and Social Media (Google, Twitter, and Facebook) with Covariate-Adjusted Models (HC2 Robust standard errors) (After July 1st)',
             'Testing the Effect of the Intervention on Count of Reliable News Referred From Search Engines and Social Media (Google, Twitter, and Facebook) with Covariate-Adjusted Models (HC2 Robust standard errors) (After July 1st)',
             'Testing the Effect of the Intervention on Reliability Score of News Referred From Search Engines and Social Media (Google, Twitter, and Facebook) with Covariate-Adjusted Models (HC2 Robust standard errors) (After July 1st)')
@@ -3793,6 +3793,10 @@ ggplot(Pulse_data, aes(x=Google_Search_Referals)) +
 ggsave('./Figures/Google_Search_Dist.png',height=12,width=10)
 
 Pulse_data$Facebook_Time <- ifelse(Pulse_data$Facebook_Time>2000,2000,Pulse_data$Facebook_Time)
+
+test_1 <- Pulse_data %>% filter(Facebook_Time > 600)
+
+nrow(test_1)/902
 
 ggplot(Pulse_data, aes(x=Facebook_Time)) + 
   geom_density(color="lightblue", fill="lightblue") +

@@ -1,5 +1,14 @@
 
-
+#Load Libraries:
+library(tidyverse)
+library(dplyr)
+library(AER)
+library(glmnet)
+library(estimatr)
+library(huxtable)
+library(magrittr)
+library(texreg)
+library(ivpack)
 
 #Table 2: Descriptive statistics for sample by treatment and control groups by attrition:
 
@@ -670,6 +679,8 @@ ggplot(Analysis_D, aes(x=date_2,y=AVG_Unrel_Prop,colour=Group)) +
         legend.text = element_text(size=12))
 
 ggsave('./Figures/fig_4.png',width=11)
+
+
 
 
 
@@ -2833,6 +2844,369 @@ write(print(xt,
 
 
 
+
+
+#Read in survey data with digital trace data:
+Pulse_data <- read_csv('./Data/Clean_NewsGuard_Digital_Trace_Data.csv',
+                       col_types = cols(
+                         .default= col_character(),
+                         BLM_info_Index_w2 = col_double(),
+                         Covid_info_Index_w2 = col_double(),
+                         BLM_Misinfo_Index_w2 = col_double(),
+                         Covid_Misinfo_Index_w2 = col_double(),
+                         Trust_Media_w2 = col_double(),
+                         SMP4310_w2 = col_double(),
+                         SMP4310 = col_double(),
+                         Treated = col_double(),
+                         Complied=col_double(),
+                         Total_DL =  col_double(),
+                         Total_Science_Misinfo  =  col_double(),
+                         Social_Media_Use =  col_double(),
+                         income_score =  col_double(),
+                         abs_part =  col_double(),
+                         aff_pol_w2 = col_double(),
+                         aff_pol_w1 = col_double(),
+                         mean_cons =  col_double(),
+                         Average_domain_NewsG_Score_post= col_double(),
+                         Average_domain_NewsG_Score= col_double(),
+                         Prop_Unreliable_NewsG_Score_post= col_double(),
+                         Prop_Unreliable_NewsG_Score= col_double(),
+                         Prop_Reliable_NewsG_Score_post = col_double(),
+                         Prop_Reliable_NewsG_Score = col_double(),
+                         Count_Unreliable_NewsG_Score_post = col_double(),
+                         Count_Unreliable_NewsG_Score = col_double(),
+                         Count_Reliable_NewsG_Score_post = col_double(),
+                         Count_Reliable_NewsG_Score = col_double(),
+                         Prop_Unreliable_NewsG_Score_dv = col_double(),
+                         Average_domain_NewsG_Score_dv = col_double(),
+                         Prop_Reliable_NewsG_Score_dv = col_double(),
+                         Count_Unreliable_NewsG_Score_dv = col_double(),
+                         Count_Reliable_NewsG_Score_dv = col_double(),
+                         Average_domain_NewsG_Score_post_dur= col_double(),
+                         Average_domain_NewsG_Score_dur= col_double(),
+                         Prop_Unreliable_NewsG_Score_post_dur= col_double(),
+                         Prop_Unreliable_NewsG_Score_dur= col_double(),
+                         Prop_Reliable_NewsG_Score_post_dur = col_double(),
+                         Prop_Reliable_NewsG_Score_dur = col_double(),
+                         Count_Unreliable_NewsG_Score_post_dur = col_double(),
+                         Count_Unreliable_NewsG_Score_dur = col_double(),
+                         Count_Reliable_NewsG_Score_post_dur = col_double(),
+                         Count_Reliable_NewsG_Score_dur = col_double(),
+                         Prop_Unreliable_NewsG_Score_dv_dur = col_double(),
+                         Average_domain_NewsG_Score_dv_dur = col_double(),
+                         Prop_Reliable_NewsG_Score_dv_dur = col_double(),
+                         Count_Unreliable_NewsG_Score_dv_dur = col_double(),
+                         Count_Reliable_NewsG_Score_dv_dur = col_double(),
+                         Prop_Unreliable_NewsG_Score_dv_SM_ref = col_double(),
+                         Average_domain_NewsG_Score_dv_SM_ref = col_double(),
+                         Prop_Reliable_NewsG_Score_dv_SM_ref = col_double(),
+                         Count_Unreliable_NewsG_Score_dv_SM_ref = col_double(),
+                         Count_Reliable_NewsG_Score_dv_SM_ref = col_double(),
+                         Average_domain_NewsG_Score_post_SM_ref= col_double(),
+                         Average_domain_NewsG_Score_SM_ref= col_double(),
+                         Prop_Unreliable_NewsG_Score_post_SM_ref= col_double(),
+                         Prop_Unreliable_NewsG_Score_SM_ref= col_double(),
+                         Prop_Reliable_NewsG_Score_post_SM_ref = col_double(),
+                         Prop_Reliable_NewsG_Score_SM_ref = col_double(),
+                         Count_Unreliable_NewsG_Score_post_SM_ref = col_double(),
+                         Count_Unreliable_NewsG_Score_SM_ref = col_double(),
+                         Count_Reliable_NewsG_Score_post_SM_ref = col_double(),
+                         Count_Reliable_NewsG_Score_SM_ref = col_double(),
+                         Prop_Unreliable_NewsG_Score_dv_All_ref = col_double(),
+                         Average_domain_NewsG_Score_dv_All_ref = col_double(),
+                         Prop_Reliable_NewsG_Score_dv_All_ref = col_double(),
+                         Count_Unreliable_NewsG_Score_dv_All_ref = col_double(),
+                         Count_Reliable_NewsG_Score_dv_All_ref = col_double(),
+                         Average_domain_NewsG_Score_post_All_ref= col_double(),
+                         Average_domain_NewsG_Score_All_ref= col_double(),
+                         Prop_Unreliable_NewsG_Score_post_All_ref= col_double(),
+                         Prop_Unreliable_NewsG_Score_All_ref= col_double(),
+                         Prop_Reliable_NewsG_Score_post_All_ref = col_double(),
+                         Prop_Reliable_NewsG_Score_All_ref = col_double(),
+                         Count_Unreliable_NewsG_Score_post_All_ref = col_double(),
+                         Count_Unreliable_NewsG_Score_All_ref = col_double(),
+                         Count_Reliable_NewsG_Score_post_All_ref = col_double(),
+                         Count_Reliable_NewsG_Score_All_ref = col_double(),
+                         gender_dummy_fem=col_double(),
+                         educ_score=col_double(),
+                         Age=col_double(),
+                         Age_Sq=col_double(),
+                         SMP4326_w2=col_double(),
+                         SMP4326=col_double(),
+                         Trust_inst_w2=col_double(),
+                         Trust_inst_w1=col_double(),
+                         Pol_cyn_2=col_double(),
+                         Pol_cyn_1=col_double(),
+                         Fox_Trust_2=col_double(),
+                         Fox_Trust_1=col_double(),
+                         CNN_Trust_2=col_double(),
+                         CNN_Trust_1=col_double(),
+                         ABC_Trust_2=col_double(),
+                         ABC_Trust_1=col_double(),
+                         NBC_Trust_2=col_double(),
+                         NBC_Trust_1=col_double(),
+                         CBS_Trust_2=col_double(),
+                         CBS_Trust_1=col_double(),
+                         party_score=col_double(),
+                         race_white=col_double(),
+                         ideo_score=col_double(),
+                         Trust_Media_w1=col_double(),
+                         trust_news=col_double(),
+                         trust_news_sm=col_double(),
+                         cons_news_n=col_double(),
+                         cons_cable=col_double(),
+                         cons_print=col_double(),
+                         cons_public=col_double(), 
+                         cons_talk=col_double(),
+                         cons_desk=col_double(),
+                         cons_mobile=col_double(),
+                         Safari_dummy=col_double(),
+                         log_news=col_double(),
+                         Safari_dummy=col_double(),
+                         IE_dummy=col_double(),
+                         Chrome_dummy=col_double(),
+                         Firefox_dummy=col_double(),
+                         Social_Media_Use=col_double()))
+
+
+
+#Read in survey data without digital trace data:
+
+data_frame_1 <- read_csv('./Data/Clean_NewsGuard_Survey_Study.csv',
+                         col_types = cols(
+                           .default= col_character(),
+                           Treated = col_double(),
+                           Pulse_Dummy=col_double(),
+                           Complied=col_double(),
+                           Total_DL =  col_double(),
+                           Inverse_DL = col_double(),
+                           income_score =  col_double(),
+                           Total_Science_Misinfo  =  col_double(),
+                           Social_Media_Use =  col_double(),
+                           mean_cons =  col_double(),
+                           SMP4310=col_double(),
+                           SMP4310_w2=col_double(),
+                           SMP4326=col_double(),
+                           SMP4326_w2=col_double(),
+                           Trust_inst_w2=col_double(),
+                           Trust_inst_w1=col_double(),
+                           BLM_Misinfo_Index_w2=col_double(),
+                           Covid_Misinfo_Index_w2=col_double(),
+                           BLM_info_Index_w2=col_double(),
+                           Covid_info_Index_w2=col_double(),
+                           Pol_cyn_2=col_double(),
+                           Pol_cyn_1=col_double(),
+                           Fox_Trust_2=col_double(),
+                           Fox_Trust_1=col_double(),
+                           CNN_Trust_2=col_double(),
+                           CNN_Trust_1=col_double(),
+                           ABC_Trust_2=col_double(),
+                           ABC_Trust_1=col_double(),
+                           NBC_Trust_2=col_double(),
+                           NBC_Trust_1=col_double(),
+                           CBS_Trust_2=col_double(),
+                           CBS_Trust_1=col_double(),
+                           aff_pol_w2=col_double(),
+                           aff_pol_w1=col_double(),
+                           Trust_Media_w2=col_double(),
+                           Treated=col_double(),
+                           Trust_Media_w1=col_double(),
+                           gender_dummy_fem=col_double(),
+                           educ_score=col_double(),
+                           Age=col_double(),
+                           Age_Sq=col_double(),
+                           party_score=col_double(),
+                           race_white=col_double(),
+                           ideo_score=col_double(),
+                           Trust_Media_w1=col_double(),
+                           trust_news=col_double(),
+                           trust_news_sm=col_double(),
+                           cons_news_n=col_double(),
+                           cons_cable=col_double(),
+                           cons_print=col_double(),
+                           cons_public=col_double(), 
+                           cons_talk=col_double(),
+                           cons_desk=col_double(),
+                           cons_mobile=col_double(),
+                           Safari_dummy=col_double(),
+                           IE_dummy=col_double(),
+                           Chrome_dummy=col_double(),
+                           Firefox_dummy=col_double(),
+                           Social_Media_Use=col_double()
+                         ))
+
+#Set order of dataset:
+data_frame_1 <- data_frame_1[order(data_frame_1$visa1),]
+
+
+#Cohen's d:
+
+
+
+
+list_variables_to_run_1 = list(c('Prop_Unreliable_NewsG_Score_dv'),
+                               c('Prop_Reliable_NewsG_Score_dv'),
+                               c('Count_Unreliable_NewsG_Score_dv'),
+                               c('Count_Reliable_NewsG_Score_dv'),
+                               c('Average_domain_NewsG_Score_dv'),
+                               c('Prop_Unreliable_NewsG_Score_post'),
+                               c('Prop_Reliable_NewsG_Score_post'),
+                               c('Count_Unreliable_NewsG_Score_post'),
+                               c('Count_Reliable_NewsG_Score_post'),
+                               c('Average_domain_NewsG_Score_post'))
+
+
+
+
+list_power <- c()
+#i=1
+for(i in 1:length(list_variables_to_run_1)){
+  list_possible_covariates_for_use <- c('Treated',list_variables_to_run_1[[i]])
+  data_for_analysis <- Pulse_data %>% ungroup() %>% select(`list_possible_covariates_for_use`)
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
+  
+  print(ncol(data_for_analysis))
+  
+  data_for_analysis <- na.omit(data_for_analysis)
+  data_1 <- data_for_analysis %>% filter(Treated == 1)
+  data_2 <- data_for_analysis %>% filter(Treated == 0)
+  
+  pow_i <- (mean(data_1[,2])-mean(data_2[,2]))/sd(data_for_analysis[,2])
+  pow_i <- round(pow_i,2)
+  pow_i <- as.character(pow_i)
+  list_power <- c(list_power,pow_i)
+}
+
+
+
+list_text_models <- c('Proportion of News Diet That is Unreliable',
+                      'Proportion of News Diet That is Reliable',
+                      'Count of Unreliable News Consumed',
+                      'Count of Reliable News Consumed',
+                      'Avg. Reliability Score of News Diet',
+                      'Proportion of News Diet That is Unreliable',
+                      'Proportion of News Diet That is Reliable',
+                      'Count of Unreliable News Consumed',
+                      'Count of Reliable News Consumed',
+                      'Avg. Reliability Score of News Diet')
+
+
+list_text_Period <- c('Before July 1st',
+                      'Before July 1st',
+                      'Before July 1st',
+                      'Before July 1st',
+                      'Before July 1st',
+                      'After July 1st',
+                      'After July 1st',
+                      'After July 1st',
+                      'After July 1st',
+                      'After July 1st')
+
+Power_matrix <- matrix(c(list_text_models,list_text_Period,list_power),ncol=3)
+
+colnames(Power_matrix) <- c('Variable','Time Period','Cohen\'s d')
+
+
+
+xtable(Power_matrix)
+
+#Create Xtable Object:
+xt <- xtable(Power_matrix,
+             digits=2,
+             caption= 'Cohen\'s d for Behavioral Measures',
+             align=c(
+               "p{1cm}|","|p{10cm}|",
+               "p{3cm}|","p{1cm}|"))
+
+#Name Columns:
+
+
+write(print(xt,
+            include.rownames=FALSE,
+            sanitize.colnames.function = identity,
+            caption.placement='top'),
+      file='./Tables/Cohens_Table_1.txt')
+
+
+
+
+
+
+list_variables_to_run_1 = list(c('BLM_Misinfo_Index_w2'),
+                               c('BLM_info_Index_w2'),
+                               c('Covid_Misinfo_Index_w2'),
+                               c('Covid_info_Index_w2'),
+                               c('Trust_Media_w2'),
+                               c('aff_pol_w2'),
+                               c('SMP4326_w2'),
+                               c('SMP4310_w2'),
+                               c('Trust_inst_w2'),
+                               c('CBS_Trust_2'),
+                               c('ABC_Trust_2'),
+                               c('NBC_Trust_2'),
+                               c('CNN_Trust_2'),
+                               c('Fox_Trust_2'))
+
+
+list_text_models <- c('Belief in Misinformation about the Black Lives Matter Movement',
+                      'Belief in True Information about the Black Lives Matter Movement',
+                      'Belief in Misinformation about Covid-19',
+                      'Belief in True Information about Covid-19',
+                      'Trust in Media',
+                      'Affective Polarization',
+                      'Whether They Believe “Fake News is a Problem”',
+                      'Whether They Believe “Fake News is a Problem in the Mainstream Media”',
+                      'Trust in Institutions',
+                      'Trust in CBS',
+                      'Trust in ABC',
+                      'Trust in NBC',
+                      'Trust in CNN',
+                      'Trust in Fox News')
+
+i=6
+list_power <- c()
+for(i in 1:length(list_variables_to_run_1)){
+  list_possible_covariates_for_use <- c(list_variables_to_run_1[[i]])
+  data_for_analysis <- data_frame_1 %>% ungroup() %>% select(`list_possible_covariates_for_use`)
+  
+  list_possible_covariates_for_use <- c('Treated',list_variables_to_run_1[[i]])
+  data_for_analysis <- data_frame_1 %>% ungroup() %>% select(`list_possible_covariates_for_use`)
+  #Clean Data:
+  data_for_analysis <- Clean(data_for_analysis)
+  
+  print(ncol(data_for_analysis))
+  
+  data_for_analysis <- na.omit(data_for_analysis)
+  data_1 <- data_for_analysis %>% filter(Treated == 1)
+  data_2 <- data_for_analysis %>% filter(Treated == 0)
+  
+  pow_i <- (mean(data_1[,2])-mean(data_2[,2]))/sd(data_for_analysis[,2])
+  pow_i <- round(pow_i,2)
+  pow_i <- as.character(pow_i)
+  list_power <- c(list_power,pow_i)
+}
+
+Power_matrix <- matrix(c(list_text_models,list_power),ncol=2)
+
+colnames(Power_matrix) <- c('Variable','Cohen\'s')
+
+#Create Xtable Object:
+xt <- xtable(Power_matrix,
+             digits=2,
+             caption= 'Cohen\'s d for Attitudinal Measures',
+             align=c(
+               "p{1cm}|","|p{10cm}|",
+               "p{1cm}|"))
+
+#Name Columns:
+
+
+write(print(xt,
+            include.rownames=FALSE,
+            sanitize.colnames.function = identity,
+            caption.placement='top'),
+      file='./Tables/Cohens_Table_2.txt')
 
 
 

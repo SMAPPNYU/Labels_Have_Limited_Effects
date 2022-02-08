@@ -1,0 +1,29 @@
+% latex table generated in R 3.6.1 by xtable 1.8-4 package
+% Tue Sep 21 18:18:01 2021
+\begin{table}[ht]
+\centering
+\caption{Average Statistics for Behavioral Measures of Online News Quality by Control and Treatment Group in Each Time Period of Interest} 
+\begin{tabular}{|p{9cm}|p{2cm}|p{2cm}|p{2cm}|}
+  \hline
+ & Control & Treatment & Difference (Treatment - Control) \\ 
+  \hline
+Number of respondents & 356 & 612 & 256 \\ 
+  Average Proportion of News Viewed that was "Unreliable" (Pre-Treatment period) & 0.03143 & 0.03185 & 0.00042 \\ 
+  Average Proportion of News Viewed that was "Unreliable" (Treatment period) & 0.03054 & 0.03107 & 0.00053 \\ 
+  Average Proportion of News Viewed that was "Unreliable" (Post-Treatment period) & 0.03215 & 0.03057 & -0.00159 \\ 
+  Average Proportion of News Viewed that was "Reliable" (Pre-Treatment period) & 0.67395 & 0.67513 & 0.00118 \\ 
+  Average Proportion of News Viewed that was "Reliable" (Treatment period) & 0.68441 & 0.67339 & -0.01103 \\ 
+  Average Proportion of News Viewed that was "Reliable" (Post-Treatment period) & 0.70309 & 0.71415 & 0.01106 \\ 
+  Average Count (log) of News Viewed that was "Unreliable" (Pre-Treatment period) & 0.32938 & 0.31552 & -0.01386 \\ 
+  Average Count (log) of News Viewed that was "Unreliable" (Treatment period) & 0.34902 & 0.37805 & 0.02902 \\ 
+  Average Count (log) of News Viewed that was "Unreliable" (Post-Treatment period) & 0.24346 & 0.25249 & 0.00904 \\ 
+  Average Count (log) of News Viewed that was "Reliable" (Pre-Treatment period) & 1.73446 & 1.73218 & -0.00228 \\ 
+  Average Count (log) of News Viewed that was "Reliable" (Treatment period) & 1.85586 & 1.83976 & -0.0161 \\ 
+  Average Count (log) of News Viewed that was "Reliable" (Post-Treatment period) & 1.56868 & 1.5284 & -0.04028 \\ 
+  Average Reliability Score of News Viewed (Pre-Treatment period) & 87.7879 & 87.52881 & -0.25909 \\ 
+  Average Reliability Score of News Viewed (Treatment period) & 87.26024 & 87.31514 & 0.0549 \\ 
+  Average Reliability Score of News Viewed (Post-Treatment period) & 87.11857 & 87.29597 & 0.17741 \\ 
+   \hline
+\end{tabular}
+\end{table}
+

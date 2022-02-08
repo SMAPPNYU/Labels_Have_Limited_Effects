@@ -1574,3 +1574,170 @@ ggplot(data = d_matrix, aes(x = x, y = Coefficients)) +
 
 
 ggsave('./Figures/Survey_Coefficients.png',height=12,width=10)
+
+
+
+
+
+
+#Read in survey data with digital trace data:
+Pulse_data <- read_csv('./Data/Clean_NewsGuard_Digital_Trace_Data.csv',
+                       col_types = cols(
+                         .default= col_character(),
+                         Treated = col_double(),
+                         Complied=col_double(),
+                         Total_DL =  col_double(),
+                         Inverse_DL = col_double(),
+                         Total_Science_Misinfo  =  col_double(),
+                         Social_Media_Use =  col_double(),
+                         income_score =  col_double(),
+                         abs_part =  col_double(),
+                         mean_cons =  col_double(),
+                         Average_domain_NewsG_Score_post= col_double(),
+                         Average_domain_NewsG_Score= col_double(),
+                         Prop_Unreliable_NewsG_Score_post= col_double(),
+                         Prop_Unreliable_NewsG_Score= col_double(),
+                         Prop_Reliable_NewsG_Score_post = col_double(),
+                         Prop_Reliable_NewsG_Score = col_double(),
+                         Count_Unreliable_NewsG_Score_post = col_double(),
+                         Count_Unreliable_NewsG_Score = col_double(),
+                         Count_Reliable_NewsG_Score_post = col_double(),
+                         Count_Reliable_NewsG_Score = col_double(),
+                         Prop_Unreliable_NewsG_Score_dv = col_double(),
+                         Average_domain_NewsG_Score_dv = col_double(),
+                         Prop_Reliable_NewsG_Score_dv = col_double(),
+                         Count_Unreliable_NewsG_Score_dv = col_double(),
+                         Count_Reliable_NewsG_Score_dv = col_double(),
+                         gender_dummy_fem=col_double(),
+                         educ_score=col_double(),
+                         Age=col_double(),
+                         Age_Sq=col_double(),
+                         party_score=col_double(),
+                         race_white=col_double(),
+                         ideo_score=col_double(),
+                         Trust_Media_w1=col_double(),
+                         trust_news=col_double(),
+                         trust_news_sm=col_double(),
+                         cons_news_n=col_double(),
+                         cons_cable=col_double(),
+                         cons_print=col_double(),
+                         cons_public=col_double(), 
+                         cons_talk=col_double(),
+                         cons_desk=col_double(),
+                         cons_mobile=col_double(),
+                         Safari_dummy=col_double(),
+                         log_news=col_double()
+                       ))
+
+
+
+#Read in survey data without digital trace data:
+#Table 1: Produce Descriptive statistics for sample by treatment and control groups:
+
+Summary_stats <- Pulse_data %>% mutate(Groups = ifelse(Treated == 1 & !is.na(Pulse_Dummy),'Treated','No Pulse Data'))
+Summary_stats <- Summary_stats %>% mutate(Groups = ifelse(Treated == 0 & !is.na(Pulse_Dummy),'Control',Groups))
+Summary_stats <- Summary_stats %>% filter(Groups != 'No Pulse Data')
+
+Summary_stats_1 <- Summary_stats %>% group_by(Groups) %>% mutate(grp.mean = mean(Average_domain_NewsG_Score,na.rm=T))
+
+Summary_stats_1 <- Summary_stats_1 %>% select(Groups,grp.mean)
+
+Summary_stats_1 <- unique(Summary_stats_1)
+
+Summary_stats <- Summary_stats %>% select(Groups,Average_domain_NewsG_Score)
+
+
+# Use semi-transparent fill
+ggplot(Summary_stats, aes(x=Average_domain_NewsG_Score, fill=Groups,color=Groups)) +
+  geom_density(alpha=0.4) +
+  geom_vline(data=Summary_stats_1, aes(xintercept=grp.mean, color=Groups),
+             linetype="dashed",size=1,alpha=0.8) +
+  coord_cartesian(xlim=c(29,100),
+                  ylim=c(0,0.14)) +
+  xlab('\nAverage Reliability Score of Online News Consumed') + 
+  ylab('Density\n') + 
+  theme_classic() +
+  theme(axis.title.x = element_text(size=16),
+        axis.text.x  = element_text(size=16),
+        axis.title.y = element_text(size=16),
+        axis.text.y  = element_text(size=16),
+        plot.title = element_text(size = 16),
+        legend.title = element_text(size=16),
+        legend.text = element_text(size=14))
+
+ggsave('./Figures/Distribution_1.png',height=5,width=10)
+
+
+
+Summary_stats <- Pulse_data %>% mutate(Groups = ifelse(Treated == 1 & !is.na(Pulse_Dummy),'Treated','No Pulse Data'))
+Summary_stats <- Summary_stats %>% mutate(Groups = ifelse(Treated == 0 & !is.na(Pulse_Dummy),'Control',Groups))
+Summary_stats <- Summary_stats %>% filter(Groups != 'No Pulse Data')
+
+Summary_stats_1 <- Summary_stats %>% group_by(Groups) %>% mutate(grp.mean = mean(Average_domain_NewsG_Score_dv,na.rm=T))
+
+Summary_stats_1 <- Summary_stats_1 %>% select(Groups,grp.mean)
+
+Summary_stats_1 <- unique(Summary_stats_1)
+
+Summary_stats <- Summary_stats %>% select(Groups,Average_domain_NewsG_Score_dv)
+
+
+# Use semi-transparent fill
+ggplot(Summary_stats, aes(x=Average_domain_NewsG_Score_dv, fill=Groups,color=Groups)) +
+  geom_density(alpha=0.4) +
+  geom_vline(data=Summary_stats_1, aes(xintercept=grp.mean, color=Groups),
+             linetype="dashed",size=1,alpha=0.8) +
+  coord_cartesian(xlim=c(29,100),
+                  ylim=c(0,0.14)) +
+  xlab('\nAverage Reliability Score of Online News Consumed') + 
+  ylab('Density\n') + 
+  theme_classic() +
+  theme(axis.title.x = element_text(size=16),
+        axis.text.x  = element_text(size=16),
+        axis.title.y = element_text(size=16),
+        axis.text.y  = element_text(size=16),
+        plot.title = element_text(size = 16),
+        legend.title = element_text(size=16),
+        legend.text = element_text(size=14))
+
+ggsave('./Figures/Distribution_2.png',height=5,width=10)
+
+
+
+
+
+Summary_stats <- Pulse_data %>% mutate(Groups = ifelse(Treated == 1 & !is.na(Pulse_Dummy),'Treated','No Pulse Data'))
+Summary_stats <- Summary_stats %>% mutate(Groups = ifelse(Treated == 0 & !is.na(Pulse_Dummy),'Control',Groups))
+Summary_stats <- Summary_stats %>% filter(Groups != 'No Pulse Data')
+
+Summary_stats_1 <- Summary_stats %>% group_by(Groups) %>% mutate(grp.mean = mean(Average_domain_NewsG_Score_post,na.rm=T))
+
+Summary_stats_1 <- Summary_stats_1 %>% select(Groups,grp.mean)
+
+Summary_stats_1 <- unique(Summary_stats_1)
+
+Summary_stats <- Summary_stats %>% select(Groups,Average_domain_NewsG_Score_post)
+
+
+# Use semi-transparent fill
+ggplot(Summary_stats, aes(x=Average_domain_NewsG_Score_post, fill=Groups,color=Groups)) +
+  geom_density(alpha=0.4) +
+  geom_vline(data=Summary_stats_1, aes(xintercept=grp.mean, color=Groups),
+             linetype="dashed",size=1,alpha=0.8) +
+  xlab('\nAverage Reliability Score of Online News Consumed') + 
+  ylab('Density\n') + 
+  coord_cartesian(xlim=c(29,100),
+                  ylim=c(0,0.14)) +
+  theme_classic() +
+  theme(axis.title.x = element_text(size=16),
+        axis.text.x  = element_text(size=16),
+        axis.title.y = element_text(size=16),
+        axis.text.y  = element_text(size=16),
+        plot.title = element_text(size = 16),
+        legend.title = element_text(size=16),
+        legend.text = element_text(size=14))
+
+ggsave('./Figures/Distribution_3.png',height=5,width=10)
+
+
+

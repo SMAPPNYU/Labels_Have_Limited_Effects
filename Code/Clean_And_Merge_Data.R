@@ -918,6 +918,48 @@ Pulse_data <- merge(Pulse_data,Pulse_data_SM,by='caseid',all=T)
 write.csv(Pulse_data,'./Data/Clean_NewsGuard_Digital_Trace_Data.csv')
 
 
+################################  Pulse Mobile ##########################################
+
+
+
+
+
+
+
+
+######Read in pre-treatment Pulse Data:
+Pulse_Pre <- read.csv('./Data/pulse_vars_mobile_pre.csv')
+Pulse_Pre$totalvisits_pre <- Pulse_Pre$totalvisits
+Pulse_Pre$log_total_pre <- Pulse_Pre$log_total
+######Read in post-treatment Pulse Data:
+Pulse_Post <- read.csv('./Data/pulse_vars_mobile_post.csv')
+Pulse_Post$totalvisits_post <- Pulse_Post$totalvisits
+Pulse_Post$log_total_post <- Pulse_Post$log_total
+#Merge Survey Data with digital
+Pulse_data <- merge(dataframe_1,Pulse_Pre,by='caseid',all=T)
+Pulse_data <- merge(Pulse_data,Pulse_Post,by='caseid',all=T)
+####### Pull in DV Data ##############
+Pulse_DV <- read.csv('./Data/pulse_vars_mobile_DV.csv')
+Pulse_DV$totalvisits_dv <- Pulse_DV$totalvisits
+Pulse_DV$log_total_dv <- Pulse_DV$log_total
+Pulse_data <- merge(Pulse_data,Pulse_DV,by='caseid',all=T)
+Pulse_data <- Pulse_data %>% mutate(Prop_Unreliable_NewsG_Score_dv = ifelse(is.na(Average_domain_NewsG_Score_dv),NA,Prop_Unreliable_NewsG_Score_dv))
+Pulse_data <- Pulse_data %>% mutate(Prop_Reliable_NewsG_Score_dv = ifelse(is.na(Average_domain_NewsG_Score_dv),NA,Prop_Reliable_NewsG_Score_dv))
+Pulse_data <- Pulse_data %>% mutate(Prop_Unreliable_NewsG_Score_post = ifelse(is.na(Average_domain_NewsG_Score_post),NA,Prop_Unreliable_NewsG_Score_post))
+Pulse_data <- Pulse_data %>% mutate(Prop_Reliable_NewsG_Score_post = ifelse(is.na(Average_domain_NewsG_Score_post),NA,Prop_Reliable_NewsG_Score_post))
+Pulse_data <- Pulse_data %>% mutate(Prop_Unreliable_NewsG_Score = ifelse(is.na(Average_domain_NewsG_Score),NA,Prop_Unreliable_NewsG_Score))
+Pulse_data <- Pulse_data %>% mutate(Prop_Reliable_NewsG_Score = ifelse(is.na(Average_domain_NewsG_Score),NA,Prop_Reliable_NewsG_Score))
+
+Pulse_data$partisanship_news_diet <- as.numeric(Pulse_data$partisanship_news_diet)
+Pulse_data$abs_part <- abs(Pulse_data$partisanship_news_diet)
+
+
+
+write.csv(Pulse_data,'./Data/Clean_Mobile_Digital_Trace_Data.csv')
+
+
+
+
 
 
 

@@ -1,0 +1,24 @@
+
+\begin{table}[!htbp]
+\caption{Testing the Effect of the Intervention on Count of Reliable News Consumed with Covariate-Adjusted Models (HC2 Robust standard errors) (After July 1st)}
+\begin{center}
+\begin{tabular}{l c c c}
+\hline
+ & Intent-To-Treat (ITT) & CACE (Model 1) & CACE (Model 2) \\
+\hline
+Treatment           & $-0.0087$      & $-0.0118$      & $-0.0022$      \\
+                    & $(0.0418)$     & $(0.0445)$     & $(0.0523)$     \\
+Pre-Treatment Value & $0.6500^{***}$ & $0.6557^{***}$ & $0.6582^{***}$ \\
+                    & $(0.0663)$     & $(0.0668)$     & $(0.0701)$     \\
+Log of news viewed  & $0.1077^{**}$  & $0.1052^{**}$  & $0.1085^{**}$  \\
+                    & $(0.0326)$     & $(0.0329)$     & $(0.0340)$     \\
+\hline
+R$^2$               & $0.7566$       & $0.7575$       & $0.7574$       \\
+Adj. R$^2$          & $0.7548$       & $0.7556$       & $0.7554$       \\
+Num. obs.           & $394$          & $387$          & $376$          \\
+\hline
+\multicolumn{4}{l}{\scriptsize{$^{***}p<0.001$; $^{**}p<0.01$; $^{*}p<0.05$}}
+\end{tabular}
+\label{table}
+\end{center}
+\end{table}

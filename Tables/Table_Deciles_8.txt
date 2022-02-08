@@ -1,5 +1,5 @@
 % latex table generated in R 3.6.1 by xtable 1.8-4 package
-% Fri Jun 25 17:59:13 2021
+% Tue Jun 29 18:16:07 2021
 \begin{table}[ht]
 \centering
 \caption{Testing the Effect of the Intervention on Count of Unreliable News Consumed with Covariate-Adjusted Models (HC2 Robust standard errors) (After July 1st) on Different Samples of Respondents by Decile of their Quality of News Consumption Pre-Treatment (Average Reliability Score of News)} 
@@ -16,6 +16,7 @@ Bottom 10 Percent & 78.255 & -0.163 (0.104) & -0.174 (0.112) & -0.189 (0.127) & 
   Bottom 70 Percent & 90.773 & -0.007 (0.027) & -0.008 (0.028) & -0.001 (0.032) & 531 \\ 
   Bottom 80 Percent & 92.462 & -0.001 (0.024) & -0.001 (0.025) & 0.006 (0.029) & 608 \\ 
   Bottom 90 Percent & 95 & 0.007 (0.022) & 0.007 (0.023) & 0.016 (0.026) & 687 \\ 
+  Whole Sample & 100 & 0.003 (0.02) & 0.003 (0.021) & 0.011 (0.024) & 761 \\ 
    \hline \multicolumn{5}{l}{\scriptsize{$^{***}p<0.001$; $^{**}p<0.01$; $^{*}p<0.05$}} \\  \hline
 \end{tabular}
 \end{table}
