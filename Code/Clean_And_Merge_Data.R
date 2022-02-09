@@ -510,7 +510,7 @@ df_new_1 <- df_new_1 %>% mutate(Complied = ifelse(is.na(compliance_check_1),NA,C
 df_new_1 <- df_new_1 %>% mutate(Complied = ifelse(is.na(compliance_check_2),NA,Complied))
 
 #Select only a few variables and merge with existing dataset:
-df_new_2 <- df_new_1 %>% select(visa1,compliance_check_1,compliance_check_2,Complied,Groups)
+df_new_2 <- df_new_1 %>% select(visa1,compliance_check_1,compliance_check_2,Complied)
 
 dataframe_1 <- merge(dataframe_1,df_new_2,by='visa1',all.x=T)
 

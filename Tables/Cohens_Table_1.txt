@@ -1,0 +1,23 @@
+% latex table generated in R 3.6.1 by xtable 1.8-4 package
+% Tue Feb  8 19:58:27 2022
+\begin{table}[ht]
+\centering
+\caption{Cohen's d for Behavioral Measures} 
+\begin{tabular}{|p{10cm}|p{3cm}|p{1cm}|}
+  \hline
+Variable & Time Period & Cohen's d \\ 
+  \hline
+Proportion of News Diet That is Unreliable & Before July 1st & 0.01 \\ 
+  Proportion of News Diet That is Reliable & Before July 1st & -0.04 \\ 
+  Count of Unreliable News Consumed & Before July 1st & 0.05 \\ 
+  Count of Reliable News Consumed & Before July 1st & -0.02 \\ 
+  Avg. Reliability Score of News Diet & Before July 1st & 0.01 \\ 
+  Proportion of News Diet That is Unreliable & After July 1st & -0.02 \\ 
+  Proportion of News Diet That is Reliable & After July 1st & 0.04 \\ 
+  Count of Unreliable News Consumed & After July 1st & 0.02 \\ 
+  Count of Reliable News Consumed & After July 1st & -0.05 \\ 
+  Avg. Reliability Score of News Diet & After July 1st & 0.02 \\ 
+   \hline
+\end{tabular}
+\end{table}
+

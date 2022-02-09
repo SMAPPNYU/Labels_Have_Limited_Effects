@@ -1,0 +1,27 @@
+% latex table generated in R 3.6.1 by xtable 1.8-4 package
+% Tue Feb  8 19:58:27 2022
+\begin{table}[ht]
+\centering
+\caption{Power Analysis for Covariate-Adjusted Models using Attitudinal Measures for Reporting a 0.2 Standard Deviation Change at the 95 Percent Statistical Significance} 
+\begin{tabular}{|p{10cm}|p{1cm}|}
+  \hline
+Model Testing Effect Of Intervention On This Variable: & Power \\ 
+  \hline
+Belief in Misinformation about the Black Lives Matter Movement & 0.999 \\ 
+  Belief in True Information about the Black Lives Matter Movement & 1 \\ 
+  Belief in Misinformation about Covid-19 & 0.999 \\ 
+  Belief in True Information about Covid-19 & 1 \\ 
+  Trust in Media & 1 \\ 
+  Affective Polarization & 1 \\ 
+  Whether They Believe “Fake News is a Problem” & 1 \\ 
+  Whether They Believe “Fake News is a Problem in the Mainstream Media” & 1 \\ 
+  Trust in Institutions & 1 \\ 
+  Trust in CBS & 0.998 \\ 
+  Trust in ABC & 0.998 \\ 
+  Trust in NBC & 0.998 \\ 
+  Trust in CNN & 1 \\ 
+  Trust in Fox News & 1 \\ 
+   \hline
+\end{tabular}
+\end{table}
+

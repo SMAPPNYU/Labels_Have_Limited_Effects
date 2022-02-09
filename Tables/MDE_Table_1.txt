@@ -1,26 +1,26 @@
 % latex table generated in R 3.6.1 by xtable 1.8-4 package
-% Fri Jun 25 17:59:09 2021
+% Tue Feb  8 19:58:28 2022
 \begin{table}[ht]
 \centering
-\caption{Minimum Detectable Effect of Attitudinal Measures assuming power=0.80 and 95 percent Statistical Significance in both the covariate-adjusted Intent-To-Treat and CACE model using the strongest measure} 
-\begin{tabular}{|p{10cm}|p{1cm}|p{1cm}|}
+\caption{Cohen's d for Attitudinal Measures} 
+\begin{tabular}{|p{10cm}|p{1cm}|}
   \hline
-Variable & MDE (ITT) & MDE (CACE) \\ 
+Variable & Cohen's \\ 
   \hline
-Affective Polarization & 0.037 & 0.003 \\ 
-  Whether They Believe “Fake News is a Problem” & 0.053 & 0.140 \\ 
-  Whether They Believe “Fake News is a Problem in the Mainstream Media” & 0.035 & 0.052 \\ 
-  Trust in Institutions & 0.046 & 0.007 \\ 
-  Trust in CBS & 0.052 & 0.115 \\ 
-  Trust in ABC & 0.052 & 0.115 \\ 
-  Trust in NBC & 0.050 & 0.109 \\ 
-  Trust in CNN & 0.043 & 0.091 \\ 
-  Trust in Fox News & 0.046 & 0.111 \\ 
-  Belief in Misinformation about the Black Lives Matter Movement & 0.065 & 0.150 \\ 
-  Belief in True Information about the Black Lives Matter Movement & 0.065 & 0.160 \\ 
-  Belief in Misinformation about Covid-19 & 0.062 & 0.163 \\ 
-  Belief in True Information about Covid-19 & 0.065 & 0.233 \\ 
-  Trust in Media & 0.043 & 0.113 \\ 
+Belief in Misinformation about the Black Lives Matter Movement & -0.08 \\ 
+  Belief in True Information about the Black Lives Matter Movement & 0 \\ 
+  Belief in Misinformation about Covid-19 & -0.02 \\ 
+  Belief in True Information about Covid-19 & 0.01 \\ 
+  Trust in Media & 0.05 \\ 
+  Affective Polarization & -0.01 \\ 
+  Whether They Believe “Fake News is a Problem” & -0.01 \\ 
+  Whether They Believe “Fake News is a Problem in the Mainstream Media” & -0.03 \\ 
+  Trust in Institutions & -0.04 \\ 
+  Trust in CBS & 0.06 \\ 
+  Trust in ABC & 0.05 \\ 
+  Trust in NBC & 0.05 \\ 
+  Trust in CNN & 0.03 \\ 
+  Trust in Fox News & -0.01 \\ 
    \hline
 \end{tabular}
 \end{table}
