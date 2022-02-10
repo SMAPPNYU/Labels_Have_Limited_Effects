@@ -1,17 +1,31 @@
 
 \begin{table}[!htbp]
-\caption{Testing Effect of Intervention on Affective Polarization with Covariate-Unadjusted Models (HC2 Robust standard errors)}
+\caption{Testing Effect of Intervention on Trust in CBS with Covariate-Adjusted Models (HC2 Robust standard errors)}
 \begin{center}
 \begin{tabular}{l c c c}
 \hline
  & Intent-To-Treat (ITT) & CACE (Model 1) & CACE (Model 2) \\
 \hline
-Treatment  & $-0.3371$  &          &          \\
-           & $(1.0770)$ &          &          \\
+Treatment                       & $0.0440$        & $0.0411$        & $0.0406$        \\
+                                & $(0.0281)$      & $(0.0299)$      & $(0.0357)$      \\
+Pre-Treatment Value             & $0.4610^{***}$  & $0.4626^{***}$  & $0.4570^{***}$  \\
+                                & $(0.0214)$      & $(0.0216)$      & $(0.0221)$      \\
+Party ID                        & $-0.0417^{***}$ & $-0.0415^{***}$ & $-0.0449^{***}$ \\
+                                & $(0.0105)$      & $(0.0105)$      & $(0.0108)$      \\
+Trust in Media                  & $0.1899^{***}$  & $0.1903^{***}$  & $0.1835^{***}$  \\
+                                & $(0.0215)$      & $(0.0217)$      & $(0.0223)$      \\
+Ideology                        & $-0.0485^{***}$ & $-0.0471^{***}$ & $-0.0452^{***}$ \\
+                                & $(0.0111)$      & $(0.0113)$      & $(0.0116)$      \\
+News consumption (network news) & $0.0711^{***}$  & $0.0733^{***}$  & $0.0718^{***}$  \\
+                                & $(0.0101)$      & $(0.0102)$      & $(0.0105)$      \\
+Trust of news in newspapers\_sm & $0.0031^{***}$  & $0.0032^{***}$  & $0.0031^{***}$  \\
+                                & $(0.0006)$      & $(0.0006)$      & $(0.0007)$      \\
+Trust of news in newspapers     & $0.0485^{**}$   & $0.0497^{**}$   & $0.0582^{**}$   \\
+                                & $(0.0187)$      & $(0.0189)$      & $(0.0194)$      \\
 \hline
-R$^2$      & $0.0000$   & $0.0000$ & $0.0000$ \\
-Adj. R$^2$ & $-0.0003$  & $0.0000$ & $0.0000$ \\
-Num. obs.  & $3237$     & $3237$   & $3237$   \\
+R$^2$                           & $0.5739$        & $0.5767$        & $0.5762$        \\
+Adj. R$^2$                      & $0.5726$        & $0.5753$        & $0.5747$        \\
+Num. obs.                       & $2472$          & $2401$          & $2288$          \\
 \hline
 \multicolumn{4}{l}{\scriptsize{$^{***}p<0.001$; $^{**}p<0.01$; $^{*}p<0.05$}}
 \end{tabular}

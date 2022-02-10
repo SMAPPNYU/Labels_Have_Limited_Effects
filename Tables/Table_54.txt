@@ -1,23 +1,19 @@
 
 \begin{table}[!htbp]
-\caption{Testing Effect of Intervention Initial level of Trust In Media (Inverse) Moderator on Effect on Trust In Media (Covariate-Adjusted)}
+\caption{Testing the Effect of the Intervention on Count of Unreliable News Consumed with Covariate-Unadjusted Models (HC2 Robust standard errors) (After July 1st)}
 \begin{center}
-\begin{tabular}{l c}
+\begin{tabular}{l c c c}
 \hline
- & Trust in Media \\
+ & Intent-To-Treat (ITT) & CACE (Model 1) & CACE (Model 2) \\
 \hline
-Treatment           & $0.0809$       \\
-                    & $(0.0438)$     \\
-Moderator           & $0.7614^{***}$ \\
-                    & $(0.0175)$     \\
-Treatment*Moderator & $-0.0237$      \\
-                    & $(0.0228)$     \\
+Treatment  & $0.0090$   & $0.0114$   & $0.0217$   \\
+           & $(0.0326)$ & $(0.0342)$ & $(0.0396)$ \\
 \hline
-R$^2$               & $0.5481$       \\
-Adj. R$^2$          & $0.5477$       \\
-Num. obs.           & $3337$         \\
+R$^2$      & $0.0001$   & $0.0003$   & $-0.0000$  \\
+Adj. R$^2$ & $-0.0010$  & $-0.0008$  & $-0.0012$  \\
+Num. obs.  & $884$      & $867$      & $836$      \\
 \hline
-\multicolumn{2}{l}{\scriptsize{$^{***}p<0.001$; $^{**}p<0.01$; $^{*}p<0.05$}}
+\multicolumn{4}{l}{\scriptsize{$^{***}p<0.001$; $^{**}p<0.01$; $^{*}p<0.05$}}
 \end{tabular}
 \label{table}
 \end{center}

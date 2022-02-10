@@ -1,22 +1,23 @@
-
-\begin{table}[!htbp]
-\caption{Testing the Effect of the Intervention on Proportion of News Diet That is Unreliable with Covariate-Adjusted Models (HC2 Robust standard errors) (Before July 1st)  -- Duration Weighted}
-\begin{center}
-\begin{tabular}{l c c c}
-\hline
- & Intent-To-Treat (ITT) & CACE (Model 1) & CACE (Model 2) \\
-\hline
-Treatment           & $-0.0048$      &                &                \\
-                    & $(0.0036)$     &                &                \\
-Pre-Treatment Value & $0.8476^{***}$ & $0.8475^{***}$ & $0.8475^{***}$ \\
-                    & $(0.0521)$     & $(0.0522)$     & $(0.0522)$     \\
-\hline
-R$^2$               & $0.7541$       & $0.7536$       & $0.7536$       \\
-Adj. R$^2$          & $0.7535$       & $0.7533$       & $0.7533$       \\
-Num. obs.           & $821$          & $821$          & $821$          \\
-\hline
-\multicolumn{4}{l}{\scriptsize{$^{***}p<0.001$; $^{**}p<0.01$; $^{*}p<0.05$}}
+% latex table generated in R 3.6.1 by xtable 1.8-4 package
+% Wed Feb  9 15:28:54 2022
+\begin{table}[ht]
+\centering
+\caption{Testing the Effect of the Intervention on Proportion of News Diet That is Reliable with Covariate-Adjusted Models (HC2 Robust standard errors) (After July 1st) on Different Samples of Respondents by Decile of their Quality of News Consumption Pre-Treatment (Average Reliability Score of News)} 
+\begin{tabular}{|p{3.5cm}|p{1.5cm}|p{3cm}|p{3cm}|p{3cm}|p{2cm}|}
+  \hline
+Decile & Threshold & ITT Model & CACE Model (Weak Compliance Measure) & CACE Model (Strong Compliance Measure) & Sample Size \\ 
+  \hline
+Bottom 10 Percent & 78.255 & 0.036 (0.034) & 0.038 (0.036) & 0.023 (0.04) & 70 \\ 
+  Bottom 20 Percent & 85.347 & 0.023 (0.033) & 0.025 (0.035) & 0.021 (0.039) & 141 \\ 
+  Bottom 30 Percent & 87.482 & 0.036 (0.026) & 0.037 (0.027) & 0.033 (0.03) & 215 \\ 
+  Bottom 40 Percent & 88.383 & 0.039 (0.021) & 0.041 (0.022) & 0.036 (0.025) & 289 \\ 
+  Bottom 50 Percent & 89.167 & 0.06 (0.019)** & 0.063 (0.02)** & 0.063 (0.022)** & 369 \\ 
+  Bottom 60 Percent & 90 & 0.034 (0.018) & 0.036 (0.019) & 0.035 (0.021) & 459 \\ 
+  Bottom 70 Percent & 90.773 & 0.024 (0.017) & 0.026 (0.018) & 0.024 (0.02) & 510 \\ 
+  Bottom 80 Percent & 92.462 & 0.01 (0.016) & 0.011 (0.017) & 0.007 (0.019) & 584 \\ 
+  Bottom 90 Percent & 95 & 0.003 (0.015) & 0.005 (0.015) & 0.001 (0.018) & 661 \\ 
+  Whole Sample & 100 & -0.001 (0.014) & 0 (0.015) & 0 (0.017) & 727 \\ 
+   \hline \multicolumn{5}{l}{\scriptsize{$^{***}p<0.001$; $^{**}p<0.01$; $^{*}p<0.05$}} \\  \hline
 \end{tabular}
-\label{table}
-\end{center}
 \end{table}
+

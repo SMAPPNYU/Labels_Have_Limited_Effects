@@ -1,45 +1,19 @@
 
 \begin{table}[!htbp]
-\caption{Testing Effect of Intervention on Belief in Misinformation about the Black Lives Matter Movement with Covariate-Adjusted Models (HC2 Robust standard errors)}
+\caption{Testing the Effect of the Intervention on Proportion of News Diet That is Unreliable with Covariate-Adjusted Models (HC2 Robust standard errors) (Before July 1st)  -- Duration Weighted}
 \begin{center}
 \begin{tabular}{l c c c}
 \hline
  & Intent-To-Treat (ITT) & CACE (Model 1) & CACE (Model 2) \\
 \hline
-Treatment                          & $-0.0206$       &                 &                 \\
-                                   & $(0.0297)$      &                 &                 \\
-Web Browser (Safari)               & $-0.1440^{***}$ & $-0.1416^{***}$ & $-0.1416^{***}$ \\
-                                   & $(0.0409)$      & $(0.0407)$      & $(0.0407)$      \\
-Party ID                           & $0.0135$        & $0.0135$        & $0.0135$        \\
-                                   & $(0.0118)$      & $(0.0118)$      & $(0.0118)$      \\
-Education                          & $-0.0291^{**}$  & $-0.0291^{**}$  & $-0.0291^{**}$  \\
-                                   & $(0.0110)$      & $(0.0110)$      & $(0.0110)$      \\
-Gender                             & $0.0756^{*}$    & $0.0752^{*}$    & $0.0752^{*}$    \\
-                                   & $(0.0301)$      & $(0.0301)$      & $(0.0301)$      \\
-Age                                & $0.0018$        & $0.0018$        & $0.0018$        \\
-                                   & $(0.0011)$      & $(0.0011)$      & $(0.0011)$      \\
-Trust in Media                     & $-0.1892^{***}$ & $-0.1891^{***}$ & $-0.1891^{***}$ \\
-                                   & $(0.0229)$      & $(0.0230)$      & $(0.0230)$      \\
-Ideology                           & $0.1027^{***}$  & $0.1027^{***}$  & $0.1027^{***}$  \\
-                                   & $(0.0122)$      & $(0.0122)$      & $(0.0122)$      \\
-News consumption (network news)    & $0.0218^{*}$    & $0.0219^{*}$    & $0.0219^{*}$    \\
-                                   & $(0.0107)$      & $(0.0107)$      & $(0.0107)$      \\
-News consumption (print news)      & $0.0543^{***}$  & $0.0544^{***}$  & $0.0544^{***}$  \\
-                                   & $(0.0130)$      & $(0.0130)$      & $(0.0130)$      \\
-News consumption (talk radio)      & $0.0601^{***}$  & $0.0603^{***}$  & $0.0603^{***}$  \\
-                                   & $(0.0128)$      & $(0.0128)$      & $(0.0128)$      \\
-News consumption (news on desktop) & $-0.0535^{***}$ & $-0.0540^{***}$ & $-0.0540^{***}$ \\
-                                   & $(0.0128)$      & $(0.0128)$      & $(0.0128)$      \\
-News consumption (news on mobile)  & $-0.0282^{**}$  & $-0.0282^{**}$  & $-0.0282^{**}$  \\
-                                   & $(0.0105)$      & $(0.0105)$      & $(0.0105)$      \\
-Trust of news in newspapers\_sm    & $0.0035^{***}$  & $0.0035^{***}$  & $0.0035^{***}$  \\
-                                   & $(0.0007)$      & $(0.0007)$      & $(0.0007)$      \\
-Trust of news in newspapers        & $-0.1067^{***}$ & $-0.1068^{***}$ & $-0.1068^{***}$ \\
-                                   & $(0.0184)$      & $(0.0184)$      & $(0.0184)$      \\
+Treatment           & $-0.0048$      & $-0.0049$      & $-0.0056$      \\
+                    & $(0.0036)$     & $(0.0038)$     & $(0.0045)$     \\
+Pre-Treatment Value & $0.8476^{***}$ & $0.8481^{***}$ & $0.8406^{***}$ \\
+                    & $(0.0521)$     & $(0.0522)$     & $(0.0546)$     \\
 \hline
-R$^2$                              & $0.2916$        & $0.2914$        & $0.2914$        \\
-Adj. R$^2$                         & $0.2875$        & $0.2877$        & $0.2877$        \\
-Num. obs.                          & $2662$          & $2662$          & $2662$          \\
+R$^2$               & $0.7541$       & $0.7537$       & $0.7433$       \\
+Adj. R$^2$          & $0.7535$       & $0.7531$       & $0.7427$       \\
+Num. obs.           & $821$          & $806$          & $784$          \\
 \hline
 \multicolumn{4}{l}{\scriptsize{$^{***}p<0.001$; $^{**}p<0.01$; $^{*}p<0.05$}}
 \end{tabular}

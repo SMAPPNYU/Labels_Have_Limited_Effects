@@ -1,17 +1,45 @@
 
 \begin{table}[!htbp]
-\caption{Testing the Effect of the Intervention on Proportion of News Diet That is Reliable with Covariate-Unadjusted Models (HC2 Robust standard errors) (After July 1st)}
+\caption{Testing Effect of Intervention on Belief in Misinformation about the Black Lives Matter Movement with Covariate-Adjusted Models (HC2 Robust standard errors)}
 \begin{center}
 \begin{tabular}{l c c c}
 \hline
  & Intent-To-Treat (ITT) & CACE (Model 1) & CACE (Model 2) \\
 \hline
-Treatment  & $0.0111$   &          &          \\
-           & $(0.0223)$ &          &          \\
+Treatment                          & $-0.0206$       & $-0.0219$       & $-0.0214$       \\
+                                   & $(0.0297)$      & $(0.0317)$      & $(0.0379)$      \\
+Web Browser (Safari)               & $-0.1440^{***}$ & $-0.1481^{***}$ & $-0.1355^{**}$  \\
+                                   & $(0.0409)$      & $(0.0411)$      & $(0.0424)$      \\
+Party ID                           & $0.0135$        & $0.0142$        & $0.0137$        \\
+                                   & $(0.0118)$      & $(0.0120)$      & $(0.0125)$      \\
+Education                          & $-0.0291^{**}$  & $-0.0337^{**}$  & $-0.0337^{**}$  \\
+                                   & $(0.0110)$      & $(0.0111)$      & $(0.0114)$      \\
+Gender                             & $0.0756^{*}$    & $0.0731^{*}$    & $0.0654^{*}$    \\
+                                   & $(0.0301)$      & $(0.0304)$      & $(0.0310)$      \\
+Age                                & $0.0018$        & $0.0021$        & $0.0017$        \\
+                                   & $(0.0011)$      & $(0.0011)$      & $(0.0012)$      \\
+Trust in Media                     & $-0.1892^{***}$ & $-0.1786^{***}$ & $-0.1682^{***}$ \\
+                                   & $(0.0229)$      & $(0.0231)$      & $(0.0236)$      \\
+Ideology                           & $0.1027^{***}$  & $0.1039^{***}$  & $0.1053^{***}$  \\
+                                   & $(0.0122)$      & $(0.0125)$      & $(0.0130)$      \\
+News consumption (network news)    & $0.0218^{*}$    & $0.0212^{*}$    & $0.0261^{*}$    \\
+                                   & $(0.0107)$      & $(0.0108)$      & $(0.0110)$      \\
+News consumption (print news)      & $0.0543^{***}$  & $0.0507^{***}$  & $0.0469^{***}$  \\
+                                   & $(0.0130)$      & $(0.0133)$      & $(0.0136)$      \\
+News consumption (talk radio)      & $0.0601^{***}$  & $0.0580^{***}$  & $0.0615^{***}$  \\
+                                   & $(0.0128)$      & $(0.0129)$      & $(0.0133)$      \\
+News consumption (news on desktop) & $-0.0535^{***}$ & $-0.0535^{***}$ & $-0.0585^{***}$ \\
+                                   & $(0.0128)$      & $(0.0128)$      & $(0.0132)$      \\
+News consumption (news on mobile)  & $-0.0282^{**}$  & $-0.0278^{**}$  & $-0.0270^{*}$   \\
+                                   & $(0.0105)$      & $(0.0106)$      & $(0.0108)$      \\
+Trust of news in newspapers\_sm    & $0.0035^{***}$  & $0.0034^{***}$  & $0.0032^{***}$  \\
+                                   & $(0.0007)$      & $(0.0007)$      & $(0.0007)$      \\
+Trust of news in newspapers        & $-0.1067^{***}$ & $-0.1091^{***}$ & $-0.1091^{***}$ \\
+                                   & $(0.0184)$      & $(0.0185)$      & $(0.0190)$      \\
 \hline
-R$^2$      & $0.0003$   & $0.0000$ & $0.0000$ \\
-Adj. R$^2$ & $-0.0009$  & $0.0000$ & $0.0000$ \\
-Num. obs.  & $813$      & $813$    & $813$    \\
+R$^2$                              & $0.2916$        & $0.2926$        & $0.2928$        \\
+Adj. R$^2$                         & $0.2875$        & $0.2885$        & $0.2885$        \\
+Num. obs.                          & $2662$          & $2588$          & $2472$          \\
 \hline
 \multicolumn{4}{l}{\scriptsize{$^{***}p<0.001$; $^{**}p<0.01$; $^{*}p<0.05$}}
 \end{tabular}

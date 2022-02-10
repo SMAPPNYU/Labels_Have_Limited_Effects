@@ -1,19 +1,19 @@
 
 \begin{table}[!htbp]
-\caption{Testing Effect of Intervention on Affective Polarization with Covariate-Adjusted Models (HC2 Robust standard errors)}
+\caption{Testing the Effect of the Intervention on Proportion of News Diet That is Unreliable with Covariate-Adjusted Models (HC2 Robust standard errors) (After July 1st)  -- Duration Weighted}
 \begin{center}
 \begin{tabular}{l c c c}
 \hline
  & Intent-To-Treat (ITT) & CACE (Model 1) & CACE (Model 2) \\
 \hline
-Treatment           & $0.0276$       &                &                \\
-                    & $(0.5763)$     &                &                \\
-Pre-Treatment Value & $0.8702^{***}$ & $0.8702^{***}$ & $0.8702^{***}$ \\
-                    & $(0.0095)$     & $(0.0095)$     & $(0.0095)$     \\
+Treatment           & $-0.0060$      & $-0.0065$      & $-0.0056$      \\
+                    & $(0.0046)$     & $(0.0049)$     & $(0.0056)$     \\
+Pre-Treatment Value & $0.8418^{***}$ & $0.8438^{***}$ & $0.8648^{***}$ \\
+                    & $(0.0577)$     & $(0.0577)$     & $(0.0563)$     \\
 \hline
-R$^2$               & $0.7159$       & $0.7159$       & $0.7159$       \\
-Adj. R$^2$          & $0.7157$       & $0.7158$       & $0.7158$       \\
-Num. obs.           & $3193$         & $3193$         & $3193$         \\
+R$^2$               & $0.7064$       & $0.7076$       & $0.7158$       \\
+Adj. R$^2$          & $0.7056$       & $0.7068$       & $0.7150$       \\
+Num. obs.           & $761$          & $748$          & $725$          \\
 \hline
 \multicolumn{4}{l}{\scriptsize{$^{***}p<0.001$; $^{**}p<0.01$; $^{*}p<0.05$}}
 \end{tabular}

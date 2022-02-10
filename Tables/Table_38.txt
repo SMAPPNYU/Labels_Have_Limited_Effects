@@ -1,17 +1,19 @@
 
 \begin{table}[!htbp]
-\caption{Testing Effect of Intervention on Belief in True Information about the Black Lives Matter Movement with Covariate-Unadjusted Models (HC2 Robust standard errors)}
+\caption{Testing Effect of Intervention on Affective Polarization with Covariate-Adjusted Models (HC2 Robust standard errors)}
 \begin{center}
 \begin{tabular}{l c c c}
 \hline
  & Intent-To-Treat (ITT) & CACE (Model 1) & CACE (Model 2) \\
 \hline
-Treatment  & $0.0004$   &          &          \\
-           & $(0.0285)$ &          &          \\
+Treatment           & $0.0276$       & $0.0602$       & $0.0974$       \\
+                    & $(0.5763)$     & $(0.6108)$     & $(0.7266)$     \\
+Pre-Treatment Value & $0.8702^{***}$ & $0.8675^{***}$ & $0.8674^{***}$ \\
+                    & $(0.0095)$     & $(0.0097)$     & $(0.0099)$     \\
 \hline
-R$^2$      & $0.0000$   & $0.0000$ & $0.0000$ \\
-Adj. R$^2$ & $-0.0003$  & $0.0000$ & $0.0000$ \\
-Num. obs.  & $3195$     & $3195$   & $3195$   \\
+R$^2$               & $0.7159$       & $0.7173$       & $0.7202$       \\
+Adj. R$^2$          & $0.7157$       & $0.7172$       & $0.7201$       \\
+Num. obs.           & $3193$         & $3103$         & $2966$         \\
 \hline
 \multicolumn{4}{l}{\scriptsize{$^{***}p<0.001$; $^{**}p<0.01$; $^{*}p<0.05$}}
 \end{tabular}

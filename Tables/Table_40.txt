@@ -1,17 +1,27 @@
 
 \begin{table}[!htbp]
-\caption{Testing Effect of Intervention on Belief in True Information about Covid-19 with Covariate-Unadjusted Models (HC2 Robust standard errors)}
+\caption{Testing Effect of Intervention on Whether They Believe “Fake News is a Problem in the Mainstream Media” with Covariate-Adjusted Models (HC2 Robust standard errors)}
 \begin{center}
 \begin{tabular}{l c c c}
 \hline
  & Intent-To-Treat (ITT) & CACE (Model 1) & CACE (Model 2) \\
 \hline
-Treatment  & $0.0076$   &          &          \\
-           & $(0.0196)$ &          &          \\
+Pre-Treatment Value         & $0.5867^{***}$  & $0.5917^{***}$  & $0.5947^{***}$  \\
+                            & $(0.0205)$      & $(0.0209)$      & $(0.0215)$      \\
+Treatment                   & $-0.0426$       & $-0.0416$       & $-0.0343$       \\
+                            & $(0.0293)$      & $(0.0313)$      & $(0.0375)$      \\
+Party ID                    & $0.0635^{***}$  & $0.0608^{***}$  & $0.0616^{***}$  \\
+                            & $(0.0127)$      & $(0.0130)$      & $(0.0131)$      \\
+Trust in Media              & $-0.2554^{***}$ & $-0.2570^{***}$ & $-0.2593^{***}$ \\
+                            & $(0.0275)$      & $(0.0278)$      & $(0.0284)$      \\
+Ideology                    & $0.0869^{***}$  & $0.0844^{***}$  & $0.0795^{***}$  \\
+                            & $(0.0129)$      & $(0.0131)$      & $(0.0135)$      \\
+Trust of news in newspapers & $-0.1062^{***}$ & $-0.1059^{***}$ & $-0.1091^{***}$ \\
+                            & $(0.0192)$      & $(0.0195)$      & $(0.0199)$      \\
 \hline
-R$^2$      & $0.0000$   & $0.0000$ & $0.0000$ \\
-Adj. R$^2$ & $-0.0003$  & $0.0000$ & $0.0000$ \\
-Num. obs.  & $3270$     & $3270$   & $3270$   \\
+R$^2$                       & $0.7355$        & $0.7362$        & $0.7406$        \\
+Adj. R$^2$                  & $0.7350$        & $0.7357$        & $0.7401$        \\
+Num. obs.                   & $3334$          & $3236$          & $3083$          \\
 \hline
 \multicolumn{4}{l}{\scriptsize{$^{***}p<0.001$; $^{**}p<0.01$; $^{*}p<0.05$}}
 \end{tabular}

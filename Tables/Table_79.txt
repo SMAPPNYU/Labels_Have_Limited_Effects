@@ -1,0 +1,20 @@
+
+\begin{table}[!htbp]
+\caption{Testing Effect of Intervention on Belief in Misinformation about Covid-19 with Covariate-Unadjusted Models (HC2 Robust standard errors)}
+\begin{center}
+\begin{tabular}{l c c c}
+\hline
+ & Intent-To-Treat (ITT) & CACE (Model 1) & CACE (Model 2) \\
+\hline
+Treatment  & $-0.0170$  & $-0.0125$  & $-0.0035$  \\
+           & $(0.0288)$ & $(0.0304)$ & $(0.0362)$ \\
+\hline
+R$^2$      & $0.0001$   & $0.0005$   & $0.0003$   \\
+Adj. R$^2$ & $-0.0002$  & $0.0002$   & $-0.0001$  \\
+Num. obs.  & $3263$     & $3169$     & $3021$     \\
+\hline
+\multicolumn{4}{l}{\scriptsize{$^{***}p<0.001$; $^{**}p<0.01$; $^{*}p<0.05$}}
+\end{tabular}
+\label{table}
+\end{center}
+\end{table}

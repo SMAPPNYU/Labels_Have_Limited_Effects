@@ -1,23 +1,19 @@
 
 \begin{table}[!htbp]
-\caption{Testing Effect of Intervention Initial level of Affective Polarization Moderator on Effect on Affective Polarization (Covariate-Adjusted)}
+\caption{Testing the Effect of the Intervention on Proportion of News Diet That is Reliable with Covariate-Unadjusted Models (HC2 Robust standard errors) (After July 1st)}
 \begin{center}
-\begin{tabular}{l c}
+\begin{tabular}{l c c c}
 \hline
- & Affective Polarization \\
+ & Intent-To-Treat (ITT) & CACE (Model 1) & CACE (Model 2) \\
 \hline
-Treatment           & $-0.7565$      \\
-                    & $(1.4484)$     \\
-Moderator           & $0.8626^{***}$ \\
-                    & $(0.0153)$     \\
-Treatment*Moderator & $0.0130$       \\
-                    & $(0.0196)$     \\
+Treatment  & $0.0111$   & $0.0129$   & $0.0115$   \\
+           & $(0.0223)$ & $(0.0233)$ & $(0.0269)$ \\
 \hline
-R$^2$               & $0.7159$       \\
-Adj. R$^2$          & $0.7156$       \\
-Num. obs.           & $3193$         \\
+R$^2$      & $0.0003$   & $-0.0001$  & $0.0003$   \\
+Adj. R$^2$ & $-0.0009$  & $-0.0013$  & $-0.0010$  \\
+Num. obs.  & $813$      & $800$      & $772$      \\
 \hline
-\multicolumn{2}{l}{\scriptsize{$^{***}p<0.001$; $^{**}p<0.01$; $^{*}p<0.05$}}
+\multicolumn{4}{l}{\scriptsize{$^{***}p<0.001$; $^{**}p<0.01$; $^{*}p<0.05$}}
 \end{tabular}
 \label{table}
 \end{center}

@@ -1,0 +1,23 @@
+% latex table generated in R 3.6.1 by xtable 1.8-4 package
+% Wed Feb  9 15:28:52 2022
+\begin{table}[ht]
+\centering
+\caption{Testing the Effect of the Intervention on Count of Unreliable News Consumed with Covariate-Adjusted Models (HC2 Robust standard errors) (Before July 1st) on Different Samples of Respondents by Decile of their Quality of News Consumption Pre-Treatment (Average Reliability Score of News)} 
+\begin{tabular}{|p{3.5cm}|p{1.5cm}|p{3cm}|p{3cm}|p{3cm}|p{2cm}|}
+  \hline
+Decile & Threshold & ITT Model & CACE Model (Weak Compliance Measure) & CACE Model (Strong Compliance Measure) & Sample Size \\ 
+  \hline
+Bottom 10 Percent & 78.255 & 0.029 (0.086) & 0.02 (0.092) & 0.029 (0.107) & 79 \\ 
+  Bottom 20 Percent & 85.347 & 0.083 (0.068) & 0.082 (0.072) & 0.1 (0.081) & 159 \\ 
+  Bottom 30 Percent & 87.482 & 0.076 (0.048) & 0.076 (0.051) & 0.088 (0.056) & 239 \\ 
+  Bottom 40 Percent & 88.383 & 0.07 (0.041) & 0.073 (0.043) & 0.08 (0.049) & 317 \\ 
+  Bottom 50 Percent & 89.167 & 0.04 (0.035) & 0.041 (0.036) & 0.044 (0.041) & 398 \\ 
+  Bottom 60 Percent & 90 & 0.044 (0.03) & 0.049 (0.032) & 0.054 (0.036) & 495 \\ 
+  Bottom 70 Percent & 90.773 & 0.037 (0.028) & 0.041 (0.03) & 0.044 (0.034) & 550 \\ 
+  Bottom 80 Percent & 92.462 & 0.033 (0.026) & 0.037 (0.027) & 0.04 (0.031) & 630 \\ 
+  Bottom 90 Percent & 95 & 0.035 (0.024) & 0.039 (0.025) & 0.043 (0.029) & 712 \\ 
+  Whole Sample & 100 & 0.038 (0.022) & 0.042 (0.023) & 0.045 (0.027) & 788 \\ 
+   \hline \multicolumn{5}{l}{\scriptsize{$^{***}p<0.001$; $^{**}p<0.01$; $^{*}p<0.05$}} \\  \hline
+\end{tabular}
+\end{table}
+

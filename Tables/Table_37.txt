@@ -1,17 +1,25 @@
 
 \begin{table}[!htbp]
-\caption{Testing Effect of Intervention on Belief in Misinformation about the Black Lives Matter Movement with Covariate-Unadjusted Models (HC2 Robust standard errors)}
+\caption{Testing Effect of Intervention on Trust in Media with Covariate-Adjusted Models (HC2 Robust standard errors)}
 \begin{center}
 \begin{tabular}{l c c c}
 \hline
  & Intent-To-Treat (ITT) & CACE (Model 1) & CACE (Model 2) \\
 \hline
-Treatment  & $-0.0728^{*}$ &          &          \\
-           & $(0.0323)$    &          &          \\
+Treatment                   & $0.0303$        & $0.0263$        & $0.0343$        \\
+                            & $(0.0200)$      & $(0.0214)$      & $(0.0258)$      \\
+Party ID                    & $-0.0550^{***}$ & $-0.0569^{***}$ & $-0.0584^{***}$ \\
+                            & $(0.0076)$      & $(0.0078)$      & $(0.0079)$      \\
+Trust in Media              & $0.5555^{***}$  & $0.5529^{***}$  & $0.5636^{***}$  \\
+                            & $(0.0154)$      & $(0.0156)$      & $(0.0160)$      \\
+Ideology                    & $-0.0564^{***}$ & $-0.0537^{***}$ & $-0.0508^{***}$ \\
+                            & $(0.0075)$      & $(0.0076)$      & $(0.0078)$      \\
+Trust of news in newspapers & $0.0771^{***}$  & $0.0813^{***}$  & $0.0763^{***}$  \\
+                            & $(0.0115)$      & $(0.0116)$      & $(0.0119)$      \\
 \hline
-R$^2$      & $0.0016$      & $0.0000$ & $0.0000$ \\
-Adj. R$^2$ & $0.0013$      & $0.0000$ & $0.0000$ \\
-Num. obs.  & $3170$        & $3170$   & $3170$   \\
+R$^2$                       & $0.6003$        & $0.6006$        & $0.6063$        \\
+Adj. R$^2$                  & $0.5997$        & $0.5999$        & $0.6057$        \\
+Num. obs.                   & $3335$          & $3237$          & $3084$          \\
 \hline
 \multicolumn{4}{l}{\scriptsize{$^{***}p<0.001$; $^{**}p<0.01$; $^{*}p<0.05$}}
 \end{tabular}

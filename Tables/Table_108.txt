@@ -1,22 +1,15 @@
-
-\begin{table}[!htbp]
-\caption{Testing the Effect of the Intervention on Proportion of News Diet That is Unreliable with Covariate-Adjusted Models (HC2 Robust standard errors) (After July 1st)  -- Duration Weighted}
-\begin{center}
-\begin{tabular}{l c c c}
-\hline
- & Intent-To-Treat (ITT) & CACE (Model 1) & CACE (Model 2) \\
-\hline
-Treatment           & $-0.0060$      &                &                \\
-                    & $(0.0046)$     &                &                \\
-Pre-Treatment Value & $0.8418^{***}$ & $0.8419^{***}$ & $0.8419^{***}$ \\
-                    & $(0.0577)$     & $(0.0577)$     & $(0.0577)$     \\
-\hline
-R$^2$               & $0.7064$       & $0.7057$       & $0.7057$       \\
-Adj. R$^2$          & $0.7056$       & $0.7053$       & $0.7053$       \\
-Num. obs.           & $761$          & $761$          & $761$          \\
-\hline
-\multicolumn{4}{l}{\scriptsize{$^{***}p<0.001$; $^{**}p<0.01$; $^{*}p<0.05$}}
+% latex table generated in R 3.6.1 by xtable 1.8-4 package
+% Wed Feb  9 15:29:25 2022
+\begin{table}[ht]
+\centering
+\caption{This table presents the number and percentage of the Pulse sample for which we collected only web tracking data from their desktop/laptop, only from their mobile device, or from both} 
+\begin{tabular}{p{2.25cm}p{3.5cm}p{3.5cm}p{5.5cm}}
+  \hline
+ & Desktop/Laptop Only & Mobile Only & Both Desktop/Laptop and Mobile \\ 
+  \hline
+Percentage of Pulse Sample & 79.14 & 18.24 & 2.62 \\ 
+  Number of Respondents & 937 & 216 & 31 \\ 
+   \hline
 \end{tabular}
-\label{table}
-\end{center}
 \end{table}
+

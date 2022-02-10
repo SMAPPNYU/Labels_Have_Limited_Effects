@@ -1,0 +1,20 @@
+
+\begin{table}[!htbp]
+\caption{Testing Effect of Intervention on Trust in CNN with Covariate-Unadjusted Models (HC2 Robust standard errors)}
+\begin{center}
+\begin{tabular}{l c c c}
+\hline
+ & Intent-To-Treat (ITT) & CACE (Model 1) & CACE (Model 2) \\
+\hline
+Treatment  & $0.0338$   & $0.0357$   & $0.0404$   \\
+           & $(0.0410)$ & $(0.0440)$ & $(0.0531)$ \\
+\hline
+R$^2$      & $0.0002$   & $0.0003$   & $0.0010$   \\
+Adj. R$^2$ & $-0.0001$  & $0.0000$   & $0.0006$   \\
+Num. obs.  & $3336$     & $3237$     & $3084$     \\
+\hline
+\multicolumn{4}{l}{\scriptsize{$^{***}p<0.001$; $^{**}p<0.01$; $^{*}p<0.05$}}
+\end{tabular}
+\label{table}
+\end{center}
+\end{table}

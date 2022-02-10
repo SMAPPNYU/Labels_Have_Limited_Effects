@@ -854,6 +854,9 @@ ggplot(data = d_matrix, aes(x = x, y = Coefficients)) +
                                                                        'Average Reliability Score\nof Online News Consumed'),limits=c(0.5,3.4)) +
   coord_flip()
 
+#Save Figure 4 in the main text:
+ggsave('./Figures/Behavioral_Coefficients.png',height=10,width=12)
+
 
 
 

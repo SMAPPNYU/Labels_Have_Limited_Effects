@@ -1,17 +1,31 @@
 
 \begin{table}[!htbp]
-\caption{Testing Effect of Intervention on Whether They Believe “Fake News is a Problem in the Mainstream Media” with Covariate-Unadjusted Models (HC2 Robust standard errors)}
+\caption{Testing Effect of Intervention on Trust in NBC with Covariate-Adjusted Models (HC2 Robust standard errors)}
 \begin{center}
 \begin{tabular}{l c c c}
 \hline
  & Intent-To-Treat (ITT) & CACE (Model 1) & CACE (Model 2) \\
 \hline
-Treatment  & $-0.0455$  &          &          \\
-           & $(0.0580)$ &          &          \\
+Treatment                       & $0.0238$        & $0.0283$        & $0.0257$        \\
+                                & $(0.0272)$      & $(0.0287)$      & $(0.0345)$      \\
+Pre-Treatment Value             & $0.4703^{***}$  & $0.4756^{***}$  & $0.4766^{***}$  \\
+                                & $(0.0220)$      & $(0.0220)$      & $(0.0224)$      \\
+Party ID                        & $-0.0536^{***}$ & $-0.0514^{***}$ & $-0.0533^{***}$ \\
+                                & $(0.0105)$      & $(0.0106)$      & $(0.0107)$      \\
+Trust in Media                  & $0.1856^{***}$  & $0.1971^{***}$  & $0.1823^{***}$  \\
+                                & $(0.0226)$      & $(0.0230)$      & $(0.0235)$      \\
+Ideology                        & $-0.0515^{***}$ & $-0.0499^{***}$ & $-0.0504^{***}$ \\
+                                & $(0.0112)$      & $(0.0114)$      & $(0.0116)$      \\
+News consumption (network news) & $0.0614^{***}$  & $0.0613^{***}$  & $0.0620^{***}$  \\
+                                & $(0.0099)$      & $(0.0099)$      & $(0.0101)$      \\
+Trust of news in newspapers\_sm & $0.0031^{***}$  & $0.0031^{***}$  & $0.0030^{***}$  \\
+                                & $(0.0006)$      & $(0.0006)$      & $(0.0006)$      \\
+Trust of news in newspapers     & $0.0440^{*}$    & $0.0422^{*}$    & $0.0504^{**}$   \\
+                                & $(0.0184)$      & $(0.0184)$      & $(0.0188)$      \\
 \hline
-R$^2$      & $0.0002$   & $0.0000$ & $0.0000$ \\
-Adj. R$^2$ & $-0.0001$  & $0.0000$ & $0.0000$ \\
-Num. obs.  & $3336$     & $3336$   & $3336$   \\
+R$^2$                           & $0.6064$        & $0.6137$        & $0.6154$        \\
+Adj. R$^2$                      & $0.6051$        & $0.6124$        & $0.6141$        \\
+Num. obs.                       & $2447$          & $2379$          & $2273$          \\
 \hline
 \multicolumn{4}{l}{\scriptsize{$^{***}p<0.001$; $^{**}p<0.01$; $^{*}p<0.05$}}
 \end{tabular}

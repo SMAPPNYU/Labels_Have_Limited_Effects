@@ -1,0 +1,20 @@
+
+\begin{table}[!htbp]
+\caption{Testing Effect of Intervention on Trust in ABC with Covariate-Unadjusted Models (HC2 Robust standard errors)}
+\begin{center}
+\begin{tabular}{l c c c}
+\hline
+ & Intent-To-Treat (ITT) & CACE (Model 1) & CACE (Model 2) \\
+\hline
+Treatment  & $0.0569$   & $0.0652$   & $0.0760$   \\
+           & $(0.0371)$ & $(0.0397)$ & $(0.0479)$ \\
+\hline
+R$^2$      & $0.0007$   & $0.0007$   & $0.0015$   \\
+Adj. R$^2$ & $0.0004$   & $0.0004$   & $0.0012$   \\
+Num. obs.  & $3337$     & $3238$     & $3085$     \\
+\hline
+\multicolumn{4}{l}{\scriptsize{$^{***}p<0.001$; $^{**}p<0.01$; $^{*}p<0.05$}}
+\end{tabular}
+\label{table}
+\end{center}
+\end{table}

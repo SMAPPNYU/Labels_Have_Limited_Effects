@@ -1,17 +1,19 @@
 
 \begin{table}[!htbp]
-\caption{Testing Effect of Intervention on Trust in Media with Covariate-Unadjusted Models (HC2 Robust standard errors)}
+\caption{Testing Effect of Intervention on Trust in Institutions with Covariate-Adjusted Models (HC2 Robust standard errors)}
 \begin{center}
 \begin{tabular}{l c c c}
 \hline
  & Intent-To-Treat (ITT) & CACE (Model 1) & CACE (Model 2) \\
 \hline
-Treatment  & $0.0478$   &           &           \\
-           & $(0.0316)$ &           &           \\
+Treatment           & $0.2431$       & $0.3362$       & $0.2167$       \\
+                    & $(0.3756)$     & $(0.3984)$     & $(0.4769)$     \\
+Pre-Treatment Value & $0.7389^{***}$ & $0.7419^{***}$ & $0.7434^{***}$ \\
+                    & $(0.0133)$     & $(0.0131)$     & $(0.0135)$     \\
 \hline
-R$^2$      & $0.0007$   & $-0.0000$ & $-0.0000$ \\
-Adj. R$^2$ & $0.0004$   & $-0.0000$ & $-0.0000$ \\
-Num. obs.  & $3337$     & $3337$    & $3337$    \\
+R$^2$               & $0.5870$       & $0.5937$       & $0.5924$       \\
+Adj. R$^2$          & $0.5867$       & $0.5934$       & $0.5921$       \\
+Num. obs.           & $3007$         & $2922$         & $2794$         \\
 \hline
 \multicolumn{4}{l}{\scriptsize{$^{***}p<0.001$; $^{**}p<0.01$; $^{*}p<0.05$}}
 \end{tabular}

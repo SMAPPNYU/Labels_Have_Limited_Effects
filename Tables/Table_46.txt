@@ -1,17 +1,23 @@
 
 \begin{table}[!htbp]
-\caption{Testing Effect of Intervention on Trust in CBS with Covariate-Unadjusted Models (HC2 Robust standard errors)}
+\caption{Testing Effect of Intervention on Trust in Fox News with Covariate-Adjusted Models (HC2 Robust standard errors)}
 \begin{center}
 \begin{tabular}{l c c c}
 \hline
  & Intent-To-Treat (ITT) & CACE (Model 1) & CACE (Model 2) \\
 \hline
-Treatment  & $0.0634$   &          &          \\
-           & $(0.0371)$ &          &          \\
+Treatment           & $0.0026$       & $-0.0012$      & $-0.0127$      \\
+                    & $(0.0231)$     & $(0.0243)$     & $(0.0292)$     \\
+Pre-Treatment Value & $0.6468^{***}$ & $0.6427^{***}$ & $0.6420^{***}$ \\
+                    & $(0.0176)$     & $(0.0179)$     & $(0.0184)$     \\
+Party ID            & $0.0263^{**}$  & $0.0277^{**}$  & $0.0259^{**}$  \\
+                    & $(0.0086)$     & $(0.0086)$     & $(0.0088)$     \\
+Ideology            & $0.0734^{***}$ & $0.0752^{***}$ & $0.0772^{***}$ \\
+                    & $(0.0095)$     & $(0.0097)$     & $(0.0099)$     \\
 \hline
-R$^2$      & $0.0009$   & $0.0000$ & $0.0000$ \\
-Adj. R$^2$ & $0.0006$   & $0.0000$ & $0.0000$ \\
-Num. obs.  & $3337$     & $3337$   & $3337$   \\
+R$^2$               & $0.6046$       & $0.6078$       & $0.6096$       \\
+Adj. R$^2$          & $0.6040$       & $0.6073$       & $0.6090$       \\
+Num. obs.           & $2883$         & $2805$         & $2672$         \\
 \hline
 \multicolumn{4}{l}{\scriptsize{$^{***}p<0.001$; $^{**}p<0.01$; $^{*}p<0.05$}}
 \end{tabular}

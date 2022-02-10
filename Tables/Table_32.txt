@@ -1,17 +1,19 @@
 
 \begin{table}[!htbp]
-\caption{Testing the Effect of the Intervention on Proportion of News Diet That is Unreliable with Covariate-Unadjusted Models (HC2 Robust standard errors) (After July 1st)}
+\caption{Testing the Effect of the Intervention on Reliability Score of News Referred From Search Engines and Social Media (Google, Twitter, and Facebook) with Covariate-Adjusted Models (HC2 Robust standard errors) (After July 1st)}
 \begin{center}
 \begin{tabular}{l c c c}
 \hline
  & Intent-To-Treat (ITT) & CACE (Model 1) & CACE (Model 2) \\
 \hline
-Treatment  & $-0.0016$  &           &           \\
-           & $(0.0074)$ &           &           \\
+Treatment           & $0.1765$       & $0.2247$       & $0.2471$       \\
+                    & $(0.6905)$     & $(0.7352)$     & $(0.8355)$     \\
+Pre-Treatment Value & $0.5535^{***}$ & $0.5430^{***}$ & $0.5194^{***}$ \\
+                    & $(0.1019)$     & $(0.1026)$     & $(0.1052)$     \\
 \hline
-R$^2$      & $0.0001$   & $-0.0000$ & $-0.0000$ \\
-Adj. R$^2$ & $-0.0012$  & $-0.0000$ & $-0.0000$ \\
-Num. obs.  & $813$      & $813$     & $813$     \\
+R$^2$               & $0.3256$       & $0.3159$       & $0.2922$       \\
+Adj. R$^2$          & $0.3231$       & $0.3133$       & $0.2894$       \\
+Num. obs.           & $548$          & $538$          & $520$          \\
 \hline
 \multicolumn{4}{l}{\scriptsize{$^{***}p<0.001$; $^{**}p<0.01$; $^{*}p<0.05$}}
 \end{tabular}

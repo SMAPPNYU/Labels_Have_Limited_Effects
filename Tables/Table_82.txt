@@ -1,0 +1,20 @@
+
+\begin{table}[!htbp]
+\caption{Testing Effect of Intervention on Affective Polarization with Covariate-Unadjusted Models (HC2 Robust standard errors)}
+\begin{center}
+\begin{tabular}{l c c c}
+\hline
+ & Intent-To-Treat (ITT) & CACE (Model 1) & CACE (Model 2) \\
+\hline
+Treatment  & $-0.3371$  & $-0.3549$  & $-0.7002$  \\
+           & $(1.0770)$ & $(1.1467)$ & $(1.3692)$ \\
+\hline
+R$^2$      & $0.0000$   & $0.0000$   & $0.0002$   \\
+Adj. R$^2$ & $-0.0003$  & $-0.0003$  & $-0.0001$  \\
+Num. obs.  & $3237$     & $3143$     & $2999$     \\
+\hline
+\multicolumn{4}{l}{\scriptsize{$^{***}p<0.001$; $^{**}p<0.01$; $^{*}p<0.05$}}
+\end{tabular}
+\label{table}
+\end{center}
+\end{table}

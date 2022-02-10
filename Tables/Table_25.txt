@@ -1,25 +1,21 @@
 
 \begin{table}[!htbp]
-\caption{Testing Effect of Intervention on Trust in CNN with Covariate-Adjusted Models (HC2 Robust standard errors)}
+\caption{Testing the Effect of the Intervention on Count of Unreliable News Referred From Search Engines and Social Media (Google, Twitter, and Facebook) with Covariate-Adjusted Models (HC2 Robust standard errors) (Before July 1st)}
 \begin{center}
 \begin{tabular}{l c c c}
 \hline
  & Intent-To-Treat (ITT) & CACE (Model 1) & CACE (Model 2) \\
 \hline
-Treatment           & $0.0149$        &                 &                 \\
-                    & $(0.0249)$      &                 &                 \\
-Pre-Treatment Value & $0.5751^{***}$  & $0.5751^{***}$  & $0.5751^{***}$  \\
-                    & $(0.0182)$      & $(0.0182)$      & $(0.0182)$      \\
-Party ID            & $-0.0753^{***}$ & $-0.0753^{***}$ & $-0.0753^{***}$ \\
-                    & $(0.0104)$      & $(0.0104)$      & $(0.0104)$      \\
-Trust in Media      & $0.1922^{***}$  & $0.1921^{***}$  & $0.1921^{***}$  \\
-                    & $(0.0200)$      & $(0.0200)$      & $(0.0200)$      \\
-Ideology            & $-0.0375^{***}$ & $-0.0376^{***}$ & $-0.0376^{***}$ \\
-                    & $(0.0108)$      & $(0.0108)$      & $(0.0108)$      \\
+Treatment           & $-0.0050$      & $-0.0078$      & $-0.0095$      \\
+                    & $(0.0167)$     & $(0.0174)$     & $(0.0203)$     \\
+Log of news viewed  & $0.0237^{***}$ & $0.0233^{***}$ & $0.0229^{***}$ \\
+                    & $(0.0046)$     & $(0.0047)$     & $(0.0048)$     \\
+Pre-Treatment Value & $0.8034^{***}$ & $0.7996^{***}$ & $0.7910^{***}$ \\
+                    & $(0.0525)$     & $(0.0530)$     & $(0.0540)$     \\
 \hline
-R$^2$               & $0.6601$        & $0.6600$        & $0.6600$        \\
-Adj. R$^2$          & $0.6595$        & $0.6595$        & $0.6595$        \\
-Num. obs.           & $2887$          & $2887$          & $2887$          \\
+R$^2$               & $0.6074$       & $0.6041$       & $0.5954$       \\
+Adj. R$^2$          & $0.6057$       & $0.6024$       & $0.5936$       \\
+Num. obs.           & $700$          & $689$          & $666$          \\
 \hline
 \multicolumn{4}{l}{\scriptsize{$^{***}p<0.001$; $^{**}p<0.01$; $^{*}p<0.05$}}
 \end{tabular}

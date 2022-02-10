@@ -1,17 +1,25 @@
 
 \begin{table}[!htbp]
-\caption{Testing Effect of Intervention on Trust in Institutions with Covariate-Unadjusted Models (HC2 Robust standard errors)}
+\caption{Testing Effect of Intervention on Trust in CNN with Covariate-Adjusted Models (HC2 Robust standard errors)}
 \begin{center}
 \begin{tabular}{l c c c}
 \hline
  & Intent-To-Treat (ITT) & CACE (Model 1) & CACE (Model 2) \\
 \hline
-Treatment  & $-0.6346$  &           &           \\
-           & $(0.5630)$ &           &           \\
+Treatment           & $0.0149$        & $0.0196$        & $0.0210$        \\
+                    & $(0.0249)$      & $(0.0266)$      & $(0.0319)$      \\
+Pre-Treatment Value & $0.5751^{***}$  & $0.5744^{***}$  & $0.5650^{***}$  \\
+                    & $(0.0182)$      & $(0.0183)$      & $(0.0189)$      \\
+Party ID            & $-0.0753^{***}$ & $-0.0757^{***}$ & $-0.0784^{***}$ \\
+                    & $(0.0104)$      & $(0.0106)$      & $(0.0109)$      \\
+Trust in Media      & $0.1922^{***}$  & $0.1935^{***}$  & $0.2007^{***}$  \\
+                    & $(0.0200)$      & $(0.0203)$      & $(0.0209)$      \\
+Ideology            & $-0.0375^{***}$ & $-0.0376^{***}$ & $-0.0369^{**}$  \\
+                    & $(0.0108)$      & $(0.0111)$      & $(0.0114)$      \\
 \hline
-R$^2$      & $0.0004$   & $-0.0000$ & $-0.0000$ \\
-Adj. R$^2$ & $0.0001$   & $-0.0000$ & $-0.0000$ \\
-Num. obs.  & $3134$     & $3134$    & $3134$    \\
+R$^2$               & $0.6601$        & $0.6618$        & $0.6643$        \\
+Adj. R$^2$          & $0.6595$        & $0.6612$        & $0.6637$        \\
+Num. obs.           & $2887$          & $2806$          & $2672$          \\
 \hline
 \multicolumn{4}{l}{\scriptsize{$^{***}p<0.001$; $^{**}p<0.01$; $^{*}p<0.05$}}
 \end{tabular}

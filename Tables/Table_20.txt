@@ -1,27 +1,17 @@
 
 \begin{table}[!htbp]
-\caption{Testing Effect of Intervention on Whether They Believe “Fake News is a Problem in the Mainstream Media” with Covariate-Adjusted Models (HC2 Robust standard errors)}
+\caption{Testing the Effect of the Intervention on Count of Unreliable News Consumed with Covariate-Adjusted Models (HC2 Robust standard errors) (After July 1st)  -- Duration Weighted}
 \begin{center}
 \begin{tabular}{l c c c}
 \hline
  & Intent-To-Treat (ITT) & CACE (Model 1) & CACE (Model 2) \\
 \hline
-Pre-Treatment Value         & $0.5867^{***}$  & $0.5860^{***}$  & $0.5860^{***}$  \\
-                            & $(0.0205)$      & $(0.0206)$      & $(0.0206)$      \\
-Treatment                   & $-0.0426$       &                 &                 \\
-                            & $(0.0293)$      &                 &                 \\
-Party ID                    & $0.0635^{***}$  & $0.0638^{***}$  & $0.0638^{***}$  \\
-                            & $(0.0127)$      & $(0.0127)$      & $(0.0127)$      \\
-Trust in Media              & $-0.2554^{***}$ & $-0.2555^{***}$ & $-0.2555^{***}$ \\
-                            & $(0.0275)$      & $(0.0275)$      & $(0.0275)$      \\
-Ideology                    & $0.0869^{***}$  & $0.0872^{***}$  & $0.0872^{***}$  \\
-                            & $(0.0129)$      & $(0.0129)$      & $(0.0129)$      \\
-Trust of news in newspapers & $-0.1062^{***}$ & $-0.1067^{***}$ & $-0.1067^{***}$ \\
-                            & $(0.0192)$      & $(0.0192)$      & $(0.0192)$      \\
+Treatment  & $-123.5642$  & $-124.8044$  & $-142.7115$  \\
+           & $(162.4097)$ & $(171.1623)$ & $(202.5618)$ \\
 \hline
-R$^2$                       & $0.7355$        & $0.7353$        & $0.7353$        \\
-Adj. R$^2$                  & $0.7350$        & $0.7350$        & $0.7350$        \\
-Num. obs.                   & $3334$          & $3334$          & $3334$          \\
+R$^2$      & $0.0010$     & $0.0005$     & $-0.0004$    \\
+Adj. R$^2$ & $-0.0002$    & $-0.0006$    & $-0.0016$    \\
+Num. obs.  & $884$        & $867$        & $836$        \\
 \hline
 \multicolumn{4}{l}{\scriptsize{$^{***}p<0.001$; $^{**}p<0.01$; $^{*}p<0.05$}}
 \end{tabular}

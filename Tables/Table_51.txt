@@ -1,41 +1,19 @@
 
 \begin{table}[!htbp]
-\caption{Testing Effect of Intervention Initial level of Affective Polarization Moderator on Effect on Affective Polarization (Covariate-Adjusted)}
+\caption{Testing the Effect of the Intervention on Reliability Score of News Diet with Covariate-Unadjusted Models (HC2 Robust standard errors) (Before July 1st)}
 \begin{center}
-\begin{tabular}{l c}
+\begin{tabular}{l c c c}
 \hline
- & Affective Polarization \\
+ & Intent-To-Treat (ITT) & CACE (Model 1) & CACE (Model 2) \\
 \hline
-Treatment                          & $-0.6305$      \\
-                                   & $(1.4245)$     \\
-Moderator                          & $0.8388^{***}$ \\
-                                   & $(0.0159)$     \\
-Party ID                           & $-0.2634$      \\
-                                   & $(0.1764)$     \\
-Race/Ethnicity                     & $1.1935$       \\
-                                   & $(0.7890)$     \\
-Gender                             & $0.2779$       \\
-                                   & $(0.5622)$     \\
-Age                                & $0.1347^{***}$ \\
-                                   & $(0.0213)$     \\
-Trust in Media                     & $-0.4657$      \\
-                                   & $(0.4451)$     \\
-News consumption (cable news)      & $0.3519$       \\
-                                   & $(0.1871)$     \\
-News consumption (print news)      & $-0.6449^{**}$ \\
-                                   & $(0.2290)$     \\
-News consumption (talk radio)      & $0.0024$       \\
-                                   & $(0.2337)$     \\
-News consumption (news on desktop) & $0.5342^{*}$   \\
-                                   & $(0.2249)$     \\
-Treatment*Moderator                & $0.0130$       \\
-                                   & $(0.0193)$     \\
+Treatment  & $0.0549$   & $0.1503$   & $0.1368$   \\
+           & $(0.5771)$ & $(0.6023)$ & $(0.6891)$ \\
 \hline
-R$^2$                              & $0.7224$       \\
-Adj. R$^2$                         & $0.7214$       \\
-Num. obs.                          & $3192$         \\
+R$^2$      & $0.0000$   & $0.0000$   & $-0.0001$  \\
+Adj. R$^2$ & $-0.0012$  & $-0.0012$  & $-0.0013$  \\
+Num. obs.  & $857$      & $841$      & $816$      \\
 \hline
-\multicolumn{2}{l}{\scriptsize{$^{***}p<0.001$; $^{**}p<0.01$; $^{*}p<0.05$}}
+\multicolumn{4}{l}{\scriptsize{$^{***}p<0.001$; $^{**}p<0.01$; $^{*}p<0.05$}}
 \end{tabular}
 \label{table}
 \end{center}

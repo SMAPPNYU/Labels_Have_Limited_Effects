@@ -1,17 +1,23 @@
 
 \begin{table}[!htbp]
-\caption{Testing the Effect of the Intervention on Count of Unreliable News Consumed with Covariate-Unadjusted Models (HC2 Robust standard errors) (After July 1st)}
+\caption{Testing Effect of Intervention on Belief in True Information about the Black Lives Matter Movement with Covariate-Adjusted Models (HC2 Robust standard errors)}
 \begin{center}
 \begin{tabular}{l c c c}
 \hline
  & Intent-To-Treat (ITT) & CACE (Model 1) & CACE (Model 2) \\
 \hline
-Treatment  & $0.0090$   &          &          \\
-           & $(0.0326)$ &          &          \\
+Treatment      & $-0.0115$       & $-0.0016$       & $0.0029$        \\
+               & $(0.0265)$      & $(0.0284)$      & $(0.0340)$      \\
+Party ID       & $-0.0159$       & $-0.0164$       & $-0.0191$       \\
+               & $(0.0098)$      & $(0.0100)$      & $(0.0102)$      \\
+Trust in Media & $0.1577^{***}$  & $0.1600^{***}$  & $0.1621^{***}$  \\
+               & $(0.0197)$      & $(0.0200)$      & $(0.0203)$      \\
+Ideology       & $-0.0786^{***}$ & $-0.0759^{***}$ & $-0.0741^{***}$ \\
+               & $(0.0101)$      & $(0.0103)$      & $(0.0106)$      \\
 \hline
-R$^2$      & $0.0001$   & $0.0000$ & $0.0000$ \\
-Adj. R$^2$ & $-0.0010$  & $0.0000$ & $0.0000$ \\
-Num. obs.  & $884$      & $884$    & $884$    \\
+R$^2$          & $0.1390$        & $0.1370$        & $0.1427$        \\
+Adj. R$^2$     & $0.1379$        & $0.1359$        & $0.1415$        \\
+Num. obs.      & $3193$          & $3104$          & $2958$          \\
 \hline
 \multicolumn{4}{l}{\scriptsize{$^{***}p<0.001$; $^{**}p<0.01$; $^{*}p<0.05$}}
 \end{tabular}
